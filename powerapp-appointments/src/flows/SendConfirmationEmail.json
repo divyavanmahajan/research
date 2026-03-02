@@ -1,0 +1,61 @@
+{
+  "definition": {
+    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+    "contentVersion": "1.0.0.0",
+    "triggers": {
+      "manual": {
+        "type": "Request",
+        "kind": "PowerApp",
+        "inputs": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "customerEmail":    { "type": "string" },
+              "customerName":     { "type": "string" },
+              "providerName":     { "type": "string" },
+              "appointmentDate":  { "type": "string" },
+              "startTime":        { "type": "string" },
+              "duration":         { "type": "integer" },
+              "serviceType":      { "type": "string" },
+              "appointmentId":    { "type": "integer" }
+            },
+            "required": ["customerEmail","customerName","providerName","appointmentDate","startTime"]
+          }
+        }
+      }
+    },
+    "actions": {
+      "Send_Confirmation_Email": {
+        "type": "ApiConnection",
+        "inputs": {
+          "host": { "connection": { "name": "@parameters('$connections')['office365']['connectionId']" } },
+          "method": "post",
+          "path": "/v2/Mail",
+          "body": {
+            "To":      "@triggerBody()?['customerEmail']",
+            "Subject": "Appointment Confirmed – @{triggerBody()?['appointmentDate']} at @{triggerBody()?['startTime']}",
+            "Body": "<p>Dear @{triggerBody()?['customerName']},</p><p>Your <strong>@{triggerBody()?['serviceType']}</strong> appointment has been confirmed:</p><ul><li><strong>Date:</strong> @{triggerBody()?['appointmentDate']}</li><li><strong>Time:</strong> @{triggerBody()?['startTime']}</li><li><strong>Duration:</strong> @{triggerBody()?['duration']} minutes</li><li><strong>Provider:</strong> @{triggerBody()?['providerName']}</li></ul><p>Please arrive 5 minutes early. Reply to this email or call us to reschedule.</p>",
+            "IsHtml": true
+          }
+        },
+        "runAfter": {}
+      },
+      "Update_ReminderSent_Flag": {
+        "type": "ApiConnection",
+        "inputs": {
+          "host": { "connection": { "name": "@parameters('$connections')['sharepointonline']['connectionId']" } },
+          "method": "patch",
+          "path": "/datasets/@{encodeURIComponent(encodeURIComponent('https://<tenant>.sharepoint.com/sites/Appointments'))}/tables/@{encodeURIComponent(encodeURIComponent('Appointments'))}/items/@{triggerBody()?['appointmentId']}",
+          "body": { "ReminderSent": true }
+        },
+        "runAfter": { "Send_Confirmation_Email": ["Succeeded"] }
+      }
+    }
+  },
+  "description": "Sends appointment confirmation email via Office 365 and updates ReminderSent flag in SharePoint.",
+  "trigger": "PowerApp (manual)",
+  "inputs": [
+    "customerEmail", "customerName", "providerName",
+    "appointmentDate", "startTime", "duration", "serviceType", "appointmentId"
+  ]
+}

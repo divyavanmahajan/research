@@ -1,0 +1,90 @@
+# DataConnections.yaml
+# Defines all connectors used in the Appointments PowerApp
+
+connections:
+  - id: SharePointAppointments
+    type: SharePoint
+    description: Primary data store for appointments, providers, and customers
+    site: https://<tenant>.sharepoint.com/sites/Appointments
+    lists:
+      - name: Appointments
+        displayName: Appointments
+        columns:
+          - name: Title           # Required SPO column (used as Subject)
+            type: Text
+          - name: CustomerId
+            type: Number
+          - name: CustomerName
+            type: Text
+          - name: ProviderId
+            type: Number
+          - name: ProviderName
+            type: Text
+          - name: AppointmentDate
+            type: DateTime
+          - name: StartTime
+            type: Text           # "HH:MM" 24h format
+          - name: EndTime
+            type: Text
+          - name: Duration
+            type: Number         # minutes
+          - name: Status
+            type: Choice
+            choices: [Pending, Confirmed, Cancelled, Completed, NoShow]
+          - name: ServiceType
+            type: Choice
+            choices: [Consultation, FollowUp, Procedure, Review, Other]
+          - name: Notes
+            type: Note
+          - name: ReminderSent
+            type: Boolean
+          - name: CreatedBy
+            type: Person
+          - name: ModifiedBy
+            type: Person
+
+      - name: Providers
+        displayName: Service Providers
+        columns:
+          - name: Title           # Provider full name
+            type: Text
+          - name: Email
+            type: Text
+          - name: Department
+            type: Text
+          - name: Specialty
+            type: Text
+          - name: IsActive
+            type: Boolean
+          - name: MaxDailyAppointments
+            type: Number
+          - name: DefaultDuration
+            type: Number         # minutes
+
+      - name: Customers
+        displayName: Customers
+        columns:
+          - name: Title           # Customer full name
+            type: Text
+          - name: Email
+            type: Text
+          - name: Phone
+            type: Text
+          - name: DateOfBirth
+            type: DateTime
+          - name: Notes
+            type: Note
+          - name: IsActive
+            type: Boolean
+
+  - id: Office365Outlook
+    type: Office365Outlook
+    description: Send confirmation and reminder emails
+
+  - id: Office365Users
+    type: Office365Users
+    description: Resolve current user profile and photo
+
+  - id: PowerAutomateFlows
+    type: HTTP / PowerAutomate
+    description: Trigger background flows (reminders, notifications)

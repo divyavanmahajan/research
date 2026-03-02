@@ -1,0 +1,63 @@
+{
+  "definition": {
+    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+    "contentVersion": "1.0.0.0",
+    "triggers": {
+      "Recurrence": {
+        "type": "Recurrence",
+        "recurrence": {
+          "frequency": "Day",
+          "interval": 1,
+          "startTime": "2024-01-01T07:00:00Z",
+          "timeZone": "Eastern Standard Time"
+        }
+      }
+    },
+    "actions": {
+      "Get_Tomorrows_Appointments": {
+        "type": "ApiConnection",
+        "inputs": {
+          "host": { "connection": { "name": "@parameters('$connections')['sharepointonline']['connectionId']" } },
+          "method": "get",
+          "path": "/datasets/@{encodeURIComponent(encodeURIComponent('https://<tenant>.sharepoint.com/sites/Appointments'))}/tables/@{encodeURIComponent(encodeURIComponent('Appointments'))}/items",
+          "queries": {
+            "$filter": "AppointmentDate eq '@{addDays(utcNow(), 1, 'yyyy-MM-dd')}' and Status eq 'Confirmed' and ReminderSent eq false"
+          }
+        },
+        "runAfter": {}
+      },
+      "For_Each_Appointment": {
+        "type": "Foreach",
+        "foreach": "@body('Get_Tomorrows_Appointments')?['value']",
+        "actions": {
+          "Send_Reminder_Email": {
+            "type": "ApiConnection",
+            "inputs": {
+              "host": { "connection": { "name": "@parameters('$connections')['office365']['connectionId']" } },
+              "method": "post",
+              "path": "/v2/Mail",
+              "body": {
+                "To":      "@items('For_Each_Appointment')?['CustomerEmail']",
+                "Subject": "Reminder: Appointment Tomorrow at @{items('For_Each_Appointment')?['StartTime']}",
+                "Body": "<p>Dear @{items('For_Each_Appointment')?['CustomerName']},</p><p>This is a reminder of your appointment <strong>tomorrow</strong>:</p><ul><li><strong>Time:</strong> @{items('For_Each_Appointment')?['StartTime']}</li><li><strong>Provider:</strong> @{items('For_Each_Appointment')?['ProviderName']}</li><li><strong>Service:</strong> @{items('For_Each_Appointment')?['ServiceType']}</li></ul><p>To cancel or reschedule, contact us at least 2 hours in advance.</p>",
+                "IsHtml": true
+              }
+            }
+          },
+          "Mark_Reminder_Sent": {
+            "type": "ApiConnection",
+            "inputs": {
+              "host": { "connection": { "name": "@parameters('$connections')['sharepointonline']['connectionId']" } },
+              "method": "patch",
+              "path": "/datasets/@{encodeURIComponent(encodeURIComponent('https://<tenant>.sharepoint.com/sites/Appointments'))}/tables/@{encodeURIComponent(encodeURIComponent('Appointments'))}/items/@{items('For_Each_Appointment')?['ID']}",
+              "body": { "ReminderSent": true }
+            },
+            "runAfter": { "Send_Reminder_Email": ["Succeeded"] }
+          }
+        },
+        "runAfter": { "Get_Tomorrows_Appointments": ["Succeeded"] }
+      }
+    }
+  },
+  "description": "Runs daily at 7AM ET. Fetches confirmed appointments for tomorrow where ReminderSent=false, emails each customer, then marks ReminderSent=true."
+}

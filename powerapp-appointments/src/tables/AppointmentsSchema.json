@@ -1,0 +1,58 @@
+{
+  "$schema": "https://schema.powerplatform.com/dataverse/table/v1",
+  "tables": [
+    {
+      "name": "Appointments",
+      "primaryKey": "ID",
+      "columns": [
+        { "name": "ID",              "type": "Number",   "readOnly": true },
+        { "name": "Title",           "type": "Text",     "required": true,  "maxLength": 255 },
+        { "name": "CustomerId",      "type": "Number",   "required": true },
+        { "name": "CustomerName",    "type": "Text",     "required": true,  "maxLength": 255 },
+        { "name": "ProviderId",      "type": "Number",   "required": true },
+        { "name": "ProviderName",    "type": "Text",     "required": true,  "maxLength": 255 },
+        { "name": "AppointmentDate", "type": "DateTime", "required": true },
+        { "name": "StartTime",       "type": "Text",     "required": true,  "pattern": "^([01]?[0-9]|2[0-3]):[0-5][0-9]$" },
+        { "name": "EndTime",         "type": "Text",     "required": true,  "pattern": "^([01]?[0-9]|2[0-3]):[0-5][0-9]$" },
+        { "name": "Duration",        "type": "Number",   "required": true,  "min": 15, "max": 480 },
+        { "name": "Status",          "type": "Choice",   "required": true,
+          "choices": ["Pending", "Confirmed", "Cancelled", "Completed", "NoShow"],
+          "default": "Pending" },
+        { "name": "ServiceType",     "type": "Choice",   "required": true,
+          "choices": ["Consultation", "FollowUp", "Procedure", "Review", "Other"],
+          "default": "Consultation" },
+        { "name": "Notes",           "type": "Note",     "required": false, "maxLength": 2000 },
+        { "name": "ReminderSent",    "type": "Boolean",  "default": false },
+        { "name": "Created",         "type": "DateTime", "readOnly": true },
+        { "name": "Modified",        "type": "DateTime", "readOnly": true }
+      ]
+    },
+    {
+      "name": "Providers",
+      "primaryKey": "ID",
+      "columns": [
+        { "name": "ID",                     "type": "Number",  "readOnly": true },
+        { "name": "Title",                  "type": "Text",    "required": true,  "maxLength": 255 },
+        { "name": "Email",                  "type": "Text",    "required": true,  "maxLength": 255 },
+        { "name": "Department",             "type": "Text",    "required": false, "maxLength": 100 },
+        { "name": "Specialty",              "type": "Text",    "required": false, "maxLength": 100 },
+        { "name": "IsActive",               "type": "Boolean", "default": true },
+        { "name": "MaxDailyAppointments",   "type": "Number",  "default": 10,    "min": 1, "max": 100 },
+        { "name": "DefaultDuration",        "type": "Number",  "default": 30,    "min": 15, "max": 120 }
+      ]
+    },
+    {
+      "name": "Customers",
+      "primaryKey": "ID",
+      "columns": [
+        { "name": "ID",          "type": "Number",   "readOnly": true },
+        { "name": "Title",       "type": "Text",     "required": true,  "maxLength": 255 },
+        { "name": "Email",       "type": "Text",     "required": false, "maxLength": 255 },
+        { "name": "Phone",       "type": "Text",     "required": false, "maxLength": 30 },
+        { "name": "DateOfBirth", "type": "DateTime", "required": false },
+        { "name": "Notes",       "type": "Note",     "required": false, "maxLength": 2000 },
+        { "name": "IsActive",    "type": "Boolean",  "default": true }
+      ]
+    }
+  ]
+}
