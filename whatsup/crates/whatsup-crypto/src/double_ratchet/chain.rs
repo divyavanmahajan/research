@@ -47,10 +47,8 @@ pub fn kdf_ck(chain_key: &[u8; 32]) -> ([u8; 32], [u8; 48]) {
     let mut new_ck = [0u8; 32];
     new_ck.copy_from_slice(&new_ck_bytes);
 
-    // Message key is 48 bytes: 32-byte AES key + 12-byte GCM nonce + 4 padding
+    // Expand HMAC output to 48 bytes: 32-byte AES-256 key + 12-byte GCM nonce + 4 padding
     let mut mk = [0u8; 48];
-    mk.copy_from_slice(&mk_bytes[..48.min(mk_bytes.len())]);
-    // Expand to 48 bytes via HKDF for proper nonce derivation
     let hk = Hkdf::<Sha256>::new(None, &mk_bytes);
     hk.expand(b"WhatsUp_MsgKey_v1", &mut mk).expect("48 bytes is a valid HKDF output length");
 

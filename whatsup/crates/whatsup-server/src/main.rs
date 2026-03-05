@@ -45,7 +45,11 @@ async fn main() -> Result<()> {
             Method::PATCH,
             Method::DELETE,
         ]))
-        .allow_headers(AllowHeaders::any())
+        .allow_headers(AllowHeaders::list([
+            axum::http::header::AUTHORIZATION,
+            axum::http::header::CONTENT_TYPE,
+            axum::http::header::ACCEPT,
+        ]))
         .allow_credentials(true);
 
     let app = Router::new()
