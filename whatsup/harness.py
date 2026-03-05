@@ -592,12 +592,18 @@ async def _send_loop(
 
         # Pick direct or group target (50/50 when groups are available)
         use_group = bool(groups) and random.random() < 0.5
+        
         if use_group:
-            g = random.choice(groups)
-            await rest_send_message(
-                sess, base_url, account, "group", g.group_id, counters, logger
-            )
-        else:
+            my_groups = [g for g in groups if account.user_id in g.member_ids]
+            if my_groups:
+                g = random.choice(my_groups)
+                await rest_send_message(
+                    sess, base_url, account, "group", g.group_id, counters, logger
+                )
+            else:
+                use_group = False
+                
+        if not use_group:
             # Direct message to a random other user
             candidates = [
                 a for a in all_accounts if a.user_id != account.user_id

@@ -39,42 +39,26 @@ pub async fn send_message(
     let now = Utc::now();
     let now_iso = now.to_rfc3339_opts(chrono::SecondsFormat::Millis, true);
 
-    let db = state.db.get().map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"db error"}))))?;
-
     if req.kind == "direct" {
-        // Ensure conversation exists (ordered pair)
-        let (a, b) = if claims.sub < req.to {
-            (claims.sub.clone(), req.to.clone())
-        } else {
-            (req.to.clone(), claims.sub.clone())
-        };
-        let conv_id = {
-            let existing = db.query_row(
-                "SELECT id FROM conversations WHERE participant_a = ?1 AND participant_b = ?2",
-                rusqlite::params![a, b],
-                |row| row.get::<_, String>(0),
-            );
-            match existing {
-                Ok(id) => id,
-                Err(_) => {
-                    let id = Uuid::new_v4().to_string();
-                    db.execute(
-                        "INSERT INTO conversations (id, participant_a, participant_b) VALUES (?1, ?2, ?3)",
-                        rusqlite::params![id, a, b],
-                    ).map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"db error"}))))?;
-                    id
-                }
-            }
-        };
+        let (tx, rx) = tokio::sync::oneshot::channel();
+        state.db_writer
+            .send(crate::db::writer::WriteOp::InsertDirectMessage {
+                msg_id: msg_id.clone(),
+                sender_id: claims.sub.clone(),
+                recipient_id: req.to.clone(),
+                ciphertext: ct_bytes,
+                message_type: req.message_type.clone(),
+                file_id: req.file_id.clone(),
+                sent_at: now_iso.clone(),
+                reply: tx,
+            })
+            .await
+            .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"channel error"}))))?;
 
-        db.execute(
-            "INSERT INTO messages (id, conversation_id, sender_id, recipient_id, ciphertext, message_type, file_id, sent_at)
-             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)",
-            rusqlite::params![
-                msg_id, conv_id, claims.sub, req.to,
-                ct_bytes, req.message_type, req.file_id, now_iso
-            ],
-        ).map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"db error"}))))?;
+        let conv_id = rx
+            .await
+            .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"writer crashed"}))))?
+            .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error": e}))))?;
 
         // Fan-out to recipient over WS
         state.ws_hub.send(
@@ -92,30 +76,46 @@ pub async fn send_message(
         );
     } else {
         // Group message
-        let group_id = &req.to;
-        // Verify sender is a member
-        let is_member: bool = db
-            .query_row(
-                "SELECT 1 FROM group_members WHERE group_id = ?1 AND user_id = ?2",
-                rusqlite::params![group_id, claims.sub],
-                |_| Ok(true),
-            )
-            .unwrap_or(false);
-        if !is_member {
-            return Err((StatusCode::FORBIDDEN, Json(json!({"error":"not a group member"}))));
-        }
+        let group_id = req.to.clone();
 
-        db.execute(
-            "INSERT INTO messages (id, group_id, sender_id, ciphertext, message_type, file_id, sent_at)
-             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
-            rusqlite::params![
-                msg_id, group_id, claims.sub,
-                ct_bytes, req.message_type, req.file_id, now_iso
-            ],
-        ).map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"db error"}))))?;
+        // Validate membership — acquire then immediately drop the connection
+        // so it's back in the pool before we await the writer.
+        {
+            let db = state.db.get().map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"db error"}))))?;
+            let is_member: bool = db
+                .query_row(
+                    "SELECT 1 FROM group_members WHERE group_id = ?1 AND user_id = ?2",
+                    rusqlite::params![group_id, claims.sub],
+                    |_| Ok(true),
+                )
+                .unwrap_or(false);
+            if !is_member {
+                return Err((StatusCode::FORBIDDEN, Json(json!({"error":"not a group member"}))));
+            }
+        } // db connection returned to pool here
 
-        // Fan-out to all group members
+        let (tx, rx) = tokio::sync::oneshot::channel();
+        state.db_writer
+            .send(crate::db::writer::WriteOp::InsertGroupMessage {
+                msg_id: msg_id.clone(),
+                group_id: group_id.clone(),
+                sender_id: claims.sub.clone(),
+                ciphertext: ct_bytes,
+                message_type: req.message_type.clone(),
+                file_id: req.file_id.clone(),
+                sent_at: now_iso.clone(),
+                reply: tx,
+            })
+            .await
+            .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"channel error"}))))?;
+
+        rx.await
+            .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"writer crashed"}))))?
+            .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error": e}))))?;
+
+        // Fan-out to all group members — re-acquire connection for this read.
         let member_ids: Vec<String> = {
+            let db = state.db.get().map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"db error"}))))?;
             let mut stmt = db.prepare(
                 "SELECT user_id FROM group_members WHERE group_id = ?1 AND user_id != ?2",
             ).map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"db error"}))))?;

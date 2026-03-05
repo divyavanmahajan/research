@@ -1,4 +1,5 @@
 pub mod schema;
+pub mod writer;
 
 use anyhow::Result;
 use r2d2::Pool;

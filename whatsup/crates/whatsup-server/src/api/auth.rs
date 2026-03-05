@@ -168,11 +168,17 @@ pub async fn register(
     State(state): State<AppState>,
     Json(req): Json<RegisterRequest>,
 ) -> Result<(StatusCode, Json<Value>), (StatusCode, Json<Value>)> {
-    let salt = SaltString::generate(&mut OsRng);
-    let hash = argon2()
-        .hash_password(req.password.as_bytes(), &salt)
-        .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"hash failed"}))))?
-        .to_string();
+    let password = req.password.clone();
+    let hash = tokio::task::spawn_blocking(move || {
+        let salt = SaltString::generate(&mut OsRng);
+        argon2()
+            .hash_password(password.as_bytes(), &salt)
+            .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"hash failed"}))))
+            .map(|val| val.to_string())
+    })
+    .await
+    .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"join error"}))))??;
+
     let user_id = Uuid::new_v4().to_string();
     let db = state.db.get().map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"db error"}))))?;
     db.execute(
@@ -202,10 +208,16 @@ pub async fn login(
     let (user_id, stored_hash) = result.map_err(|_| {
         (StatusCode::UNAUTHORIZED, Json(json!({"error":"invalid credentials"})))
     })?;
-    let parsed = PasswordHash::new(&stored_hash)
-        .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"internal"}))))?;
-    argon2().verify_password(req.password.as_bytes(), &parsed)
-        .map_err(|_| (StatusCode::UNAUTHORIZED, Json(json!({"error":"invalid credentials"}))))?;
+    let parsed_hash_str = stored_hash.clone();
+    let password = req.password.clone();
+    tokio::task::spawn_blocking(move || {
+        let parsed = PasswordHash::new(&parsed_hash_str)
+            .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"internal"}))))?;
+        argon2().verify_password(password.as_bytes(), &parsed)
+            .map_err(|_| (StatusCode::UNAUTHORIZED, Json(json!({"error":"invalid credentials"}))))
+    })
+    .await
+    .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"join error"}))))??;
     let two_fa_enabled: bool = db
         .query_row(
             "SELECT enabled FROM totp_secrets WHERE user_id = ?1",
@@ -404,10 +416,18 @@ pub async fn ws_ticket(
     let ticket = Uuid::new_v4().to_string();
     let expires_at = chrono::Utc::now() + chrono::Duration::seconds(60);
     let expires_iso = expires_at.to_rfc3339_opts(chrono::SecondsFormat::Millis, true);
-    let db = state.db.get().map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"db error"}))))?;
-    let now = now_iso();
-    let _ = db.execute("DELETE FROM ws_tickets WHERE expires_at < ?1", rusqlite::params![now]);
-    db.execute("INSERT INTO ws_tickets (id, user_id, expires_at) VALUES (?1, ?2, ?3)", rusqlite::params![ticket, claims.sub, expires_iso])
-        .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"internal"}))))?;
+    
+    let (tx, rx) = tokio::sync::oneshot::channel();
+    state.db_writer.send(crate::db::writer::WriteOp::InsertWsTicket {
+        ticket: ticket.clone(),
+        user_id: claims.sub,
+        expires_at: expires_iso,
+        reply: tx,
+    }).await.map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error": "channel full"}))))?;
+
+    rx.await
+        .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error": "writer crashed"}))))?
+        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error": e}))))?;
+
     Ok(Json(WsTicketResponse { ticket }))
 }

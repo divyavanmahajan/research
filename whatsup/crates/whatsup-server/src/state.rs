@@ -14,6 +14,7 @@ pub type WsSender = mpsc::UnboundedSender<ServerEvent>;
 pub struct AppState {
     pub config: Arc<Config>,
     pub db: Db,
+    pub db_writer: mpsc::Sender<crate::db::writer::WriteOp>,
     /// Live WebSocket connections: user_id → event sender
     pub ws_hub: Arc<WsHub>,
 }
@@ -47,10 +48,11 @@ impl WsHub {
 }
 
 impl AppState {
-    pub fn new(config: Config, db: Db) -> Self {
+    pub fn new(config: Config, db: Db, db_writer: mpsc::Sender<crate::db::writer::WriteOp>) -> Self {
         Self {
             config: Arc::new(config),
             db,
+            db_writer,
             ws_hub: Arc::new(WsHub::new()),
         }
     }
