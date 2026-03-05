@@ -32,7 +32,11 @@ async fn main() -> Result<()> {
 
     let config = Config::from_env()?;
     let db = open(&config.database_path)?;
-    let state = AppState::new(config.clone(), db);
+
+    let (tx, rx) = tokio::sync::mpsc::channel(10_000);
+    tokio::spawn(crate::db::writer::run_writer_loop(rx, config.database_path.clone()));
+
+    let state = AppState::new(config.clone(), db, tx);
 
     let cors = CorsLayer::new()
         .allow_origin(AllowOrigin::exact(

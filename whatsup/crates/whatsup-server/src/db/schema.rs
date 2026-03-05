@@ -1,14 +1,25 @@
 use rusqlite::Connection;
 
+/// Pragmas applied to every new connection in the pool via `with_init`.
+///
+/// * `journal_mode=WAL`  — persists after first set; safe to repeat.
+/// * `synchronous=NORMAL` — safe with WAL; avoids an fsync per write.
+/// * `busy_timeout=5000`  — writers wait up to 5 s instead of returning
+///                          SQLITE_BUSY immediately.
+/// * `foreign_keys=ON`    — enforced per-connection in SQLite.
+pub const INIT_PRAGMAS: &str = "
+PRAGMA busy_timeout=5000;
+PRAGMA journal_mode=WAL;
+PRAGMA synchronous=NORMAL;
+PRAGMA foreign_keys=ON;
+";
+
 /// Create all tables if they don't exist. Idempotent — safe to call on every startup.
 pub fn apply(conn: &Connection) -> rusqlite::Result<()> {
     conn.execute_batch(SCHEMA)
 }
 
 const SCHEMA: &str = "
-PRAGMA journal_mode=WAL;
-PRAGMA foreign_keys=ON;
-
 CREATE TABLE IF NOT EXISTS users (
     id              TEXT PRIMARY KEY,
     username        TEXT UNIQUE NOT NULL,

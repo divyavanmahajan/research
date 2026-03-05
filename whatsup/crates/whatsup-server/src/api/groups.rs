@@ -20,7 +20,7 @@ pub async fn create_group(
 ) -> Result<(StatusCode, Json<Value>), (StatusCode, Json<Value>)> {
     let group_id = Uuid::new_v4().to_string();
     let now = Utc::now().to_rfc3339_opts(chrono::SecondsFormat::Millis, true);
-    let db = state.db.lock().unwrap();
+    let db = state.db.get().map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"db error"}))))?;
 
     db.execute(
         "INSERT INTO groups (id, name, created_by) VALUES (?1, ?2, ?3)",
@@ -53,7 +53,7 @@ pub async fn get_group(
     Extension(claims): Extension<Claims>,
     Path(group_id): Path<String>,
 ) -> Result<Json<GroupInfo>, (StatusCode, Json<Value>)> {
-    let db = state.db.lock().unwrap();
+    let db = state.db.get().map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"db error"}))))?;
 
     // Check membership
     let is_member = db
@@ -107,7 +107,7 @@ pub async fn list_groups(
     Extension(claims): Extension<Claims>,
 ) -> Result<Json<Vec<GroupInfo>>, (StatusCode, Json<Value>)> {
     let group_ids: Vec<String> = {
-        let db = state.db.lock().unwrap();
+        let db = state.db.get().map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"db error"}))))?;
         let mut stmt = db
             .prepare(
                 "SELECT g.id FROM groups g
@@ -144,7 +144,7 @@ pub async fn add_member(
     Path(group_id): Path<String>,
     Json(req): Json<AddMemberRequest>,
 ) -> Result<Json<Value>, (StatusCode, Json<Value>)> {
-    let db = state.db.lock().unwrap();
+    let db = state.db.get().map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"db error"}))))?;
 
     // Only admins may add members
     let role: Option<String> = db
@@ -181,7 +181,7 @@ pub async fn remove_member(
     Extension(claims): Extension<Claims>,
     Path((group_id, user_id)): Path<(String, String)>,
 ) -> Result<Json<Value>, (StatusCode, Json<Value>)> {
-    let db = state.db.lock().unwrap();
+    let db = state.db.get().map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"db error"}))))?;
 
     // Only admins may remove members; anyone may remove themselves
     let caller_role: Option<String> = db

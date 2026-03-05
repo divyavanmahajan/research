@@ -21,7 +21,7 @@ pub async fn update_me(
     Extension(claims): Extension<Claims>,
     Json(req): Json<UpdateProfileRequest>,
 ) -> Result<Json<UserProfile>, (StatusCode, Json<Value>)> {
-    let db = state.db.lock().unwrap();
+    let db = state.db.get().map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"db error"}))))?;
     if let Some(name) = &req.display_name {
         db.execute(
             "UPDATE users SET display_name = ?1 WHERE id = ?2",
@@ -49,7 +49,7 @@ pub async fn search(
     State(state): State<AppState>,
     Query(params): Query<SearchQuery>,
 ) -> Result<Json<Vec<UserProfile>>, (StatusCode, Json<Value>)> {
-    let db = state.db.lock().unwrap();
+    let db = state.db.get().map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"db error"}))))?;
     let pattern = format!("%{}%", params.q.replace('%', "\\%").replace('_', "\\_"));
     let mut stmt = db
         .prepare("SELECT id, username, display_name, avatar_url, last_seen_at FROM users WHERE username LIKE ?1 LIMIT 20")
@@ -84,7 +84,7 @@ fn get_user_by_id_inner(
     state: &AppState,
     user_id: &str,
 ) -> Result<Json<UserProfile>, (StatusCode, Json<Value>)> {
-    let db = state.db.lock().unwrap();
+    let db = state.db.get().map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"db error"}))))?;
     let result = db.query_row(
         "SELECT id, username, display_name, avatar_url, last_seen_at FROM users WHERE id = ?1",
         rusqlite::params![user_id],

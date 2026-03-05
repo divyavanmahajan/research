@@ -58,7 +58,7 @@ pub async fn upload_file(
                 .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"write error"}))))?;
         }
 
-        let db = state.db.lock().unwrap();
+        let db = state.db.get().map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"db error"}))))?;
         db.execute(
             "INSERT INTO files (id, uploader_id, file_name, mime_type, size_bytes, storage_path) VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
             rusqlite::params![file_id, claims.sub, original_name, mime, total_bytes as i64, storage_path],
@@ -76,7 +76,7 @@ pub async fn download_file(
     Extension(claims): Extension<Claims>,
     Path(file_id): Path<String>,
 ) -> Result<Response, (StatusCode, Json<Value>)> {
-    let db = state.db.lock().unwrap();
+    let db = state.db.get().map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"db error"}))))?;
 
     let (uploader_id, file_name, mime_type, storage_path): (String, String, String, String) = db
         .query_row(
@@ -122,7 +122,7 @@ pub async fn delete_file(
     Extension(claims): Extension<Claims>,
     Path(file_id): Path<String>,
 ) -> Result<Json<Value>, (StatusCode, Json<Value>)> {
-    let db = state.db.lock().unwrap();
+    let db = state.db.get().map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"db error"}))))?;
 
     let (uploader_id, storage_path): (String, String) = db
         .query_row(
