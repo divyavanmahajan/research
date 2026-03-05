@@ -1,0 +1,49 @@
+[package]
+name = "whatsup-server"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "whatsup-server"
+path = "src/main.rs"
+
+[dependencies]
+# Workspace shared
+whatsup-protocol = { path = "../whatsup-protocol" }
+tokio = { version = "1", features = ["full"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+uuid = { version = "1", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+thiserror = "1"
+anyhow = "1"
+base64 = "0.22"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Web framework
+axum = { version = "0.7", features = ["ws", "multipart", "macros"] }
+tower = { version = "0.4", features = ["full"] }
+tower-http = { version = "0.5", features = ["cors", "limit", "trace"] }
+
+# Database
+rusqlite = { version = "0.31", features = ["bundled"] }
+
+# Auth
+argon2 = "0.5"
+jsonwebtoken = "9"
+totp-rs = { version = "5", features = ["qr", "gen_secret"] }
+constant_time_eq = "0.3"
+aes-gcm = "0.10"
+sha2 = "0.10"
+rand = "0.8"
+
+# Concurrency
+dashmap = "5"
+futures-util = "0.3"
+
+# Env / config
+dotenvy = "0.15"
+
+[dev-dependencies]
+tokio = { version = "1", features = ["full", "test-util"] }
