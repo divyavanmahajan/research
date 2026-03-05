@@ -1,0 +1,35 @@
+# Rust
+target/
+**/*.rs.bk
+Cargo.lock
+
+# Node / web client
+whatsup/crates/whatsup-web/node_modules/
+whatsup/crates/whatsup-web/.svelte-kit/
+whatsup/crates/whatsup-web/build/
+whatsup/crates/whatsup-web/dist/
+whatsup/crates/whatsup-web/.env
+whatsup/crates/whatsup-web/.env.local
+
+# Secrets / env
+.env
+.env.local
+*.env
+
+# Dev uploads
+whatsup/uploads/
+
+# SQLite database files (dev)
+whatsup/*.db
+whatsup/*.sqlite3
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Showboat generated assets
+whatsup/docs/demos/assets/
