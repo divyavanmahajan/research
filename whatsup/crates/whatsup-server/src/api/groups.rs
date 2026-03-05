@@ -3,7 +3,7 @@ use axum::{
     http::StatusCode,
     Extension, Json,
 };
-use chrono::Utc;
+use chrono::{DateTime, Utc};
 use serde_json::{json, Value};
 use uuid::Uuid;
 
@@ -13,37 +13,50 @@ use whatsup_protocol::{
     rest::{AddMemberRequest, CreateGroupRequest, GroupInfo, GroupMember},
 };
 
+fn parse_dt(s: &str) -> DateTime<Utc> {
+    chrono::DateTime::parse_from_rfc3339(s)
+        .map(|dt| dt.with_timezone(&Utc))
+        .unwrap_or_else(|_| Utc::now())
+}
+
 pub async fn create_group(
     State(state): State<AppState>,
     Extension(claims): Extension<Claims>,
     Json(req): Json<CreateGroupRequest>,
 ) -> Result<(StatusCode, Json<Value>), (StatusCode, Json<Value>)> {
     let group_id = Uuid::new_v4().to_string();
-    let now = Utc::now().to_rfc3339_opts(chrono::SecondsFormat::Millis, true);
-    let db = state.db.lock().unwrap();
+    let mut db = state.db.lock().unwrap();
+    let tx = db.transaction()
+        .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"db error"}))))?;
 
-    db.execute(
+    tx.execute(
         "INSERT INTO groups (id, name, created_by) VALUES (?1, ?2, ?3)",
         rusqlite::params![group_id, req.name, claims.sub],
     )
     .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"db error"}))))?;
 
     // Add creator as admin
-    db.execute(
+    tx.execute(
         "INSERT INTO group_members (group_id, user_id, role) VALUES (?1, ?2, 'admin')",
         rusqlite::params![group_id, claims.sub],
     )
     .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"db error"}))))?;
 
     // Add other members
-    for member_id in &req.member_ids {
-        if member_id == &claims.sub { continue; }
-        db.execute(
+    {
+        let mut stmt = tx.prepare(
             "INSERT OR IGNORE INTO group_members (group_id, user_id, role) VALUES (?1, ?2, 'member')",
-            rusqlite::params![group_id, member_id],
         )
         .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"db error"}))))?;
+        for member_id in &req.member_ids {
+            if member_id == &claims.sub { continue; }
+            stmt.execute(rusqlite::params![group_id, member_id])
+                .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"db error"}))))?;
+        }
     }
+
+    tx.commit()
+        .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"db error"}))))?;
 
     Ok((StatusCode::CREATED, Json(json!({"group_id": group_id}))))
 }
@@ -106,36 +119,55 @@ pub async fn list_groups(
     State(state): State<AppState>,
     Extension(claims): Extension<Claims>,
 ) -> Result<Json<Vec<GroupInfo>>, (StatusCode, Json<Value>)> {
-    let group_ids: Vec<String> = {
-        let db = state.db.lock().unwrap();
-        let mut stmt = db
-            .prepare(
-                "SELECT g.id FROM groups g
-                 JOIN group_members gm ON g.id = gm.group_id
-                 WHERE gm.user_id = ?1",
-            )
-            .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"db error"}))))?;
-        let x = stmt
-            .query_map(rusqlite::params![claims.sub], |row| row.get(0))
-            .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"db error"}))))?
-            .filter_map(|r| r.ok())
-            .collect();
-        x
-    };
-
-    let mut groups = Vec::new();
-    for gid in group_ids {
-        if let Ok(Json(info)) = get_group(
-            State(state.clone()),
-            Extension(claims.clone()),
-            Path(gid),
+    let db = state.db.lock().unwrap();
+    let mut stmt = db
+        .prepare(
+            "SELECT g.id, g.name, g.avatar_url, g.created_by, g.created_at,
+                    gm2.user_id, gm2.role, gm2.joined_at
+             FROM groups g
+             JOIN group_members gm  ON g.id = gm.group_id AND gm.user_id = ?1
+             JOIN group_members gm2 ON g.id = gm2.group_id
+             ORDER BY g.id",
         )
-        .await
-        {
-            groups.push(info);
-        }
+        .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"db error"}))))?;
+
+    type Row = (String, String, Option<String>, String, String, String, String, String);
+    let rows: Vec<Row> = stmt
+        .query_map(rusqlite::params![claims.sub], |row| {
+            Ok((
+                row.get::<_, String>(0)?,
+                row.get::<_, String>(1)?,
+                row.get::<_, Option<String>>(2)?,
+                row.get::<_, String>(3)?,
+                row.get::<_, String>(4)?,
+                row.get::<_, String>(5)?,
+                row.get::<_, String>(6)?,
+                row.get::<_, String>(7)?,
+            ))
+        })
+        .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"db error"}))))?
+        .filter_map(|r| r.ok())
+        .collect();
+    drop(stmt);
+
+    let mut map: std::collections::BTreeMap<String, GroupInfo> = std::collections::BTreeMap::new();
+    for (gid, name, avatar_url, created_by, created_at_str, uid, role, joined_at_str) in rows {
+        let entry = map.entry(gid.clone()).or_insert_with(|| GroupInfo {
+            id: gid,
+            name,
+            avatar_url,
+            created_by,
+            created_at: parse_dt(&created_at_str),
+            members: Vec::new(),
+        });
+        entry.members.push(GroupMember {
+            user_id: uid,
+            role,
+            joined_at: parse_dt(&joined_at_str),
+        });
     }
-    Ok(Json(groups))
+
+    Ok(Json(map.into_values().collect()))
 }
 
 pub async fn add_member(

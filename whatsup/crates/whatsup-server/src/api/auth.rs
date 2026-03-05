@@ -85,25 +85,35 @@ fn build_totp(user_id: &str, secret_bytes: &[u8]) -> Result<TOTP, String> {
 }
 
 fn generate_backup_codes(
-    db: &rusqlite::Connection,
+    db: &mut rusqlite::Connection,
     user_id: &str,
 ) -> Result<Vec<String>, rusqlite::Error> {
-    db.execute("DELETE FROM backup_codes WHERE user_id = ?1", rusqlite::params![user_id])?;
+    // Pre-generate all codes and hashes before acquiring the transaction so that
+    // the expensive Argon2 hashing (×8) does not hold the write lock.
     let argon = argon2();
-    let mut codes = Vec::with_capacity(8);
+    let mut code_hash_pairs: Vec<(String, String)> = Vec::with_capacity(8);
     for _ in 0..8 {
         let mut raw = [0u8; 8];
         OsRng.fill_bytes(&mut raw);
         let code = hex_encode(&raw);
         let salt = SaltString::generate(&mut OsRng);
         let hash = argon.hash_password(code.as_bytes(), &salt).unwrap().to_string();
-        db.execute(
-            "INSERT INTO backup_codes (id, user_id, code_hash) VALUES (?1, ?2, ?3)",
-            rusqlite::params![Uuid::new_v4().to_string(), user_id, hash],
-        )?;
-        codes.push(code);
+        code_hash_pairs.push((code, hash));
     }
-    Ok(codes)
+
+    let tx = db.transaction()?;
+    tx.execute("DELETE FROM backup_codes WHERE user_id = ?1", rusqlite::params![user_id])?;
+    {
+        let mut stmt = tx.prepare(
+            "INSERT INTO backup_codes (id, user_id, code_hash) VALUES (?1, ?2, ?3)",
+        )?;
+        for (_, hash) in &code_hash_pairs {
+            stmt.execute(rusqlite::params![Uuid::new_v4().to_string(), user_id, hash])?;
+        }
+    }
+    tx.commit()?;
+
+    Ok(code_hash_pairs.into_iter().map(|(code, _)| code).collect())
 }
 
 fn verify_backup_code(
@@ -309,7 +319,7 @@ pub async fn two_fa_verify(
     Extension(claims): Extension<Claims>,
     Json(req): Json<TwoFaVerifyRequest>,
 ) -> Result<Json<BackupCodesResponse>, (StatusCode, Json<Value>)> {
-    let db = state.db.lock().unwrap();
+    let mut db = state.db.lock().unwrap();
     let secret_enc: Vec<u8> = db.query_row(
         "SELECT secret_encrypted FROM totp_secrets WHERE user_id = ?1",
         rusqlite::params![claims.sub], |row| row.get(0),
@@ -323,7 +333,7 @@ pub async fn two_fa_verify(
     }
     db.execute("UPDATE totp_secrets SET enabled = 1 WHERE user_id = ?1", rusqlite::params![claims.sub])
         .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"db error"}))))?;
-    let codes = generate_backup_codes(&db, &claims.sub)
+    let codes = generate_backup_codes(&mut *db, &claims.sub)
         .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"backup codes"}))))?;
     Ok(Json(BackupCodesResponse { codes }))
 }

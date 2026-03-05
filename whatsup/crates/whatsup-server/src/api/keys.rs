@@ -24,29 +24,44 @@ pub async fn upload_bundle(
     let spk_sig = B64.decode(&req.spk_signature)
         .map_err(|_| (StatusCode::BAD_REQUEST, Json(json!({"error":"invalid spk_signature"}))))?;
 
-    let db = state.db.lock().unwrap();
+    // Decode all OPK public keys up-front so we can report bad input before touching the DB
+    let opk_pairs: Vec<(u32, Vec<u8>)> = req.one_time_prekeys.iter()
+        .map(|opk| {
+            B64.decode(&opk.public_key)
+                .map(|bytes| (opk.id, bytes))
+                .map_err(|_| (StatusCode::BAD_REQUEST, Json(json!({"error":"invalid opk"}))))
+        })
+        .collect::<Result<_, _>>()?;
 
-    db.execute(
+    let mut db = state.db.lock().unwrap();
+    let tx = db.transaction()
+        .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"db error"}))))?;
+
+    tx.execute(
         "INSERT OR REPLACE INTO identity_keys (user_id, ik_public, ik_public_ed) VALUES (?1, ?2, ?3)",
         rusqlite::params![claims.sub, ik_pub, ik_pub_ed],
     )
     .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"db error"}))))?;
 
-    db.execute(
+    tx.execute(
         "INSERT OR REPLACE INTO signed_prekeys (id, user_id, spk_id, spk_public, spk_signature) VALUES (?1, ?2, ?3, ?4, ?5)",
         rusqlite::params![Uuid::new_v4().to_string(), claims.sub, req.spk_id, spk_pub, spk_sig],
     )
     .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"db error"}))))?;
 
-    for opk in &req.one_time_prekeys {
-        let opk_pub = B64.decode(&opk.public_key)
-            .map_err(|_| (StatusCode::BAD_REQUEST, Json(json!({"error":"invalid opk"}))))?;
-        db.execute(
+    {
+        let mut stmt = tx.prepare(
             "INSERT OR IGNORE INTO one_time_prekeys (id, user_id, opk_id, opk_public) VALUES (?1, ?2, ?3, ?4)",
-            rusqlite::params![Uuid::new_v4().to_string(), claims.sub, opk.id, opk_pub],
         )
         .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"db error"}))))?;
+        for (opk_id, opk_pub) in &opk_pairs {
+            stmt.execute(rusqlite::params![Uuid::new_v4().to_string(), claims.sub, opk_id, opk_pub])
+                .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"db error"}))))?;
+        }
     }
+
+    tx.commit()
+        .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"db error"}))))?;
 
     Ok((StatusCode::OK, Json(json!({"status":"ok"}))))
 }
@@ -73,20 +88,22 @@ pub async fn get_bundle(
         )
         .map_err(|_| (StatusCode::NOT_FOUND, Json(json!({"error":"signed prekey not found"}))))?;
 
-    // Atomically consume one OPK (BEGIN IMMEDIATE prevents races)
+    // Atomically consume one OPK using UPDATE...RETURNING (SQLite 3.35+, bundled is 3.46+)
     let now_iso = chrono::Utc::now().to_rfc3339_opts(chrono::SecondsFormat::Millis, true);
     let opk = db.query_row(
-        "SELECT id, opk_id, opk_public FROM one_time_prekeys WHERE user_id = ?1 AND consumed_at IS NULL ORDER BY opk_id ASC LIMIT 1",
-        rusqlite::params![user_id],
-        |row| Ok((row.get::<_, String>(0)?, row.get::<_, u32>(1)?, row.get::<_, Vec<u8>>(2)?)),
+        "UPDATE one_time_prekeys
+         SET consumed_at = ?1
+         WHERE id = (
+             SELECT id FROM one_time_prekeys
+             WHERE user_id = ?2 AND consumed_at IS NULL
+             ORDER BY opk_id ASC LIMIT 1
+         )
+         RETURNING opk_id, opk_public",
+        rusqlite::params![now_iso, user_id],
+        |row| Ok((row.get::<_, u32>(0)?, row.get::<_, Vec<u8>>(1)?)),
     ).ok();
 
-    let (opk_id, opk_public) = if let Some((opk_row_id, id, pub_bytes)) = opk {
-        db.execute(
-            "UPDATE one_time_prekeys SET consumed_at = ?1 WHERE id = ?2",
-            rusqlite::params![now_iso, opk_row_id],
-        )
-        .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"db error"}))))?;
+    let (opk_id, opk_public) = if let Some((id, pub_bytes)) = opk {
         (Some(id), Some(B64.encode(&pub_bytes)))
     } else {
         (None, None)
@@ -126,16 +143,30 @@ pub async fn replenish_prekeys(
     Extension(claims): Extension<Claims>,
     Json(keys): Json<Vec<OtpkUpload>>,
 ) -> Result<Json<Value>, (StatusCode, Json<Value>)> {
-    let db = state.db.lock().unwrap();
-    for opk in &keys {
-        let opk_pub = B64.decode(&opk.public_key)
-            .map_err(|_| (StatusCode::BAD_REQUEST, Json(json!({"error":"invalid opk"}))))?;
-        db.execute(
+    let opk_pairs: Vec<(u32, Vec<u8>)> = keys.iter()
+        .map(|opk| {
+            B64.decode(&opk.public_key)
+                .map(|bytes| (opk.id, bytes))
+                .map_err(|_| (StatusCode::BAD_REQUEST, Json(json!({"error":"invalid opk"}))))
+        })
+        .collect::<Result<_, _>>()?;
+
+    let mut db = state.db.lock().unwrap();
+    let tx = db.transaction()
+        .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"db error"}))))?;
+    {
+        let mut stmt = tx.prepare(
             "INSERT OR IGNORE INTO one_time_prekeys (id, user_id, opk_id, opk_public) VALUES (?1, ?2, ?3, ?4)",
-            rusqlite::params![Uuid::new_v4().to_string(), claims.sub, opk.id, opk_pub],
         )
         .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"db error"}))))?;
+        for (opk_id, opk_pub) in &opk_pairs {
+            stmt.execute(rusqlite::params![Uuid::new_v4().to_string(), claims.sub, opk_id, opk_pub])
+                .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"db error"}))))?;
+        }
     }
+    tx.commit()
+        .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"db error"}))))?;
+
     Ok(Json(json!({"status":"ok", "added": keys.len()})))
 }
 

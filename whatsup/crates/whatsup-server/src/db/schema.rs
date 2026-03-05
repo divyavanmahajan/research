@@ -8,6 +8,10 @@ pub fn apply(conn: &Connection) -> rusqlite::Result<()> {
 const SCHEMA: &str = "
 PRAGMA journal_mode=WAL;
 PRAGMA foreign_keys=ON;
+PRAGMA busy_timeout=5000;
+PRAGMA synchronous=NORMAL;
+PRAGMA cache_size=-65536;
+PRAGMA temp_store=MEMORY;
 
 CREATE TABLE IF NOT EXISTS users (
     id              TEXT PRIMARY KEY,
