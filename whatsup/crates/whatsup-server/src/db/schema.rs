@@ -8,9 +8,9 @@ use rusqlite::Connection;
 ///                          SQLITE_BUSY immediately.
 /// * `foreign_keys=ON`    — enforced per-connection in SQLite.
 pub const INIT_PRAGMAS: &str = "
+PRAGMA busy_timeout=5000;
 PRAGMA journal_mode=WAL;
 PRAGMA synchronous=NORMAL;
-PRAGMA busy_timeout=5000;
 PRAGMA foreign_keys=ON;
 ";
 
