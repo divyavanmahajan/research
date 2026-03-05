@@ -39,7 +39,7 @@ pub async fn send_message(
     let now = Utc::now();
     let now_iso = now.to_rfc3339_opts(chrono::SecondsFormat::Millis, true);
 
-    let db = state.db.lock().unwrap();
+    let db = state.db.get().map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"db error"}))))?;
 
     if req.kind == "direct" {
         // Ensure conversation exists (ordered pair)
@@ -152,7 +152,7 @@ pub async fn get_messages(
     Path(conv_id): Path<String>,
     Query(params): Query<PageQuery>,
 ) -> Result<Json<Vec<MessageRecord>>, (StatusCode, Json<Value>)> {
-    let db = state.db.lock().unwrap();
+    let db = state.db.get().map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"db error"}))))?;
     let limit = params.limit.unwrap_or(50).min(100);
 
     // Authorisation: must be a participant or group member

@@ -27,7 +27,10 @@ pub async fn ws_handler(
 ) -> Response {
     // Validate and consume the WS ticket
     let user_id = {
-        let db = state.db.lock().unwrap();
+        let db = match state.db.get() {
+            Ok(c) => c,
+            Err(_) => return (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"db error"}))).into_response(),
+        };
         let now_iso = Utc::now().to_rfc3339_opts(chrono::SecondsFormat::Millis, true);
 
         let result = db.query_row(
@@ -117,7 +120,7 @@ async fn handle_socket(socket: WebSocket, state: AppState, user_id: String) {
 
     // Update last_seen
     let now_iso = Utc::now().to_rfc3339_opts(chrono::SecondsFormat::Millis, true);
-    if let Ok(db) = state.db.lock() {
+    if let Ok(db) = state.db.get() {
         let _ = db.execute(
             "UPDATE users SET last_seen_at = ?1 WHERE id = ?2",
             rusqlite::params![now_iso, user_id],
@@ -135,7 +138,7 @@ async fn handle_client_event(state: &AppState, user_id: &str, event: ClientEvent
 
         ClientEvent::AckDelivery(ack) => {
             let now_iso = Utc::now().to_rfc3339_opts(chrono::SecondsFormat::Millis, true);
-            if let Ok(db) = state.db.lock() {
+            if let Ok(db) = state.db.get() {
                 let _ = db.execute(
                     "UPDATE messages SET delivered_at = ?1 WHERE id = ?2 AND delivered_at IS NULL",
                     rusqlite::params![now_iso, ack.message_id],
@@ -160,7 +163,7 @@ async fn handle_client_event(state: &AppState, user_id: &str, event: ClientEvent
 
         ClientEvent::AckRead(ack) => {
             let now_iso = Utc::now().to_rfc3339_opts(chrono::SecondsFormat::Millis, true);
-            if let Ok(db) = state.db.lock() {
+            if let Ok(db) = state.db.get() {
                 let _ = db.execute(
                     "UPDATE messages SET read_at = ?1 WHERE id = ?2 AND read_at IS NULL",
                     rusqlite::params![now_iso, ack.message_id],

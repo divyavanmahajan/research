@@ -174,7 +174,7 @@ pub async fn register(
         .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"hash failed"}))))?
         .to_string();
     let user_id = Uuid::new_v4().to_string();
-    let db = state.db.lock().unwrap();
+    let db = state.db.get().map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"db error"}))))?;
     db.execute(
         "INSERT INTO users (id, username, phone_number, display_name, password_hash) VALUES (?1, ?2, ?3, ?4, ?5)",
         rusqlite::params![user_id, req.username, req.phone_number, req.display_name, hash],
@@ -193,7 +193,7 @@ pub async fn login(
     State(state): State<AppState>,
     Json(req): Json<LoginRequest>,
 ) -> Result<Json<Value>, (StatusCode, Json<Value>)> {
-    let db = state.db.lock().unwrap();
+    let db = state.db.get().map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"db error"}))))?;
     let result = db.query_row(
         "SELECT id, password_hash FROM users WHERE username = ?1 AND is_active = 1",
         rusqlite::params![req.username],
@@ -231,7 +231,7 @@ pub async fn two_fa_challenge(
     State(state): State<AppState>,
     Json(req): Json<TwoFaChallengeRequest>,
 ) -> Result<Json<Value>, (StatusCode, Json<Value>)> {
-    let db = state.db.lock().unwrap();
+    let db = state.db.get().map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"db error"}))))?;
     let result = db.query_row(
         "SELECT user_id, expires_at, attempt_count FROM two_fa_challenges WHERE id = ?1",
         rusqlite::params![req.challenge_token],
@@ -296,7 +296,7 @@ pub async fn two_fa_setup(
         .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"qr failed"}))))?;
     let encrypted = encrypt_totp_secret(&secret_bytes, &state.config.totp_encryption_key)
         .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"encrypt failed"}))))?;
-    let db = state.db.lock().unwrap();
+    let db = state.db.get().map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"db error"}))))?;
     db.execute(
         "INSERT OR REPLACE INTO totp_secrets (user_id, secret_encrypted, enabled) VALUES (?1, ?2, 0)",
         rusqlite::params![claims.sub, encrypted],
@@ -309,7 +309,7 @@ pub async fn two_fa_verify(
     Extension(claims): Extension<Claims>,
     Json(req): Json<TwoFaVerifyRequest>,
 ) -> Result<Json<BackupCodesResponse>, (StatusCode, Json<Value>)> {
-    let db = state.db.lock().unwrap();
+    let db = state.db.get().map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"db error"}))))?;
     let secret_enc: Vec<u8> = db.query_row(
         "SELECT secret_encrypted FROM totp_secrets WHERE user_id = ?1",
         rusqlite::params![claims.sub], |row| row.get(0),
@@ -333,7 +333,7 @@ pub async fn two_fa_disable(
     Extension(claims): Extension<Claims>,
     Json(req): Json<TwoFaDisableRequest>,
 ) -> Result<Json<Value>, (StatusCode, Json<Value>)> {
-    let db = state.db.lock().unwrap();
+    let db = state.db.get().map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"db error"}))))?;
     let stored_hash: String = db.query_row(
         "SELECT password_hash FROM users WHERE id = ?1", rusqlite::params![claims.sub], |row| row.get(0),
     ).map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"internal"}))))?;
@@ -364,7 +364,7 @@ pub async fn refresh(
     State(state): State<AppState>,
     Json(req): Json<RefreshRequest>,
 ) -> Result<Json<Value>, (StatusCode, Json<Value>)> {
-    let db = state.db.lock().unwrap();
+    let db = state.db.get().map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"db error"}))))?;
     let token_hash = sha256_hex(req.refresh_token.as_bytes());
     let result = db.query_row(
         "SELECT id, user_id, family_id, expires_at FROM refresh_tokens WHERE token_hash = ?1",
@@ -391,7 +391,7 @@ pub async fn logout(
     State(state): State<AppState>,
     Json(req): Json<RefreshRequest>,
 ) -> Result<Json<Value>, (StatusCode, Json<Value>)> {
-    let db = state.db.lock().unwrap();
+    let db = state.db.get().map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"db error"}))))?;
     let token_hash = sha256_hex(req.refresh_token.as_bytes());
     let _ = db.execute("DELETE FROM refresh_tokens WHERE token_hash = ?1", rusqlite::params![token_hash]);
     Ok(Json(json!({"status":"logged_out"})))
@@ -404,7 +404,7 @@ pub async fn ws_ticket(
     let ticket = Uuid::new_v4().to_string();
     let expires_at = chrono::Utc::now() + chrono::Duration::seconds(60);
     let expires_iso = expires_at.to_rfc3339_opts(chrono::SecondsFormat::Millis, true);
-    let db = state.db.lock().unwrap();
+    let db = state.db.get().map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"db error"}))))?;
     let now = now_iso();
     let _ = db.execute("DELETE FROM ws_tickets WHERE expires_at < ?1", rusqlite::params![now]);
     db.execute("INSERT INTO ws_tickets (id, user_id, expires_at) VALUES (?1, ?2, ?3)", rusqlite::params![ticket, claims.sub, expires_iso])

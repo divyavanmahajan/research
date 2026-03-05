@@ -24,7 +24,7 @@ pub async fn upload_bundle(
     let spk_sig = B64.decode(&req.spk_signature)
         .map_err(|_| (StatusCode::BAD_REQUEST, Json(json!({"error":"invalid spk_signature"}))))?;
 
-    let db = state.db.lock().unwrap();
+    let db = state.db.get().map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"db error"}))))?;
 
     db.execute(
         "INSERT OR REPLACE INTO identity_keys (user_id, ik_public, ik_public_ed) VALUES (?1, ?2, ?3)",
@@ -55,7 +55,7 @@ pub async fn get_bundle(
     State(state): State<AppState>,
     Path(user_id): Path<String>,
 ) -> Result<Json<KeyBundleResponse>, (StatusCode, Json<Value>)> {
-    let db = state.db.lock().unwrap();
+    let db = state.db.get().map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"db error"}))))?;
 
     let (ik_pub, ik_pub_ed): (Vec<u8>, Vec<u8>) = db
         .query_row(
@@ -126,7 +126,7 @@ pub async fn replenish_prekeys(
     Extension(claims): Extension<Claims>,
     Json(keys): Json<Vec<OtpkUpload>>,
 ) -> Result<Json<Value>, (StatusCode, Json<Value>)> {
-    let db = state.db.lock().unwrap();
+    let db = state.db.get().map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"db error"}))))?;
     for opk in &keys {
         let opk_pub = B64.decode(&opk.public_key)
             .map_err(|_| (StatusCode::BAD_REQUEST, Json(json!({"error":"invalid opk"}))))?;
@@ -143,7 +143,7 @@ pub async fn prekey_count(
     State(state): State<AppState>,
     Extension(claims): Extension<Claims>,
 ) -> Result<Json<Value>, (StatusCode, Json<Value>)> {
-    let db = state.db.lock().unwrap();
+    let db = state.db.get().map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"db error"}))))?;
     let count: i64 = db
         .query_row(
             "SELECT COUNT(*) FROM one_time_prekeys WHERE user_id = ?1 AND consumed_at IS NULL",
