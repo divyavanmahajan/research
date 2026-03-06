@@ -10,7 +10,17 @@ server performance every 10 seconds and increasing load every 30 seconds.
 Usage
 -----
     python harness.py [--max-users N] [--base-url URL] [--log-file PATH]
-                      [--duration SECONDS]
+                      [--duration SECONDS] [--setup-first]
+
+Setup metrics
+-------------
+When --setup-first is given (or always logged), each setup phase emits a
+SETUP_METRICS log line in the following format:
+
+    SETUP_METRICS phase=<register|login>  total=N  ok=N  fail=N \
+        elapsed_s=F  rate_per_s=F  concurrency=N
+
+A final SETUP_SUMMARY line is emitted once all users are ready.
 
 Requirements
 ------------
@@ -114,9 +124,13 @@ MAX_SYS_CPU_PCT = 95.0
 # Shared password for all harness accounts
 PASSWORD = "HarnessTest@1!"
 
-# Concurrency limits for the setup phase (Argon2id is expensive)
-REGISTER_CONCURRENCY = 3
-LOGIN_CONCURRENCY    = 5
+# Concurrency limits for the setup phase (Argon2id is expensive).
+# --setup-first mode uses higher concurrency since the simulation is not
+# competing for server resources yet.
+REGISTER_CONCURRENCY        = 3
+LOGIN_CONCURRENCY           = 5
+SETUP_FIRST_REGISTER_CONCURRENCY = 10
+SETUP_FIRST_LOGIN_CONCURRENCY    = 20
 
 # Max base64-encoded ciphertext size (must be <= 64 KB decoded, i.e. 48 KB raw)
 FAKE_MSG_BYTES = 64         # raw random bytes → ~88 base64 chars
@@ -807,40 +821,69 @@ async def setup_users(
     base_url: str,
     max_users: int,
     logger: logging.Logger,
+    setup_first: bool = False,
 ) -> list:
     """Register (or detect existing) and log in all max_users accounts.
 
-    Returns a list of UserAccount objects.
+    Returns a list of UserAccount objects ready for simulation.
+
+    When *setup_first* is True the function uses higher concurrency and
+    completes all registration + logins before returning, ensuring the
+    simulation phase only starts once every account is ready.  In both
+    modes a SETUP_METRICS log line is emitted for each phase, plus a
+    SETUP_SUMMARY at the end.
 
     Failure modes handled:
-    * Argon2id is slow → low concurrency semaphore
-    * Username already exists → skip register, proceed to login
+    * Argon2id is slow → concurrency semaphore limits parallelism
+    * Username already exists (409) → skip register, proceed to login
     * Login does not return user_id → call GET /users/me
     """
+    reg_concurrency   = SETUP_FIRST_REGISTER_CONCURRENCY if setup_first else REGISTER_CONCURRENCY
+    login_concurrency = SETUP_FIRST_LOGIN_CONCURRENCY    if setup_first else LOGIN_CONCURRENCY
+
+    mode_label = "setup-first" if setup_first else "interleaved"
     logger.info(
-        "Setting up %d users (registration uses Argon2id – may be slow)…",
-        max_users,
+        "Setting up %d users (mode=%s, Argon2id – may be slow)…",
+        max_users, mode_label,
     )
     usernames = [f"harness_u{i:05d}" for i in range(max_users)]
 
     # ── Registration ──────────────────────────────────────────────────────────
-    reg_sem = asyncio.Semaphore(REGISTER_CONCURRENCY)
+    reg_sem  = asyncio.Semaphore(reg_concurrency)
+    reg_ok   = 0
+    reg_fail = 0
+    reg_lock = asyncio.Lock()
+    reg_t0   = time.monotonic()
 
-    async def register_one(sess: aiohttp.ClientSession, username: str) -> str:
+    async def register_one(sess: aiohttp.ClientSession, username: str) -> None:
+        nonlocal reg_ok, reg_fail
         async with reg_sem:
             result = await register_user(sess, base_url, username, logger)
-            if result is None:
-                logger.warning("register %s failed; will try login anyway", username)
-            return username
+            async with reg_lock:
+                if result is not None:
+                    reg_ok += 1
+                else:
+                    reg_fail += 1
+                    logger.warning("register %s failed; will try login anyway", username)
 
     async with aiohttp.ClientSession() as sess:
         await asyncio.gather(*[register_one(sess, u) for u in usernames])
 
+    reg_elapsed = time.monotonic() - reg_t0
+    reg_rate    = reg_ok / reg_elapsed if reg_elapsed > 0 else 0.0
+    logger.info(
+        "SETUP_METRICS phase=register  total=%d  ok=%d  fail=%d  "
+        "elapsed_s=%.1f  rate_per_s=%.2f  concurrency=%d",
+        max_users, reg_ok, reg_fail, reg_elapsed, reg_rate, reg_concurrency,
+    )
+
     # ── Login ─────────────────────────────────────────────────────────────────
     logger.info("Logging in %d users…", max_users)
-    login_sem = asyncio.Semaphore(LOGIN_CONCURRENCY)
+    login_sem  = asyncio.Semaphore(login_concurrency)
     accounts: list[UserAccount] = []
-    failed_logins = 0
+    login_fail = 0
+    login_lock = asyncio.Lock()
+    login_t0   = time.monotonic()
 
     async def login_one(sess: aiohttp.ClientSession, username: str) -> Optional[UserAccount]:
         async with login_sem:
@@ -848,8 +891,6 @@ async def setup_users(
             if tokens is None:
                 return None
             at, rt = tokens
-
-            # login doesn't return user_id – call /users/me
             uid = await get_my_user_id(sess, base_url, at, logger)
             if uid is None:
                 logger.warning(
@@ -872,11 +913,26 @@ async def setup_users(
         if r is not None:
             accounts.append(r)
         else:
-            failed_logins += 1
+            login_fail += 1
 
+    login_elapsed = time.monotonic() - login_t0
+    login_rate    = len(accounts) / login_elapsed if login_elapsed > 0 else 0.0
+    logger.info(
+        "SETUP_METRICS phase=login  total=%d  ok=%d  fail=%d  "
+        "elapsed_s=%.1f  rate_per_s=%.2f  concurrency=%d",
+        max_users, len(accounts), login_fail, login_elapsed, login_rate, login_concurrency,
+    )
+
+    total_elapsed = time.monotonic() - reg_t0
+    logger.info(
+        "SETUP_SUMMARY users_ready=%d  users_failed=%d  "
+        "total_elapsed_s=%.1f  reg_rate_per_s=%.2f  login_rate_per_s=%.2f",
+        len(accounts), reg_fail + login_fail,
+        total_elapsed, reg_rate, login_rate,
+    )
     logger.info(
         "User setup complete: %d ready, %d failed",
-        len(accounts), failed_logins,
+        len(accounts), reg_fail + login_fail,
     )
     return accounts
 
@@ -967,6 +1023,14 @@ async def main() -> None:
         "--duration", type=int, default=0,
         help="Run for this many seconds then stop (0 = run until Ctrl+C)",
     )
+    parser.add_argument(
+        "--setup-first", action="store_true", default=False,
+        help=(
+            "Complete registration + login for ALL users before starting "
+            "the simulation (uses higher concurrency during setup). "
+            "Emits SETUP_METRICS lines for register and login phases."
+        ),
+    )
     args = parser.parse_args()
 
     if args.max_users < 10:
@@ -978,9 +1042,10 @@ async def main() -> None:
     logger.info("=" * 60)
     logger.info("WhatsUp Testing Harness")
     logger.info(
-        "max_users=%d  base_url=%s  log_file=%s  duration=%s",
+        "max_users=%d  base_url=%s  log_file=%s  duration=%s  setup_first=%s",
         args.max_users, args.base_url, args.log_file,
         f"{args.duration}s" if args.duration else "unlimited",
+        args.setup_first,
     )
     logger.info("=" * 60)
 
@@ -1025,7 +1090,7 @@ async def main() -> None:
     # ── User and group setup ───────────────────────────────────────────────────
     counters = Counters()
 
-    accounts = await setup_users(args.base_url, args.max_users, logger)
+    accounts = await setup_users(args.base_url, args.max_users, logger, setup_first=args.setup_first)
     if not accounts:
         logger.error("No accounts available after setup; aborting")
         sys.exit(1)
