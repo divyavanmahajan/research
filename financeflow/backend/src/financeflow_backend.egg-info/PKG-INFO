@@ -1,0 +1,7 @@
+Metadata-Version: 2.4
+Name: financeflow-backend
+Version: 0.1.0
+Summary: SQLite-backed REST API for FinanceFlow
+Requires-Python: >=3.11
+Requires-Dist: fastapi[standard]>=0.112.1
+Requires-Dist: aiosqlite>=0.20.0

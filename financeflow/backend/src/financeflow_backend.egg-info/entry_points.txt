@@ -1,0 +1,2 @@
+[console_scripts]
+financeflow-backend = financeflow_api.main:main

@@ -1,0 +1,2 @@
+fastapi[standard]>=0.112.1
+aiosqlite>=0.20.0

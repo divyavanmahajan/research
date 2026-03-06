@@ -39,6 +39,11 @@ pub async fn send_message(
     let now = Utc::now();
     let now_iso = now.to_rfc3339_opts(chrono::SecondsFormat::Millis, true);
 
+<<<<<<< HEAD
+=======
+    let db = state.db.get().map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"db error"}))))?;
+
+>>>>>>> c30b066 (fix: replace Arc<Mutex<Connection>> with r2d2 connection pool to eliminate SQLite write contention)
     if req.kind == "direct" {
         let (tx, rx) = tokio::sync::oneshot::channel();
         state.db_writer

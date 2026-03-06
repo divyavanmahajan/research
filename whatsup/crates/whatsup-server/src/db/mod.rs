@@ -1,5 +1,8 @@
 pub mod schema;
+<<<<<<< HEAD
 pub mod writer;
+=======
+>>>>>>> c30b066 (fix: replace Arc<Mutex<Connection>> with r2d2 connection pool to eliminate SQLite write contention)
 
 use anyhow::Result;
 use r2d2::Pool;

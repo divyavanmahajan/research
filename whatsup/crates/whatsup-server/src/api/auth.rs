@@ -416,6 +416,7 @@ pub async fn ws_ticket(
     let ticket = Uuid::new_v4().to_string();
     let expires_at = chrono::Utc::now() + chrono::Duration::seconds(60);
     let expires_iso = expires_at.to_rfc3339_opts(chrono::SecondsFormat::Millis, true);
+<<<<<<< HEAD
     
     let (tx, rx) = tokio::sync::oneshot::channel();
     state.db_writer.send(crate::db::writer::WriteOp::InsertWsTicket {
@@ -429,5 +430,12 @@ pub async fn ws_ticket(
         .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error": "writer crashed"}))))?
         .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error": e}))))?;
 
+=======
+    let db = state.db.get().map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"db error"}))))?;
+    let now = now_iso();
+    let _ = db.execute("DELETE FROM ws_tickets WHERE expires_at < ?1", rusqlite::params![now]);
+    db.execute("INSERT INTO ws_tickets (id, user_id, expires_at) VALUES (?1, ?2, ?3)", rusqlite::params![ticket, claims.sub, expires_iso])
+        .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"error":"internal"}))))?;
+>>>>>>> c30b066 (fix: replace Arc<Mutex<Connection>> with r2d2 connection pool to eliminate SQLite write contention)
     Ok(Json(WsTicketResponse { ticket }))
 }
