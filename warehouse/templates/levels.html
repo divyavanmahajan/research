@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Levels — {{ rack.code }}{% endblock %}
+
+{% block content %}
+<div class="mb-4 text-sm text-slate-500">
+  <a href="/aisles" class="hover:text-slate-700">Aisles</a> /
+  <a href="/aisles/{{ rack.aisle_id }}/racks" class="hover:text-slate-700">{{ rack.aisle.code }}</a> /
+  <span class="text-slate-800 font-medium">{{ rack.code }}</span>
+</div>
+
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <h1 class="text-2xl font-bold text-slate-800">Levels — {{ rack.aisle.code }}-{{ rack.code }}</h1>
+    <p class="text-slate-500 text-sm mt-1">{{ rack.name }} · Max 3 levels</p>
+  </div>
+</div>
+
+{% if user.role == 'admin' and levels | length < 3 %}
+<div class="card mb-6">
+  <h2 class="font-semibold text-slate-700 mb-4">Add Level</h2>
+  <form method="POST" action="/racks/{{ rack.id }}/levels" class="flex gap-4">
+    <div>
+      <label class="form-label">Level Number (1–3)</label>
+      <select name="level_num" class="form-input">
+        {% for n in [1,2,3] %}
+        {% if n not in (levels | map(attribute='level_num') | list) %}
+        <option value="{{ n }}">Level {{ n }}</option>
+        {% endif %}
+        {% endfor %}
+      </select>
+    </div>
+    <div class="flex items-end">
+      <button type="submit" class="btn-primary">Add Level</button>
+    </div>
+  </form>
+</div>
+{% endif %}
+
+{% if levels %}
+<div class="card p-0 overflow-hidden">
+  <table class="w-full text-sm">
+    <thead class="bg-slate-50 border-b border-slate-200">
+      <tr class="text-left text-slate-500">
+        <th class="px-4 py-3 font-medium">Level</th>
+        <th class="px-4 py-3 font-medium">Bins</th>
+        <th class="px-4 py-3 font-medium"></th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-slate-100">
+      {% for level in levels %}
+      <tr class="hover:bg-slate-50">
+        <td class="px-4 py-3 font-semibold text-slate-800">L{{ level.level_num }}</td>
+        <td class="px-4 py-3">
+          <a href="/levels/{{ level.id }}/bins" class="text-blue-600 hover:underline">{{ level.bins | length }} bin(s)</a>
+        </td>
+        <td class="px-4 py-3">
+          {% if user.role == 'admin' %}
+          <form method="POST" action="/levels/{{ level.id }}/delete"
+                onsubmit="return confirm('Delete Level {{ level.level_num }}?')">
+            <button type="submit" class="text-red-500 hover:text-red-700 text-xs font-medium">Delete</button>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="card text-center py-12 text-slate-400">No levels yet.</div>
+{% endif %}
+{% endblock %}

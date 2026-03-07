@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Structure{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <h1 class="text-2xl font-bold text-slate-800">Warehouse Structure</h1>
+    <p class="text-slate-500 text-sm mt-1">Aisles → Racks → Levels → Bins</p>
+  </div>
+  {% if user.role == 'admin' %}
+  <a href="/aisles" class="btn-primary">Manage Aisles</a>
+  {% endif %}
+</div>
+
+{% if aisles %}
+<div class="space-y-3">
+  {% for aisle in aisles %}
+  <div class="card p-0 overflow-hidden">
+    <!-- Aisle header (clickable to load racks) -->
+    <button
+      class="w-full text-left px-5 py-4 flex items-center justify-between hover:bg-slate-50 transition"
+      hx-get="/structure/aisles/{{ aisle.id }}/racks"
+      hx-target="#racks-{{ aisle.id }}"
+      hx-swap="innerHTML"
+      onclick="this.querySelector('.chevron').classList.toggle('rotate-180')"
+    >
+      <div class="flex items-center gap-3">
+        <span class="text-lg">🏭</span>
+        <div>
+          <span class="font-semibold text-slate-800 font-mono">{{ aisle.code }}</span>
+          <span class="text-slate-500 ml-2">{{ aisle.name }}</span>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="text-xs text-slate-400">{{ aisle.racks | length }} rack(s)</span>
+        <svg class="chevron w-4 h-4 text-slate-400 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+        </svg>
+      </div>
+    </button>
+
+    <!-- Racks panel (populated by HTMX) -->
+    <div id="racks-{{ aisle.id }}" class="border-t border-slate-100"></div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="card text-center py-16">
+  <div class="text-5xl mb-4">🏗️</div>
+  <p class="text-slate-500 text-lg mb-2">No aisles defined yet</p>
+  {% if user.role == 'admin' %}
+  <a href="/aisles" class="btn-primary mt-4 inline-block">Create First Aisle</a>
+  {% endif %}
+</div>
+{% endif %}
+{% endblock %}

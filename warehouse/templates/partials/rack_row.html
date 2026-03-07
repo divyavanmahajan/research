@@ -1,0 +1,56 @@
+{% if racks %}
+<div class="divide-y divide-slate-100">
+  {% for rack in racks %}
+  <div class="px-5 py-3 bg-slate-50">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-3 ml-6">
+        <span class="text-base">🗄️</span>
+        <div>
+          <span class="font-medium text-slate-700 font-mono">{{ aisle.code }}-{{ rack.code }}</span>
+          <span class="text-slate-500 ml-2 text-sm">{{ rack.name }}</span>
+        </div>
+      </div>
+      <div class="flex items-center gap-4">
+        <span class="text-xs text-slate-400">{{ rack.levels | length }}/3 levels</span>
+        <a href="/racks/{{ rack.id }}/levels" class="text-xs text-blue-600 hover:underline">Manage →</a>
+      </div>
+    </div>
+
+    <!-- Show levels and bins inline -->
+    {% if rack.levels %}
+    <div class="mt-2 ml-12 space-y-1">
+      {% for level in rack.levels | sort(attribute='level_num') %}
+      <div class="flex items-center gap-2 text-xs text-slate-500">
+        <span class="text-slate-400">L{{ level.level_num }}</span>
+        <div class="flex flex-wrap gap-1">
+          {% for bin in level.bins | sort(attribute='code') %}
+          {% set pct = bin.capacity_pct %}
+          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-white border border-slate-200 font-mono text-xs"
+                title="{{ bin.location_code }}: {{ pct|int }}% full">
+            {{ bin.code }}
+            <span class="w-2 h-2 rounded-full
+              {% if pct >= 90 %}bg-red-400
+              {% elif pct >= 70 %}bg-amber-400
+              {% else %}bg-green-400{% endif %}"></span>
+          </span>
+          {% endfor %}
+          {% if not level.bins %}
+          <span class="text-slate-300 italic">empty</span>
+          {% endif %}
+        </div>
+        <a href="/levels/{{ level.id }}/bins" class="text-blue-500 hover:underline ml-1">+</a>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="px-8 py-4 text-sm text-slate-400 bg-slate-50">
+  No racks in this aisle.
+  {% if user.role == 'admin' %}
+  <a href="/aisles/{{ aisle.id }}/racks" class="text-blue-500 hover:underline ml-1">Add rack →</a>
+  {% endif %}
+</div>
+{% endif %}

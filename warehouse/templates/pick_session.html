@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}Pick Session #{{ session.id }}{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-bold text-slate-800">Pick Session <span class="text-slate-400">#{{ session.id }}</span></h1>
+      <p class="text-slate-500 text-sm mt-1">
+        Started {{ session.created_at.strftime('%Y-%m-%d %H:%M') }}
+        by <span class="font-medium">{{ session.operator.username }}</span>
+      </p>
+    </div>
+    <span class="status-badge status-{{ session.status }} text-sm px-3 py-1">{{ session.status }}</span>
+  </div>
+</div>
+
+<!-- Progress bar -->
+<div class="card mb-6">
+  <div id="progress-bar">
+    <div class="flex justify-between text-sm mb-1">
+      <span class="font-medium text-slate-700">Progress</span>
+      <span class="text-slate-500">{{ picked }}/{{ total }} stops</span>
+    </div>
+    <div class="w-full bg-slate-200 rounded-full h-4">
+      <div class="{% if pct == 100 %}bg-green-500{% else %}bg-blue-500{% endif %} h-4 rounded-full transition-all duration-300"
+           style="width: {{ pct }}%"></div>
+    </div>
+    {% if session.status == 'completed' %}
+    <p class="mt-2 text-green-700 font-semibold text-center">All done! Pick session completed.</p>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Pick stops checklist -->
+{% if session.stops %}
+<div class="card p-0 overflow-hidden">
+  <table class="w-full text-sm">
+    <thead class="bg-slate-50 border-b border-slate-200">
+      <tr class="text-left text-slate-500">
+        <th class="px-4 py-3 font-medium w-12">#</th>
+        <th class="px-4 py-3 font-medium">Location</th>
+        <th class="px-4 py-3 font-medium">Item</th>
+        <th class="px-4 py-3 font-medium text-center">Qty</th>
+        <th class="px-4 py-3 font-medium text-center w-32">Action</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-slate-100" id="stop-list">
+      {% for stop in session.stops %}
+      <tr id="stop-{{ stop.id }}" class="{% if stop.picked %}bg-green-50{% else %}hover:bg-slate-50{% endif %}">
+        <td class="px-4 py-3 text-sm font-mono text-slate-600">{{ stop.order_index + 1 }}</td>
+        <td class="px-4 py-3">
+          <span class="font-mono text-sm font-semibold text-blue-700">{{ stop.bin.location_code }}</span>
+        </td>
+        <td class="px-4 py-3">
+          <div class="font-medium text-slate-800">{{ stop.item.name }}</div>
+          <div class="text-xs text-slate-500">{{ stop.item.sku }}</div>
+        </td>
+        <td class="px-4 py-3 text-center font-semibold">{{ stop.quantity }}</td>
+        <td class="px-4 py-3 text-center">
+          {% if stop.picked %}
+          <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+            ✓ Picked
+          </span>
+          {% elif session.status != 'completed' %}
+          <button
+            class="btn-sm-primary"
+            hx-post="/pick/{{ session.id }}/stop/{{ stop.id }}/check"
+            hx-target="#stop-{{ stop.id }}"
+            hx-swap="outerHTML"
+          >
+            Pick ✓
+          </button>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="card text-center py-12 text-slate-400">No stops in this session.</div>
+{% endif %}
+
+<div class="mt-4">
+  <a href="/pick/history" class="text-slate-500 hover:text-slate-700 text-sm">← Back to history</a>
+</div>
+{% endblock %}

@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Pick History{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <h1 class="text-2xl font-bold text-slate-800">Pick History</h1>
+    <p class="text-slate-500 text-sm mt-1">All pick sessions</p>
+  </div>
+  <a href="/pick/new" class="btn-primary">+ New Pick</a>
+</div>
+
+{% if sessions %}
+<div class="card p-0 overflow-hidden">
+  <table class="w-full text-sm">
+    <thead class="bg-slate-50 border-b border-slate-200">
+      <tr class="text-left text-slate-500">
+        <th class="px-4 py-3 font-medium">#</th>
+        <th class="px-4 py-3 font-medium">Created</th>
+        <th class="px-4 py-3 font-medium">Operator</th>
+        <th class="px-4 py-3 font-medium text-center">Stops</th>
+        <th class="px-4 py-3 font-medium text-center">Picked</th>
+        <th class="px-4 py-3 font-medium">Status</th>
+        <th class="px-4 py-3 font-medium"></th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-slate-100">
+      {% for s in sessions %}
+      {% set total = s.stops | length %}
+      {% set picked = s.stops | selectattr('picked') | list | length %}
+      <tr class="hover:bg-slate-50">
+        <td class="px-4 py-3 font-mono text-slate-600">#{{ s.id }}</td>
+        <td class="px-4 py-3 text-slate-600">{{ s.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+        <td class="px-4 py-3">{{ s.operator.username }}</td>
+        <td class="px-4 py-3 text-center">{{ total }}</td>
+        <td class="px-4 py-3 text-center">
+          {% if total > 0 %}
+          <div class="flex items-center gap-1 justify-center">
+            <div class="w-16 bg-slate-200 rounded-full h-1.5">
+              <div class="bg-green-500 h-1.5 rounded-full" style="width: {{ (picked/total*100)|int }}%"></div>
+            </div>
+            <span class="text-xs text-slate-500">{{ picked }}/{{ total }}</span>
+          </div>
+          {% else %}—{% endif %}
+        </td>
+        <td class="px-4 py-3">
+          <span class="status-badge status-{{ s.status }}">{{ s.status }}</span>
+        </td>
+        <td class="px-4 py-3">
+          {% if s.status in ('open', 'completed') %}
+          <a href="/pick/{{ s.id }}" class="text-blue-600 hover:underline text-sm">View</a>
+          {% elif s.status == 'draft' %}
+          <a href="/pick/{{ s.id }}/build" class="text-blue-600 hover:underline text-sm">Continue</a>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="card text-center py-16">
+  <div class="text-5xl mb-4">📋</div>
+  <p class="text-slate-500 text-lg mb-4">No pick sessions yet.</p>
+  <a href="/pick/new" class="btn-primary">Create First Pick</a>
+</div>
+{% endif %}
+{% endblock %}

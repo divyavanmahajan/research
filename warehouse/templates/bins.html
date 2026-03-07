@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Bins{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <h1 class="text-2xl font-bold text-slate-800">Bins</h1>
+    <p class="text-slate-500 text-sm mt-1">All bins with capacity overview</p>
+  </div>
+</div>
+
+{% if bins %}
+<div class="card p-0 overflow-hidden">
+  <table class="w-full text-sm">
+    <thead class="bg-slate-50 border-b border-slate-200">
+      <tr class="text-left text-slate-500">
+        <th class="px-4 py-3 font-medium">Location</th>
+        <th class="px-4 py-3 font-medium">Size</th>
+        <th class="px-4 py-3 font-medium">Dimensions (cm)</th>
+        <th class="px-4 py-3 font-medium">Volume (cm³)</th>
+        <th class="px-4 py-3 font-medium">Items</th>
+        <th class="px-4 py-3 font-medium w-48">Capacity</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-slate-100">
+      {% for bin in bins %}
+      {% set pct = bin.capacity_pct %}
+      <tr class="hover:bg-slate-50">
+        <td class="px-4 py-3">
+          <span class="font-mono font-semibold text-blue-700">{{ bin.location_code }}</span>
+        </td>
+        <td class="px-4 py-3">
+          <span class="inline-block px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-600">{{ bin.size_category }}</span>
+        </td>
+        <td class="px-4 py-3 text-slate-600 font-mono text-xs">
+          {{ bin.width_cm|int }}×{{ bin.height_cm|int }}×{{ bin.depth_cm|int }}
+        </td>
+        <td class="px-4 py-3 text-slate-600 font-mono text-xs">
+          {{ "%.0f"|format(bin.used_volume_cm3) }} / {{ "%.0f"|format(bin.volume_cm3) }}
+        </td>
+        <td class="px-4 py-3 text-slate-600">{{ bin.bin_items | length }}</td>
+        <td class="px-4 py-3">
+          <div class="flex items-center gap-2">
+            <div class="flex-1 bg-slate-200 rounded-full h-2">
+              <div class="h-2 rounded-full transition-all
+                {% if pct >= 90 %}bg-red-500
+                {% elif pct >= 70 %}bg-amber-400
+                {% else %}bg-green-500{% endif %}"
+                style="width: {{ pct }}%"></div>
+            </div>
+            <span class="text-xs text-slate-500 w-8 text-right">{{ pct|int }}%</span>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="card text-center py-16">
+  <div class="text-5xl mb-4">📦</div>
+  <p class="text-slate-500 text-lg">No bins configured yet.</p>
+  {% if user.role == 'admin' %}
+  <p class="text-slate-400 text-sm mt-2">Create aisles and racks first via <a href="/structure" class="text-blue-600 hover:underline">Structure</a>.</p>
+  {% endif %}
+</div>
+{% endif %}
+{% endblock %}

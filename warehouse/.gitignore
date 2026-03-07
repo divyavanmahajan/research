@@ -1,0 +1,7 @@
+__pycache__/
+*.py[cod]
+warehouse.db
+.rodney/
+# showboat intermediate captures (UUID-named screenshots)
+warehouse/demo/[0-9a-f][0-9a-f][0-9a-f][0-9a-f]*-????-??-??.png
+demo/[0-9a-f][0-9a-f][0-9a-f][0-9a-f]*-????-??-??.png
