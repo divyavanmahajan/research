@@ -156,6 +156,27 @@ def generate_route(
     return RedirectResponse(f"/pick/{session_id}", status_code=303)
 
 
+# ── History (must be before /{session_id} to avoid capture) ──────────────────
+
+@router.get("/pick/history", response_class=HTMLResponse)
+def pick_history(
+    request: Request,
+    msg: str = "",
+    error: str = "",
+    db: Session = Depends(get_db),
+    user: models.User = Depends(require_user),
+):
+    sessions = (
+        db.query(models.PickSession)
+        .order_by(models.PickSession.created_at.desc())
+        .all()
+    )
+    return templates.TemplateResponse(
+        "pick_history.html",
+        {"request": request, "sessions": sessions, "user": user, "msg": msg, "error": error},
+    )
+
+
 # ── Active pick session ───────────────────────────────────────────────────────
 
 @router.get("/pick/{session_id}", response_class=HTMLResponse)
@@ -269,24 +290,3 @@ def check_stop(
         return HTMLResponse(content=combined)
 
     return RedirectResponse(f"/pick/{session_id}", status_code=303)
-
-
-# ── History ───────────────────────────────────────────────────────────────────
-
-@router.get("/pick/history", response_class=HTMLResponse)
-def pick_history(
-    request: Request,
-    msg: str = "",
-    error: str = "",
-    db: Session = Depends(get_db),
-    user: models.User = Depends(require_user),
-):
-    sessions = (
-        db.query(models.PickSession)
-        .order_by(models.PickSession.created_at.desc())
-        .all()
-    )
-    return templates.TemplateResponse(
-        "pick_history.html",
-        {"request": request, "sessions": sessions, "user": user, "msg": msg, "error": error},
-    )

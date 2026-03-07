@@ -1,9 +1,9 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 
+import bcrypt
+import jwt
 from fastapi import Request, Depends
-from jose import JWTError, jwt
-from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 
 from database import get_db
@@ -12,8 +12,6 @@ import models
 SECRET_KEY = "wms-demo-secret-change-in-production-2026"
 ALGORITHM = "HS256"
 TOKEN_EXPIRY_HOURS = 8
-
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 # ── Exceptions (converted to redirects in main.py) ──────────────────────────
@@ -29,17 +27,17 @@ class NotAuthorized(Exception):
 # ── Password helpers ─────────────────────────────────────────────────────────
 
 def hash_password(plain: str) -> str:
-    return pwd_context.hash(plain)
+    return bcrypt.hashpw(plain.encode(), bcrypt.gensalt()).decode()
 
 
 def verify_password(plain: str, hashed: str) -> bool:
-    return pwd_context.verify(plain, hashed)
+    return bcrypt.checkpw(plain.encode(), hashed.encode())
 
 
 # ── JWT helpers ───────────────────────────────────────────────────────────────
 
 def create_token(user_id: int, username: str, role: str) -> str:
-    expire = datetime.utcnow() + timedelta(hours=TOKEN_EXPIRY_HOURS)
+    expire = datetime.now(timezone.utc) + timedelta(hours=TOKEN_EXPIRY_HOURS)
     payload = {
         "sub": str(user_id),
         "username": username,
@@ -52,7 +50,7 @@ def create_token(user_id: int, username: str, role: str) -> str:
 def decode_token(token: str) -> Optional[dict]:
     try:
         return jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-    except JWTError:
+    except jwt.PyJWTError:
         return None
 
 

@@ -149,11 +149,10 @@ $RD waitload
 shot "08_inventory_page"
 
 note "Adding 50× Allen Key 3mm to bin A1-R3-L2-B1."
-$RD select "select[name=bin_id]" "12"
-$RD select "select[name=item_id]" "11"
-$RD clear "input[name=quantity]"
-$RD input "input[name=quantity]" "50"
-$RD click "button[type=submit]"
+$RD js "document.querySelector('select[name=bin_id]').value='12'"
+$RD js "(s=>Array.from(s.options).filter(o=>o.text.includes('KEY-HEX-3MM')).forEach(o=>o.selected=true))(document.querySelector('select[name=item_id]'))"
+$RD js "document.querySelector('input[name=quantity]').value='50'"
+$RD click "form[action='/inventory/add'] button[type=submit]"
 $RD waitload
 shot "09_inventory_updated"
 
@@ -197,19 +196,17 @@ $RD waitstable
 shot "13_pick_basket_empty"
 
 note "Adding Bolt M6 25mm (qty 10) to basket."
-# Find the first add button for item 1
-$RD click "form[action*='/basket/add']:nth-of-type(1) button"
+$RD js "Array.from(document.querySelectorAll('table tbody tr')).filter(r=>r.textContent.includes('BOLT-M6-25'))[0].querySelector('button').click()"
 $RD waitstable
 shot "14_basket_item1"
 
-note "Adding USB Cable 2m (qty 5) to basket."
-# Scroll to and click the USB Cable add button
-$RD js "document.querySelectorAll('form[action*=\"/basket/add\"] button')[7].click()"
+note "Adding USB Cable 2m to basket."
+$RD js "Array.from(document.querySelectorAll('table tbody tr')).filter(r=>r.textContent.includes('CAB-USB-2M'))[0].querySelector('button').click()"
 $RD waitstable
 shot "15_basket_item2"
 
-note "Adding Ethernet Cat6 5m (qty 2) to basket."
-$RD js "document.querySelectorAll('form[action*=\"/basket/add\"] button')[8].click()"
+note "Adding Ethernet Cat6 5m to basket."
+$RD js "Array.from(document.querySelectorAll('table tbody tr')).filter(r=>r.textContent.includes('CAB-ETH-5M'))[0].querySelector('button').click()"
 $RD waitstable
 shot "16_basket_three_items"
 
@@ -223,7 +220,7 @@ Clicking **Generate Route** sends the basket to the server. The system assigns
 items to bins using nearest-aisle greedy selection, then sorts stops by
 S-shape traversal (odd aisles ascending, even aisles descending)."
 
-$RD click "form[action*='/generate'] button"
+$RD js "document.querySelector('form[action*=\"/generate\"]').submit()"
 $RD waitload
 shot "17_pick_route_generated"
 
@@ -239,17 +236,17 @@ The operator works through the ordered list and checks off each stop.
 HTMX updates the progress bar and marks the row green — no page reload."
 
 note "Checking off stop 1 (first bin in route)."
-$RD click "button[hx-post*='/stop/'][hx-post*='/check']:nth-of-type(1)"
+$RD js "document.querySelector('button[hx-post*=\"/check\"]').click()"
 $RD waitstable
 shot "18_pick_stop1_done"
 
 note "Checking off stop 2."
-$RD click "button[hx-post*='/stop/'][hx-post*='/check']:nth-of-type(1)"
+$RD js "document.querySelector('button[hx-post*=\"/check\"]').click()"
 $RD waitstable
 shot "19_pick_stop2_done"
 
 note "Checking off final stop — session auto-completes."
-$RD click "button[hx-post*='/stop/'][hx-post*='/check']:nth-of-type(1)"
+$RD js "document.querySelector('button[hx-post*=\"/check\"]').click()"
 $RD waitstable
 shot "20_pick_completed"
 
