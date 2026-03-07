@@ -1,0 +1,57 @@
+{% if not query %}
+<div class="card text-center py-12 text-slate-400">
+  <div class="text-4xl mb-3">🔍</div>
+  <p>Start typing to search items…</p>
+</div>
+{% elif not results %}
+<div class="card text-center py-12 text-slate-400">
+  <div class="text-4xl mb-3">😕</div>
+  <p>No items found for <strong class="text-slate-600">"{{ query }}"</strong></p>
+</div>
+{% else %}
+<div class="card p-0 overflow-hidden">
+  <div class="px-4 py-3 border-b border-slate-200 bg-slate-50 text-sm text-slate-500">
+    {{ results | length }} result(s) for <strong class="text-slate-700">"{{ query }}"</strong>
+  </div>
+  <table class="w-full text-sm">
+    <thead class="border-b border-slate-200">
+      <tr class="text-left text-slate-500">
+        <th class="px-4 py-3 font-medium">SKU</th>
+        <th class="px-4 py-3 font-medium">Name</th>
+        <th class="px-4 py-3 font-medium">Volume</th>
+        <th class="px-4 py-3 font-medium">Bin Locations</th>
+        <th class="px-4 py-3 font-medium text-center">Stock</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-slate-100">
+      {% for row in results %}
+      <tr class="hover:bg-slate-50">
+        <td class="px-4 py-3 font-mono font-semibold text-blue-700">{{ row.item.sku }}</td>
+        <td class="px-4 py-3 text-slate-800 font-medium">{{ row.item.name }}</td>
+        <td class="px-4 py-3 font-mono text-xs text-slate-500">{{ "%.1f"|format(row.item.volume_cm3) }} cm³</td>
+        <td class="px-4 py-3">
+          {% if row.locations %}
+          <div class="space-y-1">
+            {% for loc in row.locations %}
+            <div class="flex items-center gap-2">
+              <span class="font-mono text-xs font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded">{{ loc.location_code }}</span>
+              <span class="text-xs text-slate-500">qty: {{ loc.quantity }}</span>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <span class="text-xs text-red-400 italic">Out of stock</span>
+          {% endif %}
+        </td>
+        <td class="px-4 py-3 text-center">
+          {% set total_qty = row.locations | sum(attribute='quantity') %}
+          <span class="font-semibold {% if total_qty == 0 %}text-red-500{% else %}text-green-600{% endif %}">
+            {{ total_qty }}
+          </span>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}

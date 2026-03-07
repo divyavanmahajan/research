@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+  <h1 class="text-2xl font-bold text-slate-800">Dashboard</h1>
+  <p class="text-slate-500 text-sm mt-1">Warehouse overview</p>
+</div>
+
+<!-- Stats cards -->
+<div class="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+  <div class="card">
+    <div class="text-3xl font-bold text-blue-600">{{ total_aisles }}</div>
+    <div class="text-sm text-slate-500 mt-1">Aisles</div>
+  </div>
+  <div class="card">
+    <div class="text-3xl font-bold text-purple-600">{{ total_racks }}</div>
+    <div class="text-sm text-slate-500 mt-1">Racks</div>
+  </div>
+  <div class="card">
+    <div class="text-3xl font-bold text-indigo-600">{{ total_bins }}</div>
+    <div class="text-sm text-slate-500 mt-1">Bins</div>
+  </div>
+  <div class="card">
+    <div class="text-3xl font-bold text-green-600">{{ total_items }}</div>
+    <div class="text-sm text-slate-500 mt-1">Item Types</div>
+  </div>
+  <div class="card col-span-2 lg:col-span-1">
+    <div class="text-3xl font-bold
+      {% if capacity_pct >= 90 %}text-red-600
+      {% elif capacity_pct >= 70 %}text-amber-500
+      {% else %}text-green-600{% endif %}">
+      {{ capacity_pct }}%
+    </div>
+    <div class="text-sm text-slate-500 mt-1">Capacity Used</div>
+    <div class="mt-2 w-full bg-slate-200 rounded-full h-2">
+      <div class="h-2 rounded-full
+        {% if capacity_pct >= 90 %}bg-red-500
+        {% elif capacity_pct >= 70 %}bg-amber-400
+        {% else %}bg-green-500{% endif %}"
+        style="width: {{ capacity_pct }}%"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Quick actions -->
+<div class="grid grid-cols-3 gap-4 mb-8">
+  <a href="/pick/new" class="card hover:shadow-md transition cursor-pointer text-center py-6">
+    <div class="text-3xl mb-2">🛒</div>
+    <div class="font-semibold text-slate-700">New Pick Session</div>
+    <div class="text-xs text-slate-500 mt-1">Create an optimised pick route</div>
+  </a>
+  <a href="/search" class="card hover:shadow-md transition cursor-pointer text-center py-6">
+    <div class="text-3xl mb-2">🔍</div>
+    <div class="font-semibold text-slate-700">Search Inventory</div>
+    <div class="text-xs text-slate-500 mt-1">Find items by name or SKU</div>
+  </a>
+  <a href="/inventory" class="card hover:shadow-md transition cursor-pointer text-center py-6">
+    <div class="text-3xl mb-2">📥</div>
+    <div class="font-semibold text-slate-700">Add / Remove Stock</div>
+    <div class="text-xs text-slate-500 mt-1">Update bin inventory</div>
+  </a>
+</div>
+
+<!-- Recent pick sessions -->
+<div class="card">
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="font-semibold text-slate-700">Recent Pick Sessions</h2>
+    <a href="/pick/history" class="text-blue-600 hover:underline text-sm">View all</a>
+  </div>
+  {% if recent_sessions %}
+  <table class="w-full text-sm">
+    <thead>
+      <tr class="text-left text-slate-500 border-b border-slate-200">
+        <th class="pb-2 font-medium">#</th>
+        <th class="pb-2 font-medium">Date</th>
+        <th class="pb-2 font-medium">Operator</th>
+        <th class="pb-2 font-medium">Stops</th>
+        <th class="pb-2 font-medium">Status</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-slate-100">
+      {% for s in recent_sessions %}
+      <tr class="hover:bg-slate-50">
+        <td class="py-2 font-mono text-slate-600">
+          <a href="/pick/{{ s.id }}" class="text-blue-600 hover:underline">#{{ s.id }}</a>
+        </td>
+        <td class="py-2 text-slate-600">{{ s.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+        <td class="py-2">{{ s.operator.username }}</td>
+        <td class="py-2">{{ s.stops | length }}</td>
+        <td class="py-2">
+          <span class="status-badge status-{{ s.status }}">{{ s.status }}</span>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="text-slate-400 text-sm text-center py-8">No pick sessions yet.</p>
+  {% endif %}
+</div>
+{% endblock %}

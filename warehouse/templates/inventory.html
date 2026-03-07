@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block title %}Inventory{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+  <h1 class="text-2xl font-bold text-slate-800">Inventory</h1>
+  <p class="text-slate-500 text-sm mt-1">Add or remove stock from bins</p>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+  <!-- Add stock -->
+  <div class="card">
+    <h2 class="font-semibold text-slate-700 mb-4 flex items-center gap-2">
+      <span class="text-green-600">+</span> Add Stock to Bin
+    </h2>
+    <form method="POST" action="/inventory/add" class="space-y-4">
+      <div>
+        <label class="form-label">Bin (location)</label>
+        <select name="bin_id" required class="form-input">
+          <option value="">Select bin…</option>
+          {% for bin in bins %}
+          <option value="{{ bin.id }}">{{ bin.location_code }} ({{ "%.0f"|format(bin.volume_cm3 - bin.used_volume_cm3) }} cm³ free)</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label class="form-label">Item</label>
+        <select name="item_id" required class="form-input">
+          <option value="">Select item…</option>
+          {% for item in items %}
+          <option value="{{ item.id }}">{{ item.sku }} — {{ item.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label class="form-label">Quantity</label>
+        <input name="quantity" type="number" min="1" value="1" required class="form-input">
+      </div>
+      <button type="submit" class="btn-primary w-full">Add to Bin</button>
+    </form>
+  </div>
+
+  <!-- Remove stock -->
+  <div class="card">
+    <h2 class="font-semibold text-slate-700 mb-4 flex items-center gap-2">
+      <span class="text-red-500">−</span> Remove Stock from Bin
+    </h2>
+    <form method="POST" action="/inventory/remove" class="space-y-4">
+      <div>
+        <label class="form-label">Bin (location)</label>
+        <select name="bin_id" required class="form-input">
+          <option value="">Select bin…</option>
+          {% for bin in bins %}
+          <option value="{{ bin.id }}">{{ bin.location_code }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label class="form-label">Item</label>
+        <select name="item_id" required class="form-input">
+          <option value="">Select item…</option>
+          {% for item in items %}
+          <option value="{{ item.id }}">{{ item.sku }} — {{ item.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label class="form-label">Quantity</label>
+        <input name="quantity" type="number" min="1" value="1" required class="form-input">
+      </div>
+      <button type="submit" class="btn-danger w-full">Remove from Bin</button>
+    </form>
+  </div>
+</div>
+
+<!-- Current inventory table -->
+<div class="card p-0 overflow-hidden">
+  <div class="px-5 py-4 border-b border-slate-200">
+    <h2 class="font-semibold text-slate-700">Current Inventory</h2>
+  </div>
+  {% if bin_items %}
+  <table class="w-full text-sm">
+    <thead class="bg-slate-50 border-b border-slate-200">
+      <tr class="text-left text-slate-500">
+        <th class="px-4 py-3 font-medium">Location</th>
+        <th class="px-4 py-3 font-medium">SKU</th>
+        <th class="px-4 py-3 font-medium">Item</th>
+        <th class="px-4 py-3 font-medium text-center">Qty</th>
+        <th class="px-4 py-3 font-medium">Added</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-slate-100">
+      {% for bi in bin_items %}
+      <tr class="hover:bg-slate-50">
+        <td class="px-4 py-3 font-mono text-sm font-semibold text-blue-700">{{ bi.bin.location_code }}</td>
+        <td class="px-4 py-3 font-mono text-sm text-slate-600">{{ bi.item.sku }}</td>
+        <td class="px-4 py-3 text-slate-800">{{ bi.item.name }}</td>
+        <td class="px-4 py-3 text-center font-semibold">{{ bi.quantity }}</td>
+        <td class="px-4 py-3 text-slate-400 text-xs">{{ bi.added_at.strftime('%Y-%m-%d') }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="text-center py-12 text-slate-400">No inventory stocked yet.</div>
+  {% endif %}
+</div>
+{% endblock %}

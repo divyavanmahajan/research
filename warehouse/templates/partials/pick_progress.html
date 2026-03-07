@@ -1,0 +1,11 @@
+<div class="flex justify-between text-sm mb-1">
+  <span class="font-medium text-slate-700">Progress</span>
+  <span class="text-slate-500">{{ picked }}/{{ total }} stops</span>
+</div>
+<div class="w-full bg-slate-200 rounded-full h-4">
+  <div class="{% if pct == 100 %}bg-green-500{% else %}bg-blue-500{% endif %} h-4 rounded-full transition-all duration-300"
+       style="width: {{ pct }}%"></div>
+</div>
+{% if completed %}
+<p class="mt-2 text-green-700 font-semibold text-center">All done! Pick session completed.</p>
+{% endif %}

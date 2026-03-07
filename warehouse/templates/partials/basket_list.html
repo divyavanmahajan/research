@@ -1,0 +1,25 @@
+{% if session.pick_items %}
+<div class="space-y-2">
+  {% for pi in session.pick_items %}
+  <div class="flex items-center justify-between bg-slate-50 rounded-lg px-3 py-2">
+    <div>
+      <div class="text-sm font-medium text-slate-800">{{ pi.item.name }}</div>
+      <div class="text-xs text-slate-500">{{ pi.item.sku }} · qty: {{ pi.quantity_requested }}</div>
+    </div>
+    <button
+      class="text-red-400 hover:text-red-600 text-xs"
+      hx-post="/pick/{{ session.id }}/basket/remove/{{ pi.item_id }}"
+      hx-target="#basket-list"
+      hx-swap="innerHTML"
+    >✕</button>
+  </div>
+  {% endfor %}
+</div>
+<p class="text-xs text-slate-400 mt-2 text-center">{{ session.pick_items | length }} item(s) in basket</p>
+{% else %}
+<div class="text-center py-8 text-slate-400 text-sm">
+  <div class="text-3xl mb-2">🛒</div>
+  <p>Basket is empty</p>
+  <p class="text-xs mt-1">Search and add items</p>
+</div>
+{% endif %}

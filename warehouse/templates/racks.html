@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Racks — {{ aisle.code }}{% endblock %}
+
+{% block content %}
+<div class="mb-4 text-sm text-slate-500">
+  <a href="/aisles" class="hover:text-slate-700">Aisles</a> /
+  <span class="text-slate-800 font-medium">{{ aisle.code }}</span>
+</div>
+
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <h1 class="text-2xl font-bold text-slate-800">Racks — {{ aisle.code }}</h1>
+    <p class="text-slate-500 text-sm mt-1">{{ aisle.name }}</p>
+  </div>
+</div>
+
+{% if user.role == 'admin' %}
+<div class="card mb-6">
+  <h2 class="font-semibold text-slate-700 mb-4">Add Rack</h2>
+  <form method="POST" action="/aisles/{{ aisle.id }}/racks" class="flex gap-4">
+    <div class="flex-1">
+      <label class="form-label">Code</label>
+      <input name="code" type="text" required class="form-input" placeholder="e.g. R3">
+    </div>
+    <div class="flex-1">
+      <label class="form-label">Name</label>
+      <input name="name" type="text" required class="form-input" placeholder="e.g. Rack 3">
+    </div>
+    <div class="flex items-end">
+      <button type="submit" class="btn-primary">Add Rack</button>
+    </div>
+  </form>
+</div>
+{% endif %}
+
+{% if racks %}
+<div class="card p-0 overflow-hidden">
+  <table class="w-full text-sm">
+    <thead class="bg-slate-50 border-b border-slate-200">
+      <tr class="text-left text-slate-500">
+        <th class="px-4 py-3 font-medium">Code</th>
+        <th class="px-4 py-3 font-medium">Name</th>
+        <th class="px-4 py-3 font-medium">Levels</th>
+        <th class="px-4 py-3 font-medium"></th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-slate-100">
+      {% for rack in racks %}
+      <tr class="hover:bg-slate-50">
+        <td class="px-4 py-3 font-mono font-semibold text-blue-700">{{ rack.code }}</td>
+        <td class="px-4 py-3 text-slate-800">{{ rack.name }}</td>
+        <td class="px-4 py-3">
+          <a href="/racks/{{ rack.id }}/levels" class="text-blue-600 hover:underline">{{ rack.levels | length }}/3 level(s)</a>
+        </td>
+        <td class="px-4 py-3">
+          {% if user.role == 'admin' %}
+          <form method="POST" action="/racks/{{ rack.id }}/delete"
+                onsubmit="return confirm('Delete rack {{ rack.code }}?')">
+            <button type="submit" class="text-red-500 hover:text-red-700 text-xs font-medium">Delete</button>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="card text-center py-12 text-slate-400">No racks yet.</div>
+{% endif %}
+{% endblock %}
