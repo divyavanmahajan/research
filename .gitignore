@@ -33,3 +33,4 @@ Thumbs.db
 
 # Showboat generated assets
 whatsup/docs/demos/assets/
+__pycache__/
