@@ -1,0 +1,406 @@
+# dvm-haranalyzer
+
+A command-line tool that parses `.har` files and identifies page-load bottlenecks —
+slow requests, large assets, missing cache headers, ad/tracker overload, and more.
+
+## Installation
+
+### Run without installing (uvx)
+
+```bash
+uvx dvm-haranalyzer metrics/hars/mypage.har
+```
+
+### Install as a persistent tool
+
+```bash
+uv tool install dvm-haranalyzer
+dvm-haranalyzer metrics/hars/mypage.har
+```
+
+### Install from source (editable)
+
+```bash
+git clone https://github.com/divyavanmahajan/dvm-haranalyzer
+cd dvm-haranalyzer
+uv tool install --editable .
+```
+
+## Quick Start
+
+```bash
+# Analyze a HAR file and print the report
+uvx dvm-haranalyzer metrics/hars/mypage.har
+
+# Save the report to metrics/reports/ as well
+uvx dvm-haranalyzer metrics/hars/mypage.har --output metrics/reports/
+```
+
+## How to Capture a HAR File
+
+### Chrome / Edge
+1. Open DevTools (`F12` or `Cmd+Option+I`)
+2. Go to the **Network** tab
+3. Check **Preserve log** and **Disable cache**
+4. Navigate to the page you want to analyze
+5. Right-click the request list → **Save all as HAR with content**
+6. Save the file into `metrics/hars/`
+
+### Firefox
+1. Open DevTools → **Network** tab
+2. Navigate to the page
+3. Click the gear icon → **Save All As HAR**
+
+### Safari
+1. Open **Develop** menu → **Show Web Inspector**
+2. Go to the **Network** tab
+3. Navigate to the page
+4. Click **Export** (floppy disk icon) to save the HAR
+
+## Sanitizing HAR Files Before Analysis
+
+> **Important:** HAR files captured from a browser contain session cookies, auth tokens,
+> API keys, and personal data. Sanitize them before sharing, committing, or storing.
+
+[`har-capture`](https://pypi.org/project/har-capture/) handles sanitization.
+It requires no permanent installation — run it with `uvx`:
+
+```bash
+uvx "har-capture[cli]" <command>
+```
+
+### Recommended workflow
+
+```
+capture in browser  →  validate  →  sanitize  →  analyze
+```
+
+---
+
+### 1. Validate — check what's sensitive before touching it
+
+```bash
+# Check a single file
+uvx "har-capture[cli]" validate metrics/hars/mypage.har
+
+# Scan the whole hars/ folder (recursive)
+uvx "har-capture[cli]" validate --dir metrics/hars/ --recursive
+
+# Treat any warning as an error (useful in CI)
+uvx "har-capture[cli]" validate metrics/hars/mypage.har --strict
+```
+
+The validator scans for passwords, tokens, API keys, MAC addresses, IP addresses,
+and other PII and exits non-zero if any are found.
+
+---
+
+### 2. Sanitize — redact PII and produce a clean file
+
+```bash
+# Basic — writes mypage.sanitized.har alongside the original
+uvx "har-capture[cli]" sanitize metrics/hars/mypage.har
+
+# Write to a specific path
+uvx "har-capture[cli]" sanitize metrics/hars/mypage.har --output metrics/hars/mypage.clean.har
+
+# Also produce a compressed .har.gz (useful for large captures)
+uvx "har-capture[cli]" sanitize metrics/hars/mypage.har --compress
+
+# Write a JSON report of everything that was redacted
+uvx "har-capture[cli]" sanitize metrics/hars/mypage.har --report metrics/reports/redaction.json
+
+# Skip the interactive review step (good for scripting)
+uvx "har-capture[cli]" sanitize metrics/hars/mypage.har --no-interactive
+```
+
+**How redaction works:**
+
+By default each sensitive value is replaced with a salted hash. The same value always
+maps to the same hash within a session, so cross-request correlation is preserved while
+the actual value is hidden. Pass `--no-salt` to use static `[REDACTED]` placeholders
+instead.
+
+---
+
+### 3. Capture directly from a URL (auto-sanitizes)
+
+`har-capture get` drives a headless browser and sanitizes the output in one step:
+
+```bash
+# Capture and auto-sanitize (writes <hostname>.har + <hostname>.har.gz)
+uvx "har-capture[cli]" get https://example.com
+
+# Save to a specific file
+uvx "har-capture[cli]" get https://example.com --output metrics/hars/example.har
+
+# Keep the raw (unsanitized) file alongside the sanitized one
+uvx "har-capture[cli]" get https://example.com --keep-raw
+
+# Include images and fonts in the capture (excluded by default)
+uvx "har-capture[cli]" get https://example.com --include-images --include-fonts
+
+# Use Firefox instead of the default Chromium
+uvx "har-capture[cli]" get https://example.com --browser firefox
+
+# Skip sanitization (not recommended for sharing)
+uvx "har-capture[cli]" get https://example.com --no-sanitize
+```
+
+---
+
+### Full workflow example
+
+```bash
+# 1. Capture from URL into the metrics/hars folder
+uv run --with "har-capture[cli]" --python python3 \
+  har-capture get https://www.example.com \
+    --output metrics/hars/example.har \
+    --include-images
+
+# 2. Validate the sanitized file
+uvx "har-capture[cli]" validate metrics/hars/example.har --strict
+
+# 3. Analyze
+uvx dvm-haranalyzer metrics/hars/example.har --output metrics/reports/
+```
+
+Or, for a HAR captured manually in the browser:
+
+```bash
+# 1. Sanitize the browser export
+uvx "har-capture[cli]" sanitize metrics/hars/raw.har \
+    --output metrics/hars/raw.clean.har \
+    --report metrics/reports/redaction.json
+
+# 2. Validate the result
+uvx "har-capture[cli]" validate metrics/hars/raw.clean.har --strict
+
+# 3. Analyze
+uvx dvm-haranalyzer metrics/hars/raw.clean.har --output metrics/reports/
+```
+
+---
+
+## Output
+
+The tool prints a report to stdout containing:
+
+| Section | What it shows |
+|---|---|
+| Overview | DOMContentLoaded, onLoad, request count, total transfer size |
+| Bottleneck Summary | Ranked list of CRITICAL / WARNING findings with fix recommendations |
+| Top Slowest Requests | Time, TTFB, SSL, status, KB for the 15 slowest requests |
+| Large Resources | Resources over 50 KB with type and cache headers |
+| Content Type Breakdown | Total KB per MIME type |
+| Top Domains | Request count, KB, and average time per origin |
+| Slow TTFB | Requests with >300ms wait time |
+| Slow TLS | Cold TLS handshakes >100ms |
+| Slow DNS | DNS lookups >50ms |
+| Poorly Cached Resources | Large resources missing Cache-Control |
+| Redirects | All 3xx chains |
+| HTTP Version Breakdown | HTTP/1.1 vs HTTP/2 usage |
+| Concurrency | Peak concurrent requests in the first 5 seconds |
+
+When `--output` is given, the report is also written to a timestamped file:
+```
+metrics/reports/<stem>_YYYYMMDD_HHMMSS.txt
+```
+
+## All Options
+
+```
+dvm-haranalyzer <har> [options]
+
+Positional:
+  har                  Path to the .har file
+
+Options:
+  --output, -o DIR     Directory to write the text report
+  --large-kb N         Threshold (KB) for "large resource" section (default: 50)
+  --ttfb-ms N          Slow TTFB threshold in ms (default: 300)
+  --ssl-ms N           Slow TLS threshold in ms (default: 100)
+  --dns-ms N           Slow DNS threshold in ms (default: 50)
+  --top-n N            Number of slowest requests to list (default: 15)
+```
+
+## Folder Structure
+
+```
+dvm-haranalyzer/
+├── main.py            # main script
+├── README.md          # this file
+├── pyproject.toml     # package configuration
+└── metrics/
+    ├── hars/          # drop your .har files here
+    └── reports/       # generated reports land here
+```
+
+## Examples
+
+```bash
+# Higher threshold — only flag resources over 200 KB
+uvx dvm-haranalyzer metrics/hars/checkout.har --large-kb 200
+
+# Show top 30 slowest requests
+uvx dvm-haranalyzer metrics/hars/homepage.har --top-n 30
+
+# Stricter TTFB — flag anything over 100ms
+uvx dvm-haranalyzer metrics/hars/api-heavy.har --ttfb-ms 100 --output metrics/reports/
+```
+
+---
+
+## Demo — MSN.com Performance Analysis
+
+This demo walks through the full workflow for capturing and analyzing a page's network performance:
+
+1. **Capture** — `har-capture get` opens a Chromium browser, records all traffic as you interact with the page, and auto-sanitizes the result
+2. **Validate** — confirm no PII leaked into the HAR before analysis
+3. **Sanitize** — strip any remaining cookies, tokens, and personal data
+4. **Analyze** — `dvm-haranalyzer` surfaces bottlenecks ranked by severity
+
+### Step 1 — Capture www.msn.com
+
+`har-capture get` opens a real Chromium browser window pointed at the target URL.
+You interact with the page normally (scroll, click, wait for ads to load), then
+close the browser tab. The tool records all traffic, auto-sanitizes PII, and writes
+the result to the output path.
+
+```bash
+# Run this yourself — it opens a Chromium window. Browse the page, then close the tab.
+uv run --with "har-capture[cli]" --python python3 \
+  har-capture get https://www.msn.com \
+    --output metrics/hars/msn_live.har \
+    --include-images
+```
+
+### Step 2 — Validate the HAR for PII
+
+Before sanitizing, scan the file to see what sensitive data is present.
+`validate` exits non-zero if anything is found, making it safe to use in CI.
+
+```bash
+uv run --with "har-capture[cli]" --python python3 har-capture validate metrics/hars/msn.har 2>&1 | head -40
+```
+
+```output
+metrics/hars/msn.har:
+  [ERROR] [Entry 0: https://www.msn.com/sv-se (request)]
+     Cookie: MSFPC=GUID=17a4a9247e5241f5bee9b29a4f...
+     Reason: Sensitive header 'cookie' with non-redacted value
+  [ERROR] [Entry 0: https://www.msn.com/sv-se (response)]
+     Set-Cookie: _C_ETH=1; domain=.msn.com; path=/; se...
+     Reason: Sensitive header 'cookie' with non-redacted value
+  [WARN] [Entry 0: https://www.msn.com/sv-se (content)]
+     content: 165.85.67.0
+     Reason: Potential public IP address
+  ...
+```
+
+Validation found cookies, session tokens, and IP addresses in the raw capture — exactly what we need to strip.
+
+### Step 3 — Sanitize
+
+Redacts all sensitive values using salted hashes. The same value maps to the same hash throughout the file, preserving cross-request correlation while hiding actual data.
+
+```bash
+uv run --with "har-capture[cli]" --python python3 har-capture sanitize metrics/hars/msn.har \
+    --output metrics/hars/msn_clean.har \
+    --report metrics/reports/msn_redaction.json \
+    --no-interactive 2>&1
+```
+
+```output
+Sanitizing metrics/hars/msn.har...
+
+  Auto-redacted    3219
+    cookie         3114
+    email          8
+    field          55
+    password       14
+    public_ip      16
+    serial_number  1
+    token          11
+
+  Output           metrics/hars/msn_clean.har
+  Report: metrics/reports/msn_redaction.json
+```
+
+3,219 values automatically redacted. The sanitized HAR is safe to share and commit.
+
+### Step 4 — Analyze for Performance Bottlenecks
+
+```bash
+uvx dvm-haranalyzer metrics/hars/msn_clean.har --output metrics/reports/
+```
+
+```output
+========================================================================
+  HAR ANALYSIS REPORT
+========================================================================
+  File    : metrics/hars/msn_clean.har
+  Page    : https://www.msn.com/sv-se
+  Captured: 2026-03-09T16:58:46.636Z
+
+--- Overview ----------------------------------------------------------
+  DOMContentLoaded : 4,900 ms
+  onLoad           : 11,405 ms
+  Requests         : 418
+  Transferred      : 4158 KB
+
+--- Bottleneck Summary (ranked by severity) ---------------------------
+  [CRITICAL]  1. onLoad = 11.4s (>10s)
+              Page takes over 10 seconds to fully load. Users will abandon.
+
+  [CRITICAL]  2. DOMContentLoaded = 4.9s (>4s)
+              Render-blocking resources or slow TTFB is delaying first parse.
+
+  [CRITICAL]  3. 418 total requests
+              Extremely high request count. Consolidate assets and defer third-party scripts.
+
+  [CRITICAL]  4. JavaScript = 853 KB
+              Excessive JS payload. Apply code splitting, tree-shaking, and defer non-critical bundles.
+
+  [CRITICAL]  5. Images = 2558 KB, <20% modern format
+              Most images are JPEG/PNG. Convert to WebP or AVIF to save 40–60% image weight.
+
+  [CRITICAL]  6. 88 ad/tracker requests across 22 domains
+              Ad/tracker network requests dominate load time. Load them after onLoad or use async facades.
+
+  [WARNING ]  7. 20 requests with TTFB >300ms (worst: 717ms)
+              Slow server response on acdn.adnxs.com. Check server-side rendering, CDN, or DB latency.
+
+  [WARNING ]  8. 10 cold TLS handshakes >100ms
+              Add <link rel='preconnect'> for top third-party origins to amortize TLS cost.
+
+  [WARNING ]  9. 12 resources (396 KB) with no/short cache
+              Add long-lived Cache-Control headers (use content-hash filenames for JS/CSS).
+
+  [WARNING ]  10. 12 requests on HTTP/1.1
+              Upgrade origins to HTTP/2 to enable multiplexing and reduce head-of-line blocking.
+
+  [WARNING ]  11. Peak 35 concurrent requests in first 5s
+              Browser connection pool is saturated. Defer non-critical requests.
+```
+
+### Results Summary
+
+| Metric | Value |
+|---|---|
+| onLoad | **11.4 s** — CRITICAL |
+| DOMContentLoaded | **4.9 s** — CRITICAL |
+| Total requests | **418** |
+| Transferred | **4.16 MB** |
+
+| # | Severity | Finding |
+|---|---|---|
+| 1 | CRITICAL | onLoad >10s — users will abandon |
+| 2 | CRITICAL | DOMContentLoaded >4s — render-blocking resources |
+| 3 | CRITICAL | 418 requests — consolidate and defer |
+| 4 | CRITICAL | 853 KB JavaScript — split and tree-shake bundles |
+| 5 | CRITICAL | 2.5 MB images, <20% WebP/AVIF — convert to modern formats |
+| 6 | CRITICAL | 88 ad/tracker requests across 22 domains — defer past onLoad |
+| 7 | WARNING | 20 requests with TTFB >300ms (worst: 717ms on adnxs.com) |
+| 8 | WARNING | 10 cold TLS handshakes >100ms — add `preconnect` hints |
+
