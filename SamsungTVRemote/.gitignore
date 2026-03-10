@@ -1,0 +1,30 @@
+# Build
+.build/
+DerivedData/
+*.o
+*.d
+*.hmap
+*.ipa
+*.xcarchive
+
+# Xcode
+*.xcuserstate
+xcuserdata/
+*.xccheckout
+*.moved-aside
+*.xcworkspace/xcuserdata/
+
+# Swift Package Manager
+.swiftpm/
+Package.resolved
+
+# CocoaPods
+Pods/
+Podfile.lock
+
+# Carthage
+Carthage/Build/
+
+# macOS
+.DS_Store
+*.swp
