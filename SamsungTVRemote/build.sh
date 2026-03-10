@@ -98,21 +98,22 @@ find_connected_iphone() {
 
 # Best available iPhone Simulator UDID
 find_simulator() {
-  xcrun simctl list devices available -j 2>/dev/null \
-    | python3 - <<'PYEOF'
-import json, sys
-data = json.load(sys.stdin)
-best = None
-for runtime, devices in data.get("devices", {}).items():
-    if "iOS" not in runtime:
-        continue
-    for d in devices:
-        if d.get("isAvailable") and "iPhone" in d.get("name", ""):
-            if best is None or d["name"] > best["name"]:
-                best = d
-if best:
-    print(best["udid"])
-PYEOF
+  # Parse text output of simctl — avoids python3 stdin/heredoc conflict
+  # Lines look like:  "    iPhone 16 Pro (XXXXXXXX-...) (Shutdown)"
+  local udid=""
+  local in_ios=0
+  while IFS= read -r line; do
+    if [[ "$line" =~ ^"-- iOS" ]]; then
+      in_ios=1
+    elif [[ "$line" =~ ^"-- " ]]; then
+      in_ios=0
+    elif [[ $in_ios -eq 1 && "$line" =~ "iPhone" ]]; then
+      local candidate
+      candidate=$(echo "$line" | grep -oE '[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}' | head -1)
+      [[ -n "$candidate" ]] && udid="$candidate"
+    fi
+  done < <(xcrun simctl list devices available 2>/dev/null)
+  echo "$udid"
 }
 
 detect_team_id() {
@@ -155,10 +156,10 @@ build_ios_device() {
     -configuration "$CONFIG" \
     -destination "id=$udid" \
     -derivedDataPath "$DERIVED_DATA" \
-    "${team_args[@]}" \
+    ${team_args[@]+"${team_args[@]}"} \
     BUNDLE_IDENTIFIER="$BUNDLE_ID_IOS" \
     CODE_SIGN_STYLE=Automatic \
-    clean build 2>&1 | tee "$log_file" | xcbeautify 2>/dev/null || _raw_filter "$log_file"
+    clean build 2>&1 | tee "$log_file" | _build_filter
 
   success "iOS build complete."
 
@@ -200,10 +201,8 @@ build_ios_simulator() {
 
   # Boot simulator if not running
   local sim_state
-  sim_state=$(xcrun simctl list devices -j | python3 -c \
-    "import json,sys; d=json.load(sys.stdin); \
-     [print(v.get('state','')) for vs in d['devices'].values() for v in vs if v.get('udid')=='$sim_udid']" \
-    2>/dev/null || echo "")
+  sim_state=$(xcrun simctl list devices 2>/dev/null \
+    | grep "$sim_udid" | grep -o "(Booted)" | tr -d '()' || echo "")
   if [[ "$sim_state" != "Booted" ]]; then
     log "Booting simulator…"
     xcrun simctl boot "$sim_udid" 2>/dev/null || true
@@ -219,15 +218,20 @@ build_ios_simulator() {
     -destination "id=$sim_udid" \
     -derivedDataPath "$DERIVED_DATA" \
     BUNDLE_IDENTIFIER="$BUNDLE_ID_IOS" \
-    clean build 2>&1 | tee "$log_file" | xcbeautify 2>/dev/null || _raw_filter "$log_file"
+    clean build 2>&1 | tee "$log_file" | _build_filter
 
+  local build_exit=${PIPESTATUS[0]}
+  if [[ $build_exit -ne 0 ]]; then
+    error "Build failed (exit $build_exit). Check: $log_file"
+    exit $build_exit
+  fi
   success "iOS Simulator build complete."
 
   local app_path
-  app_path=$(find "$DERIVED_DATA/Build/Products" -name "*.app" -path "*-iphonesimulator*" | head -1)
+  app_path=$(find "$DERIVED_DATA" -name "*.app" -path "*iphonesimulator*" 2>/dev/null | head -1)
   [[ -z "$app_path" ]] && die "Could not find .app for simulator. Check $log_file"
 
-  log "Installing and launching in Simulator…"
+  log "Installing $app_path → simulator $sim_udid"
   xcrun simctl install "$sim_udid" "$app_path"
   xcrun simctl launch "$sim_udid" "$BUNDLE_ID_IOS"
   success "App launched in iPhone Simulator."
@@ -237,15 +241,44 @@ build_ios_simulator() {
 
 build_mac() {
   header "Building macOS"
-  local proj_flag; proj_flag=$(resolve_project_flag)
-  local team; team=$(detect_team_id)
   local log_file="$LOG_DIR/mac-build.log"
-
-  local team_args=()
-  [[ -n "$team" ]] && team_args=(DEVELOPMENT_TEAM="$team")
+  local swift_config
+  swift_config=$(echo "$CONFIG" | tr '[:upper:]' '[:lower:]')  # Debug→debug, Release→release
 
   log "Config: $CONFIG"
   log "Logging to: $log_file"
+
+  # SPM project — use swift build directly (no .xcodeproj present)
+  if [[ -z "$XCODEPROJ" && -z "$XCWORKSPACE" ]]; then
+    swift build -c "$swift_config" 2>&1 | tee "$log_file"
+    local exit_code=${PIPESTATUS[0]}
+    if [[ $exit_code -ne 0 ]]; then
+      error "Build failed (exit $exit_code). Check: $log_file"
+      exit $exit_code
+    fi
+    success "macOS build complete."
+
+    # Locate the executable produced by swift build
+    local bin_dir
+    bin_dir=$(swift build -c "$swift_config" --show-bin-path 2>/dev/null)
+    local exe_path="$bin_dir/SamsungRemote-macOS"
+
+    if [[ -f "$exe_path" ]]; then
+      log "Launching $exe_path"
+      open "$exe_path"
+      success "Mac app launched."
+    else
+      warn "Build succeeded but could not locate executable."
+      warn "Expected: $exe_path"
+    fi
+    return
+  fi
+
+  # Xcode project / workspace — use xcodebuild
+  local proj_flag; proj_flag=$(resolve_project_flag)
+  local team; team=$(detect_team_id)
+  local team_args=()
+  [[ -n "$team" ]] && team_args=(DEVELOPMENT_TEAM="$team")
 
   # shellcheck disable=SC2086
   xcodebuild \
@@ -254,16 +287,16 @@ build_mac() {
     -configuration "$CONFIG" \
     -destination "platform=macOS,arch=$(uname -m)" \
     -derivedDataPath "$DERIVED_DATA" \
-    "${team_args[@]}" \
+    ${team_args[@]+"${team_args[@]}"} \
     BUNDLE_IDENTIFIER="$BUNDLE_ID_MAC" \
     CODE_SIGN_STYLE=Automatic \
-    clean build 2>&1 | tee "$log_file" | xcbeautify 2>/dev/null || _raw_filter "$log_file"
+    clean build 2>&1 | tee "$log_file" | _build_filter
 
   success "macOS build complete."
 
   local app_path
-  app_path=$(find "$DERIVED_DATA/Build/Products" -name "*.app" -path "*Debug*" -not -path "*-iphonesimulator*" | head -1)
-  [[ -z "$app_path" ]] && app_path=$(find "$DERIVED_DATA/Build/Products" -name "SamsungRemote*.app" | head -1)
+  app_path=$(find "$DERIVED_DATA/Build/Products" -name "*.app" \
+    -not -path "*iphonesimulator*" -not -path "*iphoneos*" | head -1)
 
   if [[ -n "$app_path" ]]; then
     log "Launching $app_path"
@@ -297,7 +330,7 @@ archive_ios() {
     DEVELOPMENT_TEAM="$team" \
     BUNDLE_IDENTIFIER="$BUNDLE_ID_IOS" \
     CODE_SIGN_STYLE=Automatic \
-    2>&1 | tee "$log_file" | xcbeautify 2>/dev/null || _raw_filter "$log_file"
+    2>&1 | tee "$log_file" | _build_filter
 
   success "iOS archive ready: $archive_path"
 
@@ -348,7 +381,7 @@ archive_mac() {
     DEVELOPMENT_TEAM="$team" \
     BUNDLE_IDENTIFIER="$BUNDLE_ID_MAC" \
     CODE_SIGN_STYLE=Automatic \
-    2>&1 | tee "$log_file" | xcbeautify 2>/dev/null || _raw_filter "$log_file"
+    2>&1 | tee "$log_file" | _build_filter
 
   success "macOS archive ready: $archive_path"
 
@@ -447,18 +480,9 @@ _launch_on_device() {
   fi
 }
 
-# Fallback output filter when xcbeautify isn't installed
-_raw_filter() {
-  local log_file="$1"
-  grep -E "^(error:|warning:|BUILD SUCCEEDED|BUILD FAILED|❌|✅)" "$log_file" || true
-}
-
-# Check if xcbeautify is available and offer to install
-_check_xcbeautify() {
-  if ! command -v xcbeautify &>/dev/null; then
-    warn "xcbeautify not found — build output will be verbose."
-    warn "Install for cleaner output:  brew install xcbeautify"
-  fi
+# Filter xcodebuild output to key lines only
+_build_filter() {
+  grep -E "error:|warning:|BUILD SUCCEEDED|BUILD FAILED|Compiling|Linking|CodeSign" || true
 }
 
 # ── Usage ─────────────────────────────────────────────────────────────────────
@@ -523,7 +547,6 @@ EOF
 main() {
   require_mac
   require_xcode
-  _check_xcbeautify
 
   local cmd="${1:-help}"
   local opt2="${2:-}"

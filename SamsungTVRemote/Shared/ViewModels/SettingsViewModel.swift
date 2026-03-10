@@ -2,7 +2,7 @@ import Foundation
 import SwiftUI
 
 @MainActor
-final class SettingsViewModel: ObservableObject {
+package final class SettingsViewModel: ObservableObject {
     @Published var tvDevices: [TVDevice] = []
     @Published var smartThingsToken: String = ""
     @Published var preferLocal: Bool = true
@@ -11,7 +11,7 @@ final class SettingsViewModel: ObservableObject {
     private let devicesKey = "tvDevices"
     private let tokenKey   = "smartthings_token"
 
-    init() {
+    package init() {
         load()
     }
 
@@ -24,12 +24,19 @@ final class SettingsViewModel: ObservableObject {
     }
 
     func addDevice(_ device: TVDevice) {
+        guard !tvDevices.contains(where: { $0.ipAddress == device.ipAddress }) else { return }
         tvDevices.append(device)
         save()
     }
 
     func removeDevice(at offsets: IndexSet) {
         tvDevices.remove(atOffsets: offsets)
+        save()
+    }
+
+    func updateDevice(_ device: TVDevice) {
+        guard let idx = tvDevices.firstIndex(where: { $0.id == device.id }) else { return }
+        tvDevices[idx] = device
         save()
     }
 
