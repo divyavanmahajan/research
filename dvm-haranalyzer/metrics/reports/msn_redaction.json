@@ -1,0 +1,1894 @@
+{
+  "input_file": "metrics/hars/msn.har",
+  "output_file": "metrics/hars/msn_clean.har",
+  "salt": "827f44662b49584b267dae2ab5a584d7",
+  "summary": {
+    "auto_redacted": 3219,
+    "user_redacted": 0,
+    "user_skipped": 0
+  },
+  "auto_redacted_counts": {
+    "cookie": 3114,
+    "serial_number": 1,
+    "public_ip": 16,
+    "password": 14,
+    "token": 11,
+    "field": 55,
+    "email": 8
+  },
+  "flagged": [
+    {
+      "value": "5338626700",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 2,
+      "status": "flagged"
+    },
+    {
+      "value": "Annonsen var ol\u00e4mplig",
+      "category": "field",
+      "confidence": "medium",
+      "reason": "Flaggable field name 'reportAdDialogInappropriateAdText' in JSON",
+      "occurrences": 10,
+      "status": "flagged"
+    },
+    {
+      "value": "AI-genererat inneh\u00e5ll \u00e4r felaktigt",
+      "category": "field",
+      "confidence": "medium",
+      "reason": "Flaggable field name 'reportDialogIncorrectAIText' in JSON",
+      "occurrences": 3,
+      "status": "flagged"
+    },
+    {
+      "value": "Du har interagerat med liknande inneh\u00e5ll",
+      "category": "field",
+      "confidence": "medium",
+      "reason": "Flaggable field name 'whyAmISeeDialogInteractedReasonText' in JSON",
+      "occurrences": 5,
+      "status": "flagged"
+    },
+    {
+      "value": "Organisationsadministrat\u00f6ren har tyv\u00e4rr inte aktiverat den h\u00e4r funktionen \u00e4nnu.",
+      "category": "field",
+      "confidence": "medium",
+      "reason": "Flaggable field name 'tenantNotEnabled' in JSON",
+      "occurrences": 2,
+      "status": "flagged"
+    },
+    {
+      "value": "Felaktigt v\u00e4der",
+      "category": "field",
+      "confidence": "medium",
+      "reason": "Flaggable field name 'reportDialogIncorrectWeatherText' in JSON",
+      "occurrences": 2,
+      "status": "flagged"
+    },
+    {
+      "value": "Logga in p\u00e5 Microsoft-kontot f\u00f6r att spara platser eller",
+      "category": "field",
+      "confidence": "medium",
+      "reason": "Flaggable field name 'loginPromtText' in JSON",
+      "occurrences": 2,
+      "status": "flagged"
+    },
+    {
+      "value": "klicka h\u00e4r f\u00f6r att ange",
+      "category": "field",
+      "confidence": "medium",
+      "reason": "Flaggable field name 'loginPromtLinkText' in JSON",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "klicka h\u00e4r f\u00f6r att g\u00e5 vidare",
+      "category": "field",
+      "confidence": "medium",
+      "reason": "Flaggable field name 'loginPromtLinkText' in JSON",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "{0} F\u00d6RESL\u00c5R",
+      "category": "field",
+      "confidence": "medium",
+      "reason": "Flaggable field name 'msbHeaderWithTenantName' in JSON",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "S\u00f6k {0} efter {1}",
+      "category": "field",
+      "confidence": "medium",
+      "reason": "Flaggable field name 'msbSearchTenantForQuery' in JSON",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "Organisationsresultat",
+      "category": "field",
+      "confidence": "medium",
+      "reason": "Flaggable field name 'tenantNameFallback' in JSON",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "55a804ab-e5c6-4b97-9319-86263d365d28",
+      "category": "uuid",
+      "confidence": "low",
+      "reason": "UUID in URL path segment",
+      "occurrences": 6,
+      "status": "flagged"
+    },
+    {
+      "value": "msn.com",
+      "category": "field",
+      "confidence": "medium",
+      "reason": "Flaggable field name 'Domain' in JSON",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "ae95a03a-87a1-437b-9c22-1443769a08ad",
+      "category": "field",
+      "confidence": "medium",
+      "reason": "Flaggable field name 'TenantGuid' in JSON",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "01920def-5085-7a4b-a455-3b48bf172a1e",
+      "category": "uuid",
+      "confidence": "low",
+      "reason": "UUID in URL path segment",
+      "occurrences": 4,
+      "status": "flagged"
+    },
+    {
+      "value": "m-1CD4EA6B59A7670E05BDFC875DA76146",
+      "category": "field",
+      "confidence": "medium",
+      "reason": "Flaggable field name 'User' in queryString",
+      "occurrences": 8,
+      "status": "flagged"
+    },
+    {
+      "value": "1809349209",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 2,
+      "status": "flagged"
+    },
+    {
+      "value": "1054337789",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 2,
+      "status": "flagged"
+    },
+    {
+      "value": "1253697146",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "3734616138",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1985546085",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 2,
+      "status": "flagged"
+    },
+    {
+      "value": "2146870298",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "3036673236",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "2122106077",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 2,
+      "status": "flagged"
+    },
+    {
+      "value": "1258294060",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1276095949",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 3,
+      "status": "flagged"
+    },
+    {
+      "value": "2391213141",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1903754155",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1336874231",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 2,
+      "status": "flagged"
+    },
+    {
+      "value": "1860335535",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 2,
+      "status": "flagged"
+    },
+    {
+      "value": "1035322585",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "2222268863",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "2072698433",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "2003921626",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 2,
+      "status": "flagged"
+    },
+    {
+      "value": "1664243820",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 2,
+      "status": "flagged"
+    },
+    {
+      "value": "1316043580",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 2,
+      "status": "flagged"
+    },
+    {
+      "value": "1157655136",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "3947759548",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1332866760",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "4156198345",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "2056763304",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 2,
+      "status": "flagged"
+    },
+    {
+      "value": "1057641840",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1013032258",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 2,
+      "status": "flagged"
+    },
+    {
+      "value": "2884059205",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1491680366",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1262241046",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1620811047",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 2,
+      "status": "flagged"
+    },
+    {
+      "value": "1735508840",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 2,
+      "status": "flagged"
+    },
+    {
+      "value": "3464294979",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1511254412",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 2,
+      "status": "flagged"
+    },
+    {
+      "value": "1116451748",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "2138536102",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1092187198",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 2,
+      "status": "flagged"
+    },
+    {
+      "value": "1474271223",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1033577702",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 2,
+      "status": "flagged"
+    },
+    {
+      "value": "1023727431",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 2,
+      "status": "flagged"
+    },
+    {
+      "value": "1473132607",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "3638323260",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1448372322",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1996307755",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 2,
+      "status": "flagged"
+    },
+    {
+      "value": "1357867961",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "2345787463",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1776130463",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 2,
+      "status": "flagged"
+    },
+    {
+      "value": "1949179833",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1429649479",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "4248570762",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1133281022",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 2,
+      "status": "flagged"
+    },
+    {
+      "value": "1066591895",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 3,
+      "status": "flagged"
+    },
+    {
+      "value": "2061277930",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 2,
+      "status": "flagged"
+    },
+    {
+      "value": "2679938347",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "2117633281",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 2,
+      "status": "flagged"
+    },
+    {
+      "value": "1615028949",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1495283341",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "2004719973",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1182305737",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1541739885",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 2,
+      "status": "flagged"
+    },
+    {
+      "value": "1574182208",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 2,
+      "status": "flagged"
+    },
+    {
+      "value": "3551376673",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1824599252",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "2573708954",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1721258342",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1784929517",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1171177175",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1274181534",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1392760208",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "2131531082",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1879723887",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1071912220",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1914310419",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 2,
+      "status": "flagged"
+    },
+    {
+      "value": "1673668749",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1954634043",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "2086423378",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 2,
+      "status": "flagged"
+    },
+    {
+      "value": "1976138045",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1031292467",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 2,
+      "status": "flagged"
+    },
+    {
+      "value": "3862156949",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "2143129821",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1690264009",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1034032289",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1782274097",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "2627912252",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1667055044",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1451797184",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1161289626",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 2,
+      "status": "flagged"
+    },
+    {
+      "value": "1480032021",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 2,
+      "status": "flagged"
+    },
+    {
+      "value": "1512198645",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1941067760",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 2,
+      "status": "flagged"
+    },
+    {
+      "value": "1618686006",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 2,
+      "status": "flagged"
+    },
+    {
+      "value": "1143259163",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1905859520",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1260185600",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1424689484",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "2014692158",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1962469589",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1225745972",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1263566352",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1298782636",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1880658433",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1506968556",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1373191283",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1886819852",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1989851874",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1218423599",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1580965380",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1177166687",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "2861360818",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1740336359",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 2,
+      "status": "flagged"
+    },
+    {
+      "value": "1433606478",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "4094137128",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1844314494",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 2,
+      "status": "flagged"
+    },
+    {
+      "value": "1765083507",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "4119378981",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "2055912984",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "3656141767",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "2056199219",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1981010771",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1350716280",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 2,
+      "status": "flagged"
+    },
+    {
+      "value": "1058385951",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1773075528",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 11,
+      "status": "flagged"
+    },
+    {
+      "value": "1732768568",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 40,
+      "status": "flagged"
+    },
+    {
+      "value": "1773075529",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 2,
+      "status": "flagged"
+    },
+    {
+      "value": "A42KY4KZQC6JNYKX4TY3SACDZYJXZSLBTIX5MLUVYXLMLZU5JDR34HX3ISA7CW72PTBEPPY5PBDOMYRCQI4QTCZHYCW647MRD7URFUCQDB2R5NGD5AKKQEMOCJVCVAYSNZFDJZJLTRMV7UU2STQD5D66FJRTRK7PTNMGFG6W2JD6VMGR3ROALZOO72JUBJ27LJBFJN7FY4MRSYG2UZSY6RILEVN2IP253MYS7CVNHXMF4H6XYPMZGVK27HPC2CVHQXT764LJNELYQLKBW2VFI3HLQW6B54MRMF2RF6XE2XGKJRHACTPGSD2VNDBDMHPIHVOSTYAPFPEKDYISS5J7WHKEND6RO4BGTY5DUO4JFWQBLR3K6UGQOL6OH2HBMIGH",
+      "category": "token",
+      "confidence": "medium",
+      "reason": "Long mixed-case token in URL path segment",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "2822455565",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 2,
+      "status": "flagged"
+    },
+    {
+      "value": "1767820576",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1770139941",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1024188921",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 23,
+      "status": "flagged"
+    },
+    {
+      "value": "1772464211",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 3,
+      "status": "flagged"
+    },
+    {
+      "value": "1773673811",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 3,
+      "status": "flagged"
+    },
+    {
+      "value": "1772459718",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 3,
+      "status": "flagged"
+    },
+    {
+      "value": "1773669318",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 3,
+      "status": "flagged"
+    },
+    {
+      "value": "1773150978",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 3,
+      "status": "flagged"
+    },
+    {
+      "value": "1773149497",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 2,
+      "status": "flagged"
+    },
+    {
+      "value": "1772448071",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 2,
+      "status": "flagged"
+    },
+    {
+      "value": "1773657671",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 2,
+      "status": "flagged"
+    },
+    {
+      "value": "1772442193",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 2,
+      "status": "flagged"
+    },
+    {
+      "value": "1773651793",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 2,
+      "status": "flagged"
+    },
+    {
+      "value": "1772439276",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 2,
+      "status": "flagged"
+    },
+    {
+      "value": "1773648876",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 2,
+      "status": "flagged"
+    },
+    {
+      "value": "1772432450",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 2,
+      "status": "flagged"
+    },
+    {
+      "value": "1773642050",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 2,
+      "status": "flagged"
+    },
+    {
+      "value": "1773119843",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 2,
+      "status": "flagged"
+    },
+    {
+      "value": "1772422919",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 2,
+      "status": "flagged"
+    },
+    {
+      "value": "1773632519",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 2,
+      "status": "flagged"
+    },
+    {
+      "value": "0127808000",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "2854667284",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "2749589517",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "3985941003",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1770472738",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1775656738",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1772983860",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 2,
+      "status": "flagged"
+    },
+    {
+      "value": "1772983590",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1772983920",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1772983680",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1772983770",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1772983830",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1772983710",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1772983950",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 3,
+      "status": "flagged"
+    },
+    {
+      "value": "1772984010",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 3,
+      "status": "flagged"
+    },
+    {
+      "value": "1772971590",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1772971950",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 2,
+      "status": "flagged"
+    },
+    {
+      "value": "1772972070",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1772972280",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1772972130",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1772971530",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 2,
+      "status": "flagged"
+    },
+    {
+      "value": "1772971500",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1772972160",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1772984070",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1772984430",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1772983740",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1772984580",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 2,
+      "status": "flagged"
+    },
+    {
+      "value": "1772984130",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 4,
+      "status": "flagged"
+    },
+    {
+      "value": "1772984190",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1772984280",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1772446860",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1773331200",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 29,
+      "status": "flagged"
+    },
+    {
+      "value": "3915130807",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 7,
+      "status": "flagged"
+    },
+    {
+      "value": "1773073460",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 2,
+      "status": "flagged"
+    },
+    {
+      "value": "1773073025",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 4,
+      "status": "flagged"
+    },
+    {
+      "value": "1773073322",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 2,
+      "status": "flagged"
+    },
+    {
+      "value": "1773327600",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 20,
+      "status": "flagged"
+    },
+    {
+      "value": "1773072347",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 2,
+      "status": "flagged"
+    },
+    {
+      "value": "1773072057",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 2,
+      "status": "flagged"
+    },
+    {
+      "value": "9852439031",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 2,
+      "status": "flagged"
+    },
+    {
+      "value": "3915463482",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 3,
+      "status": "flagged"
+    },
+    {
+      "value": "1773071433",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 2,
+      "status": "flagged"
+    },
+    {
+      "value": "1773071106",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 2,
+      "status": "flagged"
+    },
+    {
+      "value": "1774483200",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 7,
+      "status": "flagged"
+    },
+    {
+      "value": "1773324000",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 18,
+      "status": "flagged"
+    },
+    {
+      "value": "3916055543",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 2,
+      "status": "flagged"
+    },
+    {
+      "value": "1773068841",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1773068464",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1773067884",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1773067502",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1773320400",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 3,
+      "status": "flagged"
+    },
+    {
+      "value": "3915464028",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 2,
+      "status": "flagged"
+    },
+    {
+      "value": "1773065960",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1773061248",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 2,
+      "status": "flagged"
+    },
+    {
+      "value": "1773065919",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1773065904",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1773065574",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1773291600",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1773316800",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 2,
+      "status": "flagged"
+    },
+    {
+      "value": "1773302400",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1773309600",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1773306000",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1650478767",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 2,
+      "status": "flagged"
+    },
+    {
+      "value": "1773334800",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 2,
+      "status": "flagged"
+    },
+    {
+      "value": "1741037004",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1741037290",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1773072063",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "1773071329",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "d7b530a4-7680-4c23-a8bf-c52c121d2e87",
+      "category": "field",
+      "confidence": "medium",
+      "reason": "Flaggable field name 'client_id' in queryString",
+      "occurrences": 4,
+      "status": "flagged"
+    },
+    {
+      "value": "1773075530",
+      "category": "phone",
+      "confidence": "low",
+      "reason": "Possible phone number pattern",
+      "occurrences": 1,
+      "status": "flagged"
+    },
+    {
+      "value": "mWeb",
+      "category": "field",
+      "confidence": "medium",
+      "reason": "Flaggable field name 'env' in queryString",
+      "occurrences": 2,
+      "status": "flagged"
+    }
+  ],
+  "warnings": []
+}

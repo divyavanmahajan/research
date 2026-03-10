@@ -1,0 +1,197 @@
+
+========================================================================
+  HAR ANALYSIS REPORT
+========================================================================
+  File    : test.har
+  Page    : https://www.msn.com/sv-se
+  Captured: 2026-03-09T16:58:46.636Z
+
+--- Overview ----------------------------------------------------------
+  DOMContentLoaded : 4,900 ms
+  onLoad           : 11,405 ms
+  Requests         : 418
+  Transferred      : 4158 KB
+
+--- Bottleneck Summary (ranked by severity) ---------------------------
+  [CRITICAL]  1. onLoad = 11.4s (>10s)
+              Page takes over 10 seconds to fully load. Users will abandon.
+
+  [CRITICAL]  2. DOMContentLoaded = 4.9s (>4s)
+              Render-blocking resources or slow TTFB is delaying first parse.
+
+  [CRITICAL]  3. 418 total requests
+              Extremely high request count. Consolidate assets and defer third-party scripts.
+
+  [CRITICAL]  4. JavaScript = 853 KB
+              Excessive JS payload. Apply code splitting, tree-shaking, and defer non-critical bundles.
+
+  [CRITICAL]  5. Images = 2558 KB, <20% modern format
+              Most images are JPEG/PNG. Convert to WebP or AVIF to save 40–60% image weight.
+
+  [CRITICAL]  6. 88 ad/tracker requests across 22 domains
+              Ad/tracker network requests dominate load time. Load them after onLoad or use async facades.
+
+  [WARNING ]  7. 20 requests with TTFB >300ms (worst: 717ms)
+              Slow server response on acdn.adnxs.com. Check server-side rendering, CDN, or DB latency.
+
+  [WARNING ]  8. 10 cold TLS handshakes >100ms
+              Add <link rel='preconnect'> for top third-party origins to amortize TLS cost.
+
+  [WARNING ]  9. 12 resources (396 KB) with no/short cache
+              Add long-lived Cache-Control headers (use content-hash filenames for JS/CSS).
+
+  [WARNING ]  10. 12 requests on HTTP/1.1
+              Upgrade origins to HTTP/2 to enable multiplexing and reduce head-of-line blocking.
+
+  [WARNING ]  11. Peak 35 concurrent requests in first 5s
+              Browser connection pool is saturated. Defer non-critical requests.
+
+
+--- Top 15 Slowest Requests -------------------------------------------
+Rank  Time(ms)   Status  KB       TTFB(ms)   SSL(ms)   URL                                                                             
+---------------------------------------------------------------------------------------------------------------------------------------
+1     1566       200     36.5     641        0         https://shftr.adnxs.net/r?url=https%3A%2F%2Fimages.mediago.io%2FML%2Fa473067d...
+2     1334       403     10.0     357        320       https://cksync.yahoo.co.jp/dispatch?ptr=10901                                   
+3     1052       200     0.9      77         0         https://www.bing.com/aes/c.gif?DI=0&DIS=SB_28-1?&RG=f5192f311f004a8d89c10f77d...
+4     1043       200     0.9      68         0         https://www.bing.com/aes/c.gif?DI=0&DIS=SB_11-1?&RG=0388c8ac873646f0871d44486...
+5     973        200     119.6    486        0         https://srtb.msn.com/auction                                                    
+6     916        200     6.8      60         0         https://ib.adnxs.com/setuid?entity=483&code=1CD4EA6B59A7670E05BDFC875DA76146&...
+7     865        200     37.8     187        0         https://shftr.adnxs.net/r?url=https%3A%2F%2Fimages.mediago.io%2FML%2Fa0ad6304...
+8     857        200     0.6      201        413       https://rt.udmserve.net/udm/fetch.pix?dt=1;apnid=1556905829903960716            
+9     755        200     10.7     571        99        https://shftr.adnxs.net/r?url=https%3A%2F%2Fimages.mediago.io%2FML%2Ffce2d94e...
+10    747        200     0.0      717        0         https://acdn.adnxs.com/dmp/async_usersync.html?gdpr=1&gdpr_consent=CQgy_pgQgy...
+11    747        200     0.0      717        0         https://acdn.adnxs.com/dmp/async_usersync.html?gdpr=1&gdpr_consent=CQgy_pgQgy...
+12    698        200     0.0      667        0         https://acdn.adnxs.com/dmp/async_usersync.html?gdpr=1&gdpr_consent=CQgy_pgQgy...
+13    698        200     0.0      667        0         https://acdn.adnxs.com/dmp/async_usersync.html?gdpr=1&gdpr_consent=CQgy_pgQgy...
+14    690        400     0.8      59         0         https://ib.adnxs.com/setuid?entity=351&code=824db653-4604-4ddf-943c-6cbf38df0...
+15    690        400     0.8      60         0         https://ib.adnxs.com/getuid?https://beacon.lynx.cognitivlabs.com/xandr.gif?so...
+
+--- Large Resources (>50 KB) — 24 found -------------------------------
+KB        Time(ms)   Type                        Cache-Control          URL                                                                   
+----------------------------------------------------------------------------------------------------------------------------------------------
+371.7     70         application/javascript      public, no-transform   https://assets.msn.com/bundles/v1/homePage/latest/common.d3458ce195...
+256.7     174        image/jpeg                  public, max-age=4082   https://img-s-msn-com.akamaized.net/tenant/amp/entityid/AA1XOQmo.im...
+180.3     35         application/json            public, max-age=1728   https://assets.msn.com/resolver/api/resolve/v3/config/?expType=AppC...
+153.9     145        image/jpeg                  public, max-age=2592   https://www.bing.com/th?id=OADD2.1298523248791875_1749U6MCE1D02DL&p...
+128.6     399        image/jpeg                  public, max-age=4086   https://img-s-msn-com.akamaized.net/tenant/amp/entityid/AA1SPNG4.im...
+128.6     38         image/jpeg                  public, max-age=4035   https://img-s-msn-com.akamaized.net/tenant/amp/entityid/AA1XOtaP.im...
+128.6     192        image/jpeg                  public, max-age=4187   https://img-s-msn-com.akamaized.net/tenant/amp/entityid/AA1XPwrQ.im...
+128.6     333        image/jpeg                  public, max-age=1801   https://img-s-msn-com.akamaized.net/tenant/amp/entityid/BB1rnOS4.im...
+128.6     265        image/jpeg                  public, max-age=3270   https://img-s-msn-com.akamaized.net/tenant/amp/entityid/AA1XsZI8.im...
+128.6     121        image/jpeg                  public, max-age=4229   https://img-s-msn-com.akamaized.net/tenant/amp/entityid/AA1HruXN.im...
+128.6     111        image/jpeg                  public, max-age=4097   https://img-s-msn-com.akamaized.net/tenant/amp/entityid/AA1XPard.im...
+128.6     56         image/jpeg                  public, max-age=4144   https://img-s-msn-com.akamaized.net/tenant/amp/entityid/AA1XPc6q.im...
+127.2     51         image/jpeg                  public, max-age=2592   https://www.bing.com/th?id=OADD2.7559184255499_1KVNSOOSUFUD0ITC4J&p...
+119.6     973        application/json            (none)                 https://srtb.msn.com/auction                                          
+86.0      53         application/javascript      public, no-transform   https://assets.msn.com/bundles/v1/homePage/latest/experience.9b348d...
+84.9      42         application/json            public, max-age=1209   https://assets.msn.com/staticsb/statics/latest/oneTrust/2.4/consent...
+82.8      303        application/json            private, max-age=0     https://assets.msn.com/service/news/feed/pages/weblayout?User=m-1CD...
+64.6      311        image/jpeg                  public, max-age=4138   https://img-s-msn-com.akamaized.net/tenant/amp/entityid/AA1XP2b1.im...
+64.6      149        image/jpeg                  public, max-age=3994   https://img-s-msn-com.akamaized.net/tenant/amp/entityid/AA1XOfbC.im...
+64.6      42         image/jpeg                  public, max-age=3484   https://img-s-msn-com.akamaized.net/tenant/amp/entityid/AA1Xbb80.im...
+
+--- Content Type Breakdown --------------------------------------------
+MIME Type                             Requests   KB       
+----------------------------------------------------------
+image/jpeg                            55         2271.2   
+application/javascript                108        852.5    
+application/json                      23         617.7    
+image/png                             49         244.8    
+text/html                             72         89.9     
+image/gif                             45         33.2     
+text/javascript                       4          14.9     
+font/woff2                            6          9.0      
+text/css                              3          7.5      
+text/plain                            14         5.6      
+image/svg                             20         4.7      
+image/webp                            1          4.1      
+application/octet-stream              13         2.8      
+application/x-javascript              1          0.0      
+image/jpg                             4          0.0      
+
+--- Top Domains by Request Count --------------------------------------
+Domain                                     Reqs   KB        Avg ms 
+-------------------------------------------------------------------
+assets.msn.com                             136    1281.0    28     
+img-s-msn-com.akamaized.net                69     1793.1    51     
+www.bing.com                               26     568.5     170    
+ib.adnxs.com                               21     40.0      415    
+browser.events.data.msn.com                15     4.6       207    
+fra1-ib.msn.com                            15     8.0       52     
+adsdkprod.azureedge.net                    12     0.0       231    
+ad-delivery.net                            11     1.4       34     
+srtb.msn.com                               10     120.7     375    
+acdn.adnxs.com                             10     0.0       365    
+trace-eu.mediago.io                        7      0.4       99     
+pagead2.googlesyndication.com              6      0.2       58     
+www.msn.com                                5      20.5      159    
+shftr.adnxs.net                            5      149.7     848    
+msft-ssp-emea.adnxs.com                    5      3.2       184    
+mem.gfx.ms                                 5      0.0       59     
+btloader.com                               3      0.0       282    
+gtrace.mediago.io                          3      1.0       153    
+ib.msn.com                                 2      55.5      516    
+ab.dns-finder.com                          2      0.1       168    
+
+--- Slow TTFB >300ms — 20 found ---------------------------------------
+TTFB(ms)   Total(ms)   URL                                                                                       
+-----------------------------------------------------------------------------------------------------------------
+717        747         https://acdn.adnxs.com/dmp/async_usersync.html?gdpr=1&gdpr_consent=CQgy_pgQgy_pgAcABBSV...
+717        747         https://acdn.adnxs.com/dmp/async_usersync.html?gdpr=1&gdpr_consent=CQgy_pgQgy_pgAcABBSV...
+667        698         https://acdn.adnxs.com/dmp/async_usersync.html?gdpr=1&gdpr_consent=CQgy_pgQgy_pgAcABBSV...
+667        698         https://acdn.adnxs.com/dmp/async_usersync.html?gdpr=1&gdpr_consent=CQgy_pgQgy_pgAcABBSV...
+641        1566        https://shftr.adnxs.net/r?url=https%3A%2F%2Fimages.mediago.io%2FML%2Fa473067df73c382eba...
+586        588         https://shftr.adnxs.net/r?url=https%3A%2F%2Fdsp.outbrainimg.com%2Fp%2Fsrv%2Fsha%2F37%2F...
+571        755         https://shftr.adnxs.net/r?url=https%3A%2F%2Fimages.mediago.io%2FML%2Ffce2d94ecf1ac5e122...
+536        643         https://adsdkprod.azureedge.net/assets/sf/v1.0.0-1/safeframe-v2.html                      
+536        643         https://adsdkprod.azureedge.net/assets/sf/v1.0.0-1/safeframe-v2.html                      
+528        574         https://ib.msn.com/ut/v3                                                                  
+
+--- Slow TLS Handshakes >100ms — 10 found -----------------------------
+SSL(ms)   Domain                               URL                                                                             
+-------------------------------------------------------------------------------------------------------------------------------
+413       rt.udmserve.net                      https://rt.udmserve.net/udm/fetch.pix?dt=1;apnid=1556905829903960716            
+320       cksync.yahoo.co.jp                   https://cksync.yahoo.co.jp/dispatch?ptr=10901                                   
+180       match.sharethrough.com               https://match.sharethrough.com/sync/v1?source_id=0e8893f90b606c9c5d33f1be&gdp...
+175       match.deepintent.com                 https://match.deepintent.com/usersync/126                                       
+173       thrtle.com                           https://thrtle.com/insync?vxii_pid=10062&vxii_pdid=1556905829903960716          
+169       shftr.adnxs.net                      https://shftr.adnxs.net/r?url=https%3A%2F%2Fimages.mediago.io%2FML%2F61fe21d3...
+146       pixel.rubiconproject.com             https://pixel.rubiconproject.com/tap.php?v=4894&nid=1986&put=1556905829903960716
+146       vop.sundaysky.com                    https://vop.sundaysky.com/sync/dmp?redirect=https%3A%2F%2Fib.adnxs.com%2Fsetu...
+128       b1t-nldc1.outbrain.com               https://b1t-nldc1.outbrain.com/t/imp/impression/A42KY4KZQC6JNYKX4TY3SACDZYJXZ...
+107       ew1-n.adv.lijit.com                  https://ew1-n.adv.lijit.com/n/AZzTiYM9YL_yxZJnrb3mbQ?d=IOXI3oIXDNYnkPyRkvjZOf...
+
+--- Slow DNS >50ms — 0 found ------------------------------------------
+  None found.
+
+--- Poorly Cached Resources (>10 KB, no/short cache) — 12 found -------
+KB        Cache-Control               Type                   URL                                                                   
+-----------------------------------------------------------------------------------------------------------------------------------
+119.6     (none)                      application/json       https://srtb.msn.com/auction                                          
+44.2      (none)                      image/jpeg             https://shftr.adnxs.net/r?url=https%3A%2F%2Fimages.mediago.io%2FML%...
+41.1      no-store, no-cache, priva   application/json       https://ib.msn.com/ut/v3                                              
+37.8      (none)                      image/jpeg             https://shftr.adnxs.net/r?url=https%3A%2F%2Fimages.mediago.io%2FML%...
+36.5      (none)                      image/jpeg             https://shftr.adnxs.net/r?url=https%3A%2F%2Fimages.mediago.io%2FML%...
+21.5      (none)                      application/javascri   https://cdn.lijit.com/www/sovrn_beacon_standalone/sovrn_standalone_...
+20.5      no-store                    text/html              https://www.msn.com/sv-se                                             
+20.4      (none)                      image/jpeg             https://shftr.adnxs.net/r?url=https%3A%2F%2Fdsp.outbrainimg.com%2Fp...
+14.7      no-store, no-cache          text/html              https://login.microsoftonline.com/common/oauth2/v2.0/authorize?clie...
+14.7      no-store, no-cache          text/html              https://login.microsoftonline.com/common/oauth2/v2.0/authorize?clie...
+14.4      no-store, no-cache, priva   application/json       https://ib.msn.com/ut/v3                                              
+10.7      (none)                      image/jpeg             https://shftr.adnxs.net/r?url=https%3A%2F%2Fimages.mediago.io%2FML%...
+
+--- Redirects — 0 found -----------------------------------------------
+  None found.
+
+--- HTTP Version Breakdown --------------------------------------------
+  (unknown)      : 197 requests
+  HTTP/1.1       : 12 requests
+  HTTP/2         : 209 requests
+
+--- Concurrency -------------------------------------------------------
+  Peak concurrent requests (first 5s): 35
+  Requests fired in first 5s: 299
+
+========================================================================
+  END OF REPORT
+========================================================================
