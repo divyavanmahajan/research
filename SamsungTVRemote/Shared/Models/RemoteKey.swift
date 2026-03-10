@@ -2,9 +2,10 @@ import Foundation
 
 enum RemoteKey: String, CaseIterable {
     case power       = "KEY_POWER"
-    case volumeUp    = "KEY_VOLUMEUP"
-    case volumeDown  = "KEY_VOLUMEDOWN"
+    case volumeUp    = "KEY_VOLUP"
+    case volumeDown  = "KEY_VOLDOWN"
     case mute        = "KEY_MUTE"
+    case playPause   = "KEY_PLAY"
     case channelUp   = "KEY_CHUP"
     case channelDown = "KEY_CHDOWN"
     case up          = "KEY_UP"

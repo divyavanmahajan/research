@@ -1,0 +1,494 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		07FA9269532BC212542FD7F8 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36FCE02F5661D201355A9396 /* SettingsView.swift */; };
+		097D5460566E951F90D09664 /* RemoteControlView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D9350D1CFE0017CDDF399C7 /* RemoteControlView.swift */; };
+		0CB9FF774C800D87E73E3003 /* LocalWebSocketService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5D932ECF3C91ACE2B0D1BA2 /* LocalWebSocketService.swift */; };
+		100801311B1C5D82E1C6F9A4 /* SmartThingsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE63B1044493FEAEB9ECD015 /* SmartThingsService.swift */; };
+		1E9B8F45E119C1523A02DE4C /* SamsungRemoteApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEA8A87DD1DCE2941045F912 /* SamsungRemoteApp.swift */; };
+		2227BB755D881F77FAC27C8A /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8435D03BB93D486592CB9F6 /* SettingsViewModel.swift */; };
+		2250F12043CF67D70016C129 /* TVNetworkScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFED09DE95403A530A268A23 /* TVNetworkScanner.swift */; };
+		2554422D95E6D0E6D11D8875 /* RemoteControlView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D9350D1CFE0017CDDF399C7 /* RemoteControlView.swift */; };
+		45CC0FF60E9EB2F66246535A /* RemoteViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD025284EF6EAAEA1CDAA2DF /* RemoteViewModel.swift */; };
+		46DA8159067CF90F737E4BD3 /* TVConnectionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D79E324E37B0F78D680B321A /* TVConnectionManager.swift */; };
+		50718223495C0809762DDD05 /* RemoteKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 343AC615ADACE2C3364C30AA /* RemoteKey.swift */; };
+		5A4EF91B7DAA3AD131324384 /* RemoteKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 343AC615ADACE2C3364C30AA /* RemoteKey.swift */; };
+		6727C989C1913E8D08674E40 /* TVNetworkScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFED09DE95403A530A268A23 /* TVNetworkScanner.swift */; };
+		68FF948C8A618F540ED8C219 /* WakeOnLANService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D72883691551C21D69FAA965 /* WakeOnLANService.swift */; };
+		696F1AE3566F52A58A740C98 /* TVDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = A611CDA13CF2B0026A40AD6A /* TVDevice.swift */; };
+		76270A3647C17FC2981757A2 /* LocalWebSocketService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5D932ECF3C91ACE2B0D1BA2 /* LocalWebSocketService.swift */; };
+		78E3D28C69668BDE0A8A9319 /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8435D03BB93D486592CB9F6 /* SettingsViewModel.swift */; };
+		8567889FBF0DCEE3E38755AB /* TVApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D2BCBAA8E563B784F08F6FD /* TVApp.swift */; };
+		89E6D34E7960D7A4589358E7 /* SmartThingsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE63B1044493FEAEB9ECD015 /* SmartThingsService.swift */; };
+		AC0EA139FD27E2A5BC684467 /* TVConnectionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D79E324E37B0F78D680B321A /* TVConnectionManager.swift */; };
+		BA7AA6B17C716F8D98687AD0 /* WakeOnLANService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D72883691551C21D69FAA965 /* WakeOnLANService.swift */; };
+		C1119D15DDF7139CB3213856 /* TVDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = A611CDA13CF2B0026A40AD6A /* TVDevice.swift */; };
+		C4446490B4D77B718048EC5C /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36FCE02F5661D201355A9396 /* SettingsView.swift */; };
+		D7E6D3895167EEEC21B85D2A /* SamsungRemoteApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D40DC3CD54310CE2D3446A3E /* SamsungRemoteApp.swift */; };
+		D89445B2A3C04F7ACA777F67 /* RemoteViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD025284EF6EAAEA1CDAA2DF /* RemoteViewModel.swift */; };
+		E072F4A002D472D8B6CC4C6A /* TVApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D2BCBAA8E563B784F08F6FD /* TVApp.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		0F48D21E631433E26FB69E3E /* SamsungRemote-iOS.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = "SamsungRemote-iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		1E524A01F67FBCFD970AE3A8 /* SamsungRemote-macOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "SamsungRemote-macOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		343AC615ADACE2C3364C30AA /* RemoteKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteKey.swift; sourceTree = "<group>"; };
+		36FCE02F5661D201355A9396 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		6D2BCBAA8E563B784F08F6FD /* TVApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TVApp.swift; sourceTree = "<group>"; };
+		767F2E954C798D2851EBF43A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		8D9350D1CFE0017CDDF399C7 /* RemoteControlView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteControlView.swift; sourceTree = "<group>"; };
+		A611CDA13CF2B0026A40AD6A /* TVDevice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TVDevice.swift; sourceTree = "<group>"; };
+		AFED09DE95403A530A268A23 /* TVNetworkScanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TVNetworkScanner.swift; sourceTree = "<group>"; };
+		C8435D03BB93D486592CB9F6 /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
+		D40DC3CD54310CE2D3446A3E /* SamsungRemoteApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SamsungRemoteApp.swift; sourceTree = "<group>"; };
+		D72883691551C21D69FAA965 /* WakeOnLANService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WakeOnLANService.swift; sourceTree = "<group>"; };
+		D79E324E37B0F78D680B321A /* TVConnectionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TVConnectionManager.swift; sourceTree = "<group>"; };
+		E72A35ED275C9A9E48514813 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		F5D932ECF3C91ACE2B0D1BA2 /* LocalWebSocketService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalWebSocketService.swift; sourceTree = "<group>"; };
+		FD025284EF6EAAEA1CDAA2DF /* RemoteViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteViewModel.swift; sourceTree = "<group>"; };
+		FE63B1044493FEAEB9ECD015 /* SmartThingsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartThingsService.swift; sourceTree = "<group>"; };
+		FEA8A87DD1DCE2941045F912 /* SamsungRemoteApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SamsungRemoteApp.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		03F20729DA1247D29484188D = {
+			isa = PBXGroup;
+			children = (
+				C214E9C60C2235F6B77E9D7B /* iOS */,
+				BF0B9B77CBE07EA9FAC1F842 /* macOS */,
+				D5CB27B362C78B30D564A340 /* Shared */,
+				DB25E13ADB5065670003760E /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		155BD1B9EC68F066E7834B77 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				F5D932ECF3C91ACE2B0D1BA2 /* LocalWebSocketService.swift */,
+				FE63B1044493FEAEB9ECD015 /* SmartThingsService.swift */,
+				D79E324E37B0F78D680B321A /* TVConnectionManager.swift */,
+				AFED09DE95403A530A268A23 /* TVNetworkScanner.swift */,
+				D72883691551C21D69FAA965 /* WakeOnLANService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		24A398B1A8537F499ECF6F34 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				343AC615ADACE2C3364C30AA /* RemoteKey.swift */,
+				6D2BCBAA8E563B784F08F6FD /* TVApp.swift */,
+				A611CDA13CF2B0026A40AD6A /* TVDevice.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		358BE98EB7E55D495059545C /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				FD025284EF6EAAEA1CDAA2DF /* RemoteViewModel.swift */,
+				C8435D03BB93D486592CB9F6 /* SettingsViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		B279B1789C2FD55A67BCA1AD /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				8D9350D1CFE0017CDDF399C7 /* RemoteControlView.swift */,
+				36FCE02F5661D201355A9396 /* SettingsView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		BF0B9B77CBE07EA9FAC1F842 /* macOS */ = {
+			isa = PBXGroup;
+			children = (
+				E72A35ED275C9A9E48514813 /* Info.plist */,
+				D40DC3CD54310CE2D3446A3E /* SamsungRemoteApp.swift */,
+			);
+			path = macOS;
+			sourceTree = "<group>";
+		};
+		C214E9C60C2235F6B77E9D7B /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				767F2E954C798D2851EBF43A /* Info.plist */,
+				FEA8A87DD1DCE2941045F912 /* SamsungRemoteApp.swift */,
+			);
+			path = iOS;
+			sourceTree = "<group>";
+		};
+		D5CB27B362C78B30D564A340 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				24A398B1A8537F499ECF6F34 /* Models */,
+				155BD1B9EC68F066E7834B77 /* Services */,
+				358BE98EB7E55D495059545C /* ViewModels */,
+				B279B1789C2FD55A67BCA1AD /* Views */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		DB25E13ADB5065670003760E /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				0F48D21E631433E26FB69E3E /* SamsungRemote-iOS.app */,
+				1E524A01F67FBCFD970AE3A8 /* SamsungRemote-macOS.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		0D7AAE79BDD400199133EA67 /* SamsungRemote-macOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 85BD8D12CFF24FA0E9304A0E /* Build configuration list for PBXNativeTarget "SamsungRemote-macOS" */;
+			buildPhases = (
+				D0AEBA2467B9136EDC376F48 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "SamsungRemote-macOS";
+			packageProductDependencies = (
+			);
+			productName = "SamsungRemote-macOS";
+			productReference = 1E524A01F67FBCFD970AE3A8 /* SamsungRemote-macOS.app */;
+			productType = "com.apple.product-type.application";
+		};
+		535BC27B54517970F004A6AC /* SamsungRemote-iOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 06796C1407B6269D87FC4408 /* Build configuration list for PBXNativeTarget "SamsungRemote-iOS" */;
+			buildPhases = (
+				9AC8C66903896A7859694261 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "SamsungRemote-iOS";
+			packageProductDependencies = (
+			);
+			productName = "SamsungRemote-iOS";
+			productReference = 0F48D21E631433E26FB69E3E /* SamsungRemote-iOS.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		7F52D9A04CEA270F59EEA973 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					0D7AAE79BDD400199133EA67 = {
+						ProvisioningStyle = Automatic;
+					};
+					535BC27B54517970F004A6AC = {
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = EA73A2A10A52B8A6381FC78D /* Build configuration list for PBXProject "SamsungTVRemote" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 03F20729DA1247D29484188D;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = DB25E13ADB5065670003760E /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				535BC27B54517970F004A6AC /* SamsungRemote-iOS */,
+				0D7AAE79BDD400199133EA67 /* SamsungRemote-macOS */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		9AC8C66903896A7859694261 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0CB9FF774C800D87E73E3003 /* LocalWebSocketService.swift in Sources */,
+				097D5460566E951F90D09664 /* RemoteControlView.swift in Sources */,
+				50718223495C0809762DDD05 /* RemoteKey.swift in Sources */,
+				45CC0FF60E9EB2F66246535A /* RemoteViewModel.swift in Sources */,
+				1E9B8F45E119C1523A02DE4C /* SamsungRemoteApp.swift in Sources */,
+				C4446490B4D77B718048EC5C /* SettingsView.swift in Sources */,
+				2227BB755D881F77FAC27C8A /* SettingsViewModel.swift in Sources */,
+				100801311B1C5D82E1C6F9A4 /* SmartThingsService.swift in Sources */,
+				8567889FBF0DCEE3E38755AB /* TVApp.swift in Sources */,
+				46DA8159067CF90F737E4BD3 /* TVConnectionManager.swift in Sources */,
+				696F1AE3566F52A58A740C98 /* TVDevice.swift in Sources */,
+				2250F12043CF67D70016C129 /* TVNetworkScanner.swift in Sources */,
+				68FF948C8A618F540ED8C219 /* WakeOnLANService.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D0AEBA2467B9136EDC376F48 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				76270A3647C17FC2981757A2 /* LocalWebSocketService.swift in Sources */,
+				2554422D95E6D0E6D11D8875 /* RemoteControlView.swift in Sources */,
+				5A4EF91B7DAA3AD131324384 /* RemoteKey.swift in Sources */,
+				D89445B2A3C04F7ACA777F67 /* RemoteViewModel.swift in Sources */,
+				D7E6D3895167EEEC21B85D2A /* SamsungRemoteApp.swift in Sources */,
+				07FA9269532BC212542FD7F8 /* SettingsView.swift in Sources */,
+				78E3D28C69668BDE0A8A9319 /* SettingsViewModel.swift in Sources */,
+				89E6D34E7960D7A4589358E7 /* SmartThingsService.swift in Sources */,
+				E072F4A002D472D8B6CC4C6A /* TVApp.swift in Sources */,
+				AC0EA139FD27E2A5BC684467 /* TVConnectionManager.swift in Sources */,
+				C1119D15DDF7139CB3213856 /* TVDevice.swift in Sources */,
+				6727C989C1913E8D08674E40 /* TVNetworkScanner.swift in Sources */,
+				BA7AA6B17C716F8D98687AD0 /* WakeOnLANService.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		287C7C07996F38A5423EB420 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_HARDENED_RUNTIME = NO;
+				INFOPLIST_FILE = macOS/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.samsungremote.mac;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		48E1A5EF8B92C828FA7F62FF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_HARDENED_RUNTIME = NO;
+				INFOPLIST_FILE = macOS/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.samsungremote.mac;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		495A367E5A3CF80D0A7731E6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_SWIFT_FLAGS = "-package-name SamsungTVRemote";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.9;
+			};
+			name = Debug;
+		};
+		76FE7B224B766E739BB33A0F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				INFOPLIST_FILE = iOS/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.samsungremote.ios;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		8A0605BE531D5FDAB98B793B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				INFOPLIST_FILE = iOS/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.samsungremote.ios;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		B11CC28AA6162F3AB4F475F4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				OTHER_SWIFT_FLAGS = "-package-name SamsungTVRemote";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.9;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		06796C1407B6269D87FC4408 /* Build configuration list for PBXNativeTarget "SamsungRemote-iOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8A0605BE531D5FDAB98B793B /* Debug */,
+				76FE7B224B766E739BB33A0F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		85BD8D12CFF24FA0E9304A0E /* Build configuration list for PBXNativeTarget "SamsungRemote-macOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				287C7C07996F38A5423EB420 /* Debug */,
+				48E1A5EF8B92C828FA7F62FF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		EA73A2A10A52B8A6381FC78D /* Build configuration list for PBXProject "SamsungTVRemote" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				495A367E5A3CF80D0A7731E6 /* Debug */,
+				B11CC28AA6162F3AB4F475F4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 7F52D9A04CEA270F59EEA973 /* Project object */;
+}

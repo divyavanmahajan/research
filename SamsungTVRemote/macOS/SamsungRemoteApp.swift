@@ -28,6 +28,7 @@ struct SamsungRemoteApp: App {
 
 // MARK: - Menu Bar Support
 
+@MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusItem: NSStatusItem?
     private var popover: NSPopover?
