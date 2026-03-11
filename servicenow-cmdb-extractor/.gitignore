@@ -1,0 +1,34 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.venv/
+.env
+
+# Sessions (contain sensitive cookies)
+*.json
+!pyproject.toml
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Diagrams (generated)
+*.mmd
+cmdb_report.md
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# pytest / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# mypy
+.mypy_cache/
