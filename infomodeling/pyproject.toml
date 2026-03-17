@@ -29,5 +29,9 @@ dev = [
     "pytest-cov>=5.0",
 ]
 
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["infomodeling*"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -134,9 +134,9 @@ class TestGeneratePreview:
         assert response.status_code == 200
         files = response.json()["files"]
         assert "dbt_project.yml" in files
-        assert "sources.yml" in files
+        assert "models/sources.yml" in files
         assert "models/staging/stg_person.sql" in files
-        assert "tests/schema.yml" in files
+        assert "models/schema.yml" in files
 
     def test_preview_with_seeds(self, client_with_model):
         response = client_with_model.post("/generate/preview", json={"seed_rows": 5, "seed": 42, "include_seeds": True})
@@ -152,7 +152,7 @@ class TestGeneratePreview:
     def test_schema_yml_is_valid_yaml(self, client_with_model):
         response = client_with_model.post("/generate/preview", json={"include_seeds": False})
         files = response.json()["files"]
-        schema = yaml.safe_load(files["tests/schema.yml"])
+        schema = yaml.safe_load(files["models/schema.yml"])
         assert schema["version"] == 2
         assert "models" in schema
 

@@ -53,17 +53,19 @@ def _generate_columns(entity: Entity, model: ConceptualModel) -> list[dict]:
             # Non-nullable non-PK fields
             tests.append("not_null")
 
-        # Enum → accepted_values
+        # Enum → accepted_values (dbt 1.9+: arguments nested under 'arguments' key)
         if attr.enum:
-            tests.append({"accepted_values": {"values": attr.enum}})
+            tests.append({"accepted_values": {"arguments": {"values": attr.enum}}})
 
-        # FK → relationships test
+        # FK → relationships test (dbt 1.9+: arguments nested under 'arguments' key)
         if attr.name in fk_map and not attr.nullable:
             fk_info = fk_map[attr.name]
             tests.append({
                 "relationships": {
-                    "to": f"ref('{fk_info['ref']}')",
-                    "field": fk_info["field"],
+                    "arguments": {
+                        "to": f"ref('{fk_info['ref']}')",
+                        "field": fk_info["field"],
+                    }
                 }
             })
 

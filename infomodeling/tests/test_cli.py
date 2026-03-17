@@ -44,7 +44,7 @@ class TestGenerateCommand:
         ])
         assert result.exit_code == 0
         assert os.path.exists(os.path.join(str(tmp_path), "dbt_project.yml"))
-        assert os.path.exists(os.path.join(str(tmp_path), "sources.yml"))
+        assert os.path.exists(os.path.join(str(tmp_path), "models", "sources.yml"))
         assert os.path.exists(os.path.join(str(tmp_path), "models", "staging", "stg_person.sql"))
 
     def test_dry_run_writes_nothing(self, tmp_path):
@@ -89,7 +89,7 @@ class TestGenerateCommand:
             "--output", str(tmp_path),
             "--source-name", "bronze",
         ])
-        sources_path = os.path.join(str(tmp_path), "sources.yml")
+        sources_path = os.path.join(str(tmp_path), "models", "sources.yml")
         content = open(sources_path).read()
         assert "bronze" in content
 

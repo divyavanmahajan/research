@@ -181,7 +181,7 @@ class TestSchemaGenerator:
         emp_col = next(c for c in person_model["columns"] if c["name"] == "employment_type")
         av_tests = [t for t in emp_col["tests"] if isinstance(t, dict) and "accepted_values" in t]
         assert len(av_tests) == 1
-        assert "employee" in av_tests[0]["accepted_values"]["values"]
+        assert "employee" in av_tests[0]["accepted_values"]["arguments"]["values"]
 
     def test_non_nullable_field_gets_not_null(self):
         model = _load_org_model()
@@ -199,7 +199,7 @@ class TestSchemaGenerator:
         unit_col = next(c for c in person_model["columns"] if c["name"] == "unit_id")
         rel_tests = [t for t in unit_col["tests"] if isinstance(t, dict) and "relationships" in t]
         assert len(rel_tests) == 1
-        assert "stg_organizational_unit" in rel_tests[0]["relationships"]["to"]
+        assert "stg_organizational_unit" in rel_tests[0]["relationships"]["arguments"]["to"]
 
 
 # ---------------------------------------------------------------------------
@@ -279,7 +279,7 @@ class TestWriter:
         written = result.written + result.merged + result.skipped
         # Check key files exist
         assert any("dbt_project.yml" in f for f in written)
-        assert any("sources.yml" in f for f in written)
+        assert any("sources.yml" in f for f in written)  # models/sources.yml
         assert any("schema.yml" in f for f in written)
         assert any("stg_person.sql" in f for f in written)
 
@@ -307,9 +307,10 @@ class TestWriter:
         model = _load_org_model()
         write_project(model, str(tmp_path))
         result2 = write_project(model, str(tmp_path))
-        # Second run: no new writes (either merged-with-no-diff or skipped)
-        assert len(result2.written) == 0 or all(
-            "yml" in f for f in result2.written
+        # Second run: only static files without merge markers (macros) may be re-written
+        non_macro_written = [f for f in result2.written if "macros" not in f]
+        assert len(non_macro_written) == 0 or all(
+            "yml" in f for f in non_macro_written
         )
 
     def test_dry_run_writes_nothing(self, tmp_path):

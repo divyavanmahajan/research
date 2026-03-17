@@ -6,7 +6,9 @@ import os
 from dataclasses import dataclass, field
 
 from .generators.marts import generate_mart_sql, needs_mart
-from .generators.project import generate_dbt_project_yml, generate_profiles_yml, _to_project_name
+from .generators.project import (
+    generate_dbt_project_yml, generate_profiles_yml, generate_schema_macro, _to_project_name,
+)
 from .generators.schema import generate_schema_yml
 from .generators.sources import generate_sources_yml
 from .generators.staging import generate_staging_sql
@@ -44,11 +46,14 @@ def write_project(model: ConceptualModel, output_dir: str, options: WriteOptions
     # profiles.yml
     files["profiles.yml"] = generate_profiles_yml(project_name)
 
-    # sources.yml
-    files["sources.yml"] = generate_sources_yml(model, options.source_name)
+    # Custom schema macro — makes seeds land in their configured schema directly
+    files[os.path.join("macros", "generate_schema_name.sql")] = generate_schema_macro()
 
-    # schema.yml (tests)
-    files[os.path.join("tests", "schema.yml")] = generate_schema_yml(model)
+    # sources.yml — must live inside models/ so dbt picks it up
+    files[os.path.join("models", "sources.yml")] = generate_sources_yml(model, options.source_name)
+
+    # schema.yml — lives inside models/ alongside the SQL it documents
+    files[os.path.join("models", "schema.yml")] = generate_schema_yml(model)
 
     # Staging SQL — one per entity
     for entity in model.entities:

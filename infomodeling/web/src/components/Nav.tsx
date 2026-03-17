@@ -3,6 +3,7 @@ import { NavLink } from 'react-router-dom'
 const links = [
   { to: '/upload', label: 'Upload Model' },
   { to: '/explorer', label: 'Explorer' },
+  { to: '/graph', label: 'Graph' },
   { to: '/preview', label: 'Preview' },
   { to: '/seeds', label: 'Seeds' },
   { to: '/download', label: 'Download' },

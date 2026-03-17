@@ -17,11 +17,15 @@ def generate_dbt_project_yml(model: ConceptualModel) -> str:
         "profile": project_name,
         "model-paths": ["models"],
         "seed-paths": ["seeds"],
-        "test-paths": ["tests"],
         "analysis-paths": ["analyses"],
         "macro-paths": ["macros"],
         "target-path": "target",
         "clean-targets": ["target", "dbt_packages"],
+        "seeds": {
+            project_name: {
+                "+schema": "raw",
+            }
+        },
         "models": {
             project_name: {
                 "staging": {
@@ -52,6 +56,19 @@ def generate_profiles_yml(project_name: str | None = None, db_path: str = "dev.d
         }
     }
     return yaml.dump(data, default_flow_style=False, sort_keys=False, allow_unicode=True)
+
+
+def generate_schema_macro() -> str:
+    """Return a generate_schema_name macro that uses the custom schema directly (no prefix)."""
+    return """\
+{%- macro generate_schema_name(custom_schema_name, node) -%}
+    {%- if custom_schema_name is none -%}
+        {{ target.schema }}
+    {%- else -%}
+        {{ custom_schema_name | trim }}
+    {%- endif -%}
+{%- endmacro %}
+"""
 
 
 def _to_project_name(model_name: str) -> str:

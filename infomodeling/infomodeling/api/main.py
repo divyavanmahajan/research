@@ -143,8 +143,8 @@ def _generate_all_files(m: ConceptualModel, opts: GenerateOptions) -> dict[str, 
 
     files["dbt_project.yml"] = generate_dbt_project_yml(m)
     files["profiles.yml"] = generate_profiles_yml(project_name)
-    files["sources.yml"] = generate_sources_yml(m, opts.source_name)
-    files["tests/schema.yml"] = generate_schema_yml(m)
+    files["models/sources.yml"] = generate_sources_yml(m, opts.source_name)
+    files["models/schema.yml"] = generate_schema_yml(m)
 
     for entity in m.entities:
         files[f"models/staging/stg_{entity.snake_name}.sql"] = generate_staging_sql(entity, opts.source_name)

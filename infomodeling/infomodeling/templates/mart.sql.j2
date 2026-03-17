@@ -1,41 +1,23 @@
 {{ "{{" }} config(materialized='table') {{ "}}" }}
 
 -- BEGIN GENERATED
-{% set primary = entity %}
-{% set rels = entity.many_to_one_relationships %}
 with {{ primary.snake_name }} as (
     select * from {{ "{{" }} ref('stg_{{ primary.snake_name }}') {{ "}}" }}
 ),
-{% for rel in rels %}
-{% set related = model.entity_by_name(rel.to) %}
-{% if related and related.name != primary.name %}
-{{ related.snake_name }} as (
-    select * from {{ "{{" }} ref('stg_{{ related.snake_name }}') {{ "}}" }}
+{% for cte_name, _ in cte_joins %}
+{{ cte_name }} as (
+    select * from {{ "{{" }} ref('stg_{{ cte_name }}') {{ "}}" }}
 ),
-{% endif %}
 {% endfor %}
 joined as (
     select
-{% for attr in primary.attributes %}
-        {{ primary.snake_name }}.{{ attr.name }},
-{% endfor %}
-{% for rel in rels %}
-{% set related = model.entity_by_name(rel.to) %}
-{% if related and related.name != primary.name %}
-{% for attr in related.attributes %}
-{% if not attr.primary_key %}
-        {{ related.snake_name }}.{{ attr.name }} as {{ related.snake_name }}_{{ attr.name }}{{ "," if not (loop.last and loop.revindex0 == 0) else "" }}
-{% endif %}
-{% endfor %}
-{% endif %}
+{% for col in select_columns %}
+        {{ col }}{{ "," if not loop.last else "" }}
 {% endfor %}
     from {{ primary.snake_name }}
-{% for rel in rels %}
-{% set related = model.entity_by_name(rel.to) %}
-{% if related and related.name != primary.name %}
-    left join {{ related.snake_name }}
-        on {{ primary.snake_name }}.{{ rel.via }} = {{ related.snake_name }}.{{ related.primary_key.name }}
-{% endif %}
+{% for cte_name, join_condition in cte_joins %}
+    left join {{ cte_name }}
+        on {{ join_condition }}
 {% endfor %}
 )
 -- END GENERATED
