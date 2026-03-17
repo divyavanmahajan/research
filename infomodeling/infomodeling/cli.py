@@ -82,7 +82,7 @@ def generate(model: str, output: str, source_name: str, seed_rows: int, seed: in
         for f in sorted(result.merged):
             click.echo(f"    ~ {f}")
     if result.skipped:
-        click.echo(click.style("  SKIPPED", fg="dim") + " (no changes):")
+        click.echo(click.style("  SKIPPED", fg="white", dim=True) + " (no changes):")
         for f in sorted(result.skipped):
             click.echo(f"    = {f}")
 
