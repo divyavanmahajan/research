@@ -1,0 +1,14 @@
+.rodney/
+web/.rodney/
+web/node_modules/
+__pycache__/
+*.pyc
+*.pyo
+.eggs/
+*.egg-info/
+.pytest_cache/
+dist/
+build/
+target/
+dbt_packages/
+dev.duckdb
