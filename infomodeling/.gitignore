@@ -12,3 +12,5 @@ build/
 target/
 dbt_packages/
 dev.duckdb
+.coverage
+htmlcov/
