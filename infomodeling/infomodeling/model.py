@@ -32,6 +32,7 @@ class Entity:
     description: str = ""
     attributes: list[Attribute] = field(default_factory=list)
     relationships: list[Relationship] = field(default_factory=list)
+    tags: list[str] = field(default_factory=list)
 
     @property
     def snake_name(self) -> str:

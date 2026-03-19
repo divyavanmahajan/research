@@ -27,6 +27,11 @@ class EntitySchema(BaseModel):
     description: str
     attributes: list[AttributeSchema]
     relationships: list[RelationshipSchema]
+    tags: list[str] = []
+
+
+class ExportRequest(BaseModel):
+    entity_names: list[str] = []  # empty = export all
 
 
 class ModelSchema(BaseModel):

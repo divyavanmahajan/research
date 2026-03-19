@@ -23,6 +23,7 @@ from ..seeds.generator import generate_seeds, seeds_to_csv
 from .schemas import (
     AttributeSchema,
     EntitySchema,
+    ExportRequest,
     GenerateOptions,
     GeneratePreviewResult,
     ModelSchema,
@@ -80,6 +81,7 @@ def _model_to_schema(m: ConceptualModel) -> ModelSchema:
                     RelationshipSchema(to=r.to, via=r.via, cardinality=r.cardinality, type=r.type)
                     for r in e.relationships
                 ],
+                tags=e.tags,
             )
             for e in m.entities
         ],
@@ -193,6 +195,54 @@ async def generate_download(opts: GenerateOptions):
 # ---------------------------------------------------------------------------
 # Seed preview
 # ---------------------------------------------------------------------------
+
+@app.post("/model/export")
+async def export_model(request: ExportRequest):
+    """Export a subset (or all) entities as a standalone YAML model file."""
+    m = _require_model()
+    export_names = set(request.entity_names) if request.entity_names else {e.name for e in m.entities}
+    entities = [e for e in m.entities if e.name in export_names]
+
+    def _entity_to_dict(e) -> dict:
+        d: dict = {"name": e.name}
+        if e.description:
+            d["description"] = e.description
+        if e.tags:
+            d["tags"] = e.tags
+        d["attributes"] = [
+            {k: v for k, v in {
+                "name": a.name, "type": a.type,
+                "primary_key": True if a.primary_key else None,
+                "nullable": True if a.nullable else None,
+                "description": a.description if a.description else None,
+                "enum": a.enum if a.enum else None,
+            }.items() if v is not None}
+            for a in e.attributes
+        ]
+        rels = [r for r in e.relationships if r.to in export_names]
+        if rels:
+            d["relationships"] = [
+                {k: v for k, v in {
+                    "to": r.to, "via": r.via, "cardinality": r.cardinality,
+                    "type": r.type,
+                }.items() if v is not None}
+                for r in rels
+            ]
+        return d
+
+    out = {
+        "version": m.version,
+        "name": m.name + (" (subset)" if len(entities) < len(m.entities) else ""),
+        "description": m.description,
+        "entities": [_entity_to_dict(e) for e in entities],
+    }
+    content = yaml.dump(out, allow_unicode=True, sort_keys=False, default_flow_style=False)
+    return StreamingResponse(
+        iter([content.encode()]),
+        media_type="application/x-yaml",
+        headers={"Content-Disposition": 'attachment; filename="model_export.yaml"'},
+    )
+
 
 @app.post("/seed/preview", response_model=list[SeedPreviewRow])
 async def seed_preview(opts: GenerateOptions):

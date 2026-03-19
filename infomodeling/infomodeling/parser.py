@@ -96,6 +96,8 @@ def _parse_entity(raw: dict, index: int) -> tuple[Entity | None, list[str]]:
         return None, errors
 
     description = raw.get("description", "")
+    raw_tags = raw.get("tags", [])
+    tags = [str(t) for t in raw_tags] if isinstance(raw_tags, list) else []
     raw_attrs = raw.get("attributes", [])
     raw_rels = raw.get("relationships", [])
 
@@ -140,6 +142,7 @@ def _parse_entity(raw: dict, index: int) -> tuple[Entity | None, list[str]]:
         description=description,
         attributes=attributes,
         relationships=relationships,
+        tags=tags,
     ), []
 
 

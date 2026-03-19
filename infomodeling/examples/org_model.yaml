@@ -6,6 +6,7 @@ entities:
 
   - name: Organization
     description: "Top-level legal entity or subsidiary"
+    tags: [g-foundation, g-foundation-legal, core]
     attributes:
       - name: org_id
         type: uuid
@@ -27,6 +28,7 @@ entities:
 
   - name: OrganizationalUnit
     description: "A department, team, or cost center within the organization"
+    tags: [g-foundation, g-foundation-structure, core]
     attributes:
       - name: unit_id
         type: uuid
@@ -61,6 +63,7 @@ entities:
 
   - name: Person
     description: "An employee, contractor, or consultant"
+    tags: [g-people, g-people-workforce, hr]
     attributes:
       - name: person_id
         type: uuid
@@ -92,6 +95,7 @@ entities:
 
   - name: Role
     description: "A job function or capability role within the organization"
+    tags: [g-people, g-people-roles, hr]
     attributes:
       - name: role_id
         type: uuid
@@ -114,6 +118,7 @@ entities:
 
   - name: PersonRole
     description: "Assignment of a person to a role (junction entity)"
+    tags: [g-people, g-people-assignments, hr]
     attributes:
       - name: assignment_id
         type: uuid
@@ -142,6 +147,7 @@ entities:
 
   - name: Application
     description: "A software system or digital service used by the organization"
+    tags: [g-technology, g-technology-apps, it]
     attributes:
       - name: app_id
         type: uuid
@@ -172,6 +178,7 @@ entities:
 
   - name: DataAsset
     description: "A dataset, report, or data product produced or consumed by the organization"
+    tags: [g-technology, g-technology-data, it]
     attributes:
       - name: asset_id
         type: uuid
@@ -205,6 +212,7 @@ entities:
 
   - name: BusinessProcess
     description: "A repeatable business workflow or procedure"
+    tags: [g-operations, g-operations-process, ops]
     attributes:
       - name: process_id
         type: uuid
@@ -231,6 +239,7 @@ entities:
 
   - name: Capability
     description: "An organizational capability — what the organization can do"
+    tags: [g-operations, g-operations-capability, ops]
     attributes:
       - name: capability_id
         type: uuid
@@ -255,6 +264,7 @@ entities:
 
   - name: Location
     description: "A physical or logical site of the organization"
+    tags: [g-foundation, g-foundation-physical, core]
     attributes:
       - name: location_id
         type: uuid

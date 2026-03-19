@@ -24,6 +24,7 @@ export interface EntitySchema {
   description: string
   attributes: AttributeSchema[]
   relationships: RelationshipSchema[]
+  tags: string[]
 }
 
 export interface ModelSchema {
@@ -89,6 +90,11 @@ export const api = {
 
   async seedPreview(opts: GenerateOptions = {}): Promise<SeedPreviewRow[]> {
     const res = await axios.post<SeedPreviewRow[]>(`${BASE}/seed/preview`, opts)
+    return res.data
+  },
+
+  async exportModel(entityNames: string[] = []): Promise<Blob> {
+    const res = await axios.post(`${BASE}/model/export`, { entity_names: entityNames }, { responseType: 'blob' })
     return res.data
   },
 }
