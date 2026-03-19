@@ -4,8 +4,11 @@ This repository explores concepts with Claude Code, Antigravity, and OpenAI. All
 
 | Folder | Description |
 |---|---|
+| [`infomodeling/`](infomodeling/) | **Information Model → DBT Generator.** Python library + CLI + Web UI that turns a hand-authored YAML conceptual model into a fully runnable DBT project targeting DuckDB. Generates staging views, mart tables, seed CSVs (Faker, FK-consistent, topologically ordered), schema.yml data tests, and a `generate_schema_name` macro. The React/Vite web UI includes an interactive ER graph with tag-based grouping, prefix filtering, level-of-detail regions, node selection, and one-click YAML export of model subsets. 123 tests. |
 | [`whatsup/`](whatsup/) | WhatsApp-like end-to-end encrypted messaging app built in Rust. Implements the Signal Protocol (X3DH + Double Ratchet + Sender Keys) from scratch, with an Axum REST/WebSocket server, embedded SQLite, a Ratatui terminal client, and load-tested to 1000 concurrent users. |
 | [`financeflow/`](financeflow/) | Full-stack personal finance tracker. Python/FastAPI SQLite backend with a Vite frontend. Features budget tracking, transaction drill-down, and a "can I spend?" view. |
 | [`finance/`](finance/) | Reusable React component templates and Python utility scripts for finance-related UIs. |
 | [`warehouse/`](warehouse/) | Warehouse management system with a FastAPI backend, web UI, and demo. Covers auth, inventory, and order picking workflows. |
+| [`SamsungTVRemote/`](SamsungTVRemote/) | Native iOS/macOS Swift app for controlling Samsung Smart TVs over the local network. |
+| [`dvm-haranalyzer/`](dvm-haranalyzer/) | CLI tool that parses `.har` files and identifies page-load bottlenecks — slow requests, large assets, missing cache headers, ad/tracker overload, and more. |
 | [`powerapp-appointments/`](powerapp-appointments/) | Microsoft Power Apps canvas app for managing service appointments. Staff can book, edit, cancel, and view appointments via a mobile-friendly interface backed by SharePoint Online and Power Automate. |
