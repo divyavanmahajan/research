@@ -101,6 +101,20 @@ class TestGenerateCommand:
         assert result.exit_code == 1
 
 
+class TestGenerateCommandIdempotent:
+    def test_second_run_shows_skipped(self, tmp_path):
+        """Running generate twice should show SKIPPED on the second run (no changes)."""
+        runner = CliRunner()
+        runner.invoke(cli, [
+            "generate", "--model", ORG_MODEL, "--output", str(tmp_path), "--no-seeds",
+        ])
+        result = runner.invoke(cli, [
+            "generate", "--model", ORG_MODEL, "--output", str(tmp_path), "--no-seeds",
+        ])
+        assert result.exit_code == 0
+        assert "SKIPPED" in result.output
+
+
 class TestDiffCommand:
     def test_no_changes_after_generate(self, tmp_path):
         runner = CliRunner()

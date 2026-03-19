@@ -208,3 +208,74 @@ class TestSeedPreview:
         previews = response.json()
         for preview in previews:
             assert len(preview["rows"]) <= 5
+
+
+# ---------------------------------------------------------------------------
+# /model/validate — ParseError branch
+# ---------------------------------------------------------------------------
+
+class TestValidateModelParseError:
+    def test_non_mapping_yaml_returns_parse_error(self, client):
+        """A valid YAML list (not a mapping) should trigger ParseError."""
+        list_yaml = b"- item1\n- item2\n"
+        response = client.post("/model/validate", files={"file": ("list.yaml", io.BytesIO(list_yaml))})
+        assert response.status_code == 200
+        data = response.json()
+        assert data["valid"] is False
+        assert len(data["errors"]) > 0
+        assert "mapping" in data["errors"][0].lower()
+
+
+# ---------------------------------------------------------------------------
+# /model/export
+# ---------------------------------------------------------------------------
+
+class TestExportModel:
+    def test_no_model_returns_400(self, client):
+        response = client.post("/model/export", json={"entity_names": []})
+        assert response.status_code == 400
+
+    def test_export_all_entities(self, client_with_model):
+        response = client_with_model.post("/model/export", json={"entity_names": []})
+        assert response.status_code == 200
+        assert "application/x-yaml" in response.headers["content-type"]
+        data = yaml.safe_load(response.content)
+        assert data["version"] == "1.0"
+        assert "entities" in data
+        assert len(data["entities"]) == 10
+        # Full export should not have "(subset)" in name
+        assert "(subset)" not in data["name"]
+
+    def test_export_subset_filters_entities(self, client_with_model):
+        response = client_with_model.post("/model/export", json={"entity_names": ["Person", "OrganizationalUnit"]})
+        assert response.status_code == 200
+        data = yaml.safe_load(response.content)
+        assert len(data["entities"]) == 2
+        names = [e["name"] for e in data["entities"]]
+        assert "Person" in names
+        assert "OrganizationalUnit" in names
+        assert "(subset)" in data["name"]
+
+    def test_export_subset_prunes_relationships(self, client_with_model):
+        """Exporting only Person should drop its relationship to OrganizationalUnit."""
+        response = client_with_model.post("/model/export", json={"entity_names": ["Person"]})
+        assert response.status_code == 200
+        data = yaml.safe_load(response.content)
+        person = data["entities"][0]
+        # Relationship to OrganizationalUnit should be pruned (not in export set)
+        assert "relationships" not in person or all(
+            r["to"] == "Person" for r in person.get("relationships", [])
+        )
+
+    def test_export_preserves_relationships_within_subset(self, client_with_model):
+        """Exporting Person + OrganizationalUnit should keep Person→OrganizationalUnit rel."""
+        response = client_with_model.post("/model/export", json={"entity_names": ["Person", "OrganizationalUnit"]})
+        assert response.status_code == 200
+        data = yaml.safe_load(response.content)
+        person = next(e for e in data["entities"] if e["name"] == "Person")
+        rels = person.get("relationships", [])
+        assert any(r["to"] == "OrganizationalUnit" for r in rels)
+
+    def test_export_content_disposition_header(self, client_with_model):
+        response = client_with_model.post("/model/export", json={})
+        assert "model_export.yaml" in response.headers.get("content-disposition", "")
