@@ -1,0 +1,25 @@
+{{ "{{" }} config(materialized='table') {{ "}}" }}
+
+-- BEGIN GENERATED
+with {{ primary.snake_name }} as (
+    select * from {{ "{{" }} ref('stg_{{ primary.snake_name }}') {{ "}}" }}
+),
+{% for cte_name, _ in cte_joins %}
+{{ cte_name }} as (
+    select * from {{ "{{" }} ref('stg_{{ cte_name }}') {{ "}}" }}
+),
+{% endfor %}
+joined as (
+    select
+{% for col in select_columns %}
+        {{ col }}{{ "," if not loop.last else "" }}
+{% endfor %}
+    from {{ primary.snake_name }}
+{% for cte_name, join_condition in cte_joins %}
+    left join {{ cte_name }}
+        on {{ join_condition }}
+{% endfor %}
+)
+-- END GENERATED
+
+select * from joined

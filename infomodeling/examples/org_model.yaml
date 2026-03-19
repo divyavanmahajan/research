@@ -1,0 +1,283 @@
+version: "1.0"
+name: "Acme Corp Information Model"
+description: "Conceptual information model for Acme Corp enterprise architecture"
+
+entities:
+
+  - name: Organization
+    description: "Top-level legal entity or subsidiary"
+    attributes:
+      - name: org_id
+        type: uuid
+        primary_key: true
+        description: "Unique identifier for the organization"
+      - name: org_name
+        type: string
+        description: "Legal name of the organization"
+      - name: org_type
+        type: string
+        enum: [company, subsidiary, division, partnership]
+        description: "Type of organization"
+      - name: country_code
+        type: string
+        description: "ISO 3166-1 alpha-2 country code"
+      - name: created_at
+        type: timestamp
+        description: "When the org record was created"
+
+  - name: OrganizationalUnit
+    description: "A department, team, or cost center within the organization"
+    attributes:
+      - name: unit_id
+        type: uuid
+        primary_key: true
+        description: "Unique identifier for the organizational unit"
+      - name: unit_name
+        type: string
+        description: "Display name of the unit"
+      - name: unit_type
+        type: string
+        enum: [department, team, division, subsidiary, cost_center]
+        description: "Category of the organizational unit"
+      - name: cost_center_code
+        type: string
+        nullable: true
+        description: "Finance cost center code"
+      - name: parent_unit_id
+        type: uuid
+        nullable: true
+        description: "FK to parent unit; null for root units"
+      - name: org_id
+        type: uuid
+        description: "FK to owning organization"
+    relationships:
+      - to: OrganizationalUnit
+        via: parent_unit_id
+        cardinality: many_to_one
+        type: self_referential
+      - to: Organization
+        via: org_id
+        cardinality: many_to_one
+
+  - name: Person
+    description: "An employee, contractor, or consultant"
+    attributes:
+      - name: person_id
+        type: uuid
+        primary_key: true
+        description: "Unique identifier for the person"
+      - name: full_name
+        type: string
+        description: "Full display name"
+      - name: email
+        type: string
+        description: "Primary work email address"
+      - name: employment_type
+        type: string
+        enum: [employee, contractor, consultant, intern]
+        description: "Nature of the employment relationship"
+      - name: unit_id
+        type: uuid
+        description: "FK to primary organizational unit"
+      - name: hire_date
+        type: date
+        description: "Date the person joined the organization"
+      - name: is_active
+        type: boolean
+        description: "Whether the person is currently active"
+    relationships:
+      - to: OrganizationalUnit
+        via: unit_id
+        cardinality: many_to_one
+
+  - name: Role
+    description: "A job function or capability role within the organization"
+    attributes:
+      - name: role_id
+        type: uuid
+        primary_key: true
+        description: "Unique identifier for the role"
+      - name: role_name
+        type: string
+        description: "Name of the role"
+      - name: role_level
+        type: string
+        enum: [individual_contributor, manager, director, vp, c_suite]
+        description: "Seniority level of the role"
+      - name: unit_id
+        type: uuid
+        description: "FK to the unit this role belongs to"
+    relationships:
+      - to: OrganizationalUnit
+        via: unit_id
+        cardinality: many_to_one
+
+  - name: PersonRole
+    description: "Assignment of a person to a role (junction entity)"
+    attributes:
+      - name: assignment_id
+        type: uuid
+        primary_key: true
+        description: "Unique identifier for the assignment"
+      - name: person_id
+        type: uuid
+        description: "FK to person"
+      - name: role_id
+        type: uuid
+        description: "FK to role"
+      - name: start_date
+        type: date
+        description: "When the assignment started"
+      - name: end_date
+        type: date
+        nullable: true
+        description: "When the assignment ended; null if current"
+    relationships:
+      - to: Person
+        via: person_id
+        cardinality: many_to_one
+      - to: Role
+        via: role_id
+        cardinality: many_to_one
+
+  - name: Application
+    description: "A software system or digital service used by the organization"
+    attributes:
+      - name: app_id
+        type: uuid
+        primary_key: true
+        description: "Unique identifier for the application"
+      - name: app_name
+        type: string
+        description: "Name of the application"
+      - name: lifecycle_status
+        type: string
+        enum: [planned, active, deprecated, retired]
+        description: "Current lifecycle stage"
+      - name: app_type
+        type: string
+        enum: [saas, on_premise, custom, integration, platform]
+        description: "Deployment type"
+      - name: owning_unit_id
+        type: uuid
+        description: "FK to the unit that owns this application"
+      - name: vendor_name
+        type: string
+        nullable: true
+        description: "Vendor or supplier name"
+    relationships:
+      - to: OrganizationalUnit
+        via: owning_unit_id
+        cardinality: many_to_one
+
+  - name: DataAsset
+    description: "A dataset, report, or data product produced or consumed by the organization"
+    attributes:
+      - name: asset_id
+        type: uuid
+        primary_key: true
+        description: "Unique identifier for the data asset"
+      - name: asset_name
+        type: string
+        description: "Name of the data asset"
+      - name: asset_type
+        type: string
+        enum: [dataset, report, dashboard, api, stream, model]
+        description: "Type of data asset"
+      - name: classification
+        type: string
+        enum: [public, internal, confidential, restricted]
+        description: "Data sensitivity classification"
+      - name: owning_unit_id
+        type: uuid
+        description: "FK to the unit that owns this asset"
+      - name: producing_app_id
+        type: uuid
+        nullable: true
+        description: "FK to the application that produces this asset"
+    relationships:
+      - to: OrganizationalUnit
+        via: owning_unit_id
+        cardinality: many_to_one
+      - to: Application
+        via: producing_app_id
+        cardinality: many_to_one
+
+  - name: BusinessProcess
+    description: "A repeatable business workflow or procedure"
+    attributes:
+      - name: process_id
+        type: uuid
+        primary_key: true
+        description: "Unique identifier for the process"
+      - name: process_name
+        type: string
+        description: "Name of the business process"
+      - name: process_domain
+        type: string
+        enum: [finance, hr, sales, operations, technology, legal, marketing]
+        description: "Business domain this process belongs to"
+      - name: owner_unit_id
+        type: uuid
+        description: "FK to the unit that owns this process"
+      - name: maturity_level
+        type: integer
+        nullable: true
+        description: "Process maturity level (1-5)"
+    relationships:
+      - to: OrganizationalUnit
+        via: owner_unit_id
+        cardinality: many_to_one
+
+  - name: Capability
+    description: "An organizational capability — what the organization can do"
+    attributes:
+      - name: capability_id
+        type: uuid
+        primary_key: true
+        description: "Unique identifier for the capability"
+      - name: capability_name
+        type: string
+        description: "Name of the capability"
+      - name: capability_level
+        type: integer
+        nullable: true
+        description: "Hierarchy level (1=strategic, 2=operational, 3=tactical)"
+      - name: parent_capability_id
+        type: uuid
+        nullable: true
+        description: "FK to parent capability for hierarchy"
+    relationships:
+      - to: Capability
+        via: parent_capability_id
+        cardinality: many_to_one
+        type: self_referential
+
+  - name: Location
+    description: "A physical or logical site of the organization"
+    attributes:
+      - name: location_id
+        type: uuid
+        primary_key: true
+        description: "Unique identifier for the location"
+      - name: location_name
+        type: string
+        description: "Name of the location"
+      - name: location_type
+        type: string
+        enum: [headquarters, office, data_center, remote, virtual]
+        description: "Type of location"
+      - name: city
+        type: string
+        nullable: true
+      - name: country_code
+        type: string
+        nullable: true
+        description: "ISO 3166-1 alpha-2 country code"
+      - name: org_id
+        type: uuid
+        description: "FK to the organization this location belongs to"
+    relationships:
+      - to: Organization
+        via: org_id
+        cardinality: many_to_one

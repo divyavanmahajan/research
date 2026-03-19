@@ -1,0 +1,2 @@
+[console_scripts]
+infomodel-dbt = infomodeling.cli:cli
