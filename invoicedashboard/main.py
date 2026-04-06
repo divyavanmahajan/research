@@ -1,3 +1,6 @@
+from dotenv import load_dotenv
+load_dotenv()  # loads .env if present; no-op if the file doesn't exist
+
 from fastapi import FastAPI, HTTPException
 
 from databricks_client import fetch_dashboard_counts
