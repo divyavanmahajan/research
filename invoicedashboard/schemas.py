@@ -1,10 +1,8 @@
 from pydantic import BaseModel, Field
 
 
-# ── Pending Invoices ──────────────────────────────────────────────────────────
-
 class PendingInvoices(BaseModel):
-    overall_invoice_workflow: int = Field(..., description="Total invoices in the workflow")
+    overall_invoice_workflow: int = Field(..., description="Sum of all pending stage counts")
     extraction_and_classification: int = Field(..., description="Invoices being extracted/classified")
     waiting_for_coding: int = Field(..., description="Invoices awaiting GL coding")
     master_data: int = Field(..., description="Invoices blocked on master data issues")
@@ -12,18 +10,6 @@ class PendingInvoices(BaseModel):
     sap_errors: int = Field(..., description="Invoices with SAP posting errors")
     rpa_auto_post: int = Field(..., description="Invoices queued for RPA auto-posting")
 
-
-class PendingInvoicesUpdate(BaseModel):
-    overall_invoice_workflow: int | None = None
-    extraction_and_classification: int | None = None
-    waiting_for_coding: int | None = None
-    master_data: int | None = None
-    tax_coding: int | None = None
-    sap_errors: int | None = None
-    rpa_auto_post: int | None = None
-
-
-# ── Processed Invoices ────────────────────────────────────────────────────────
 
 class ProcessedInvoices(BaseModel):
     posted_in_sap: int = Field(..., description="Invoices successfully posted in SAP")
@@ -36,24 +22,6 @@ class ProcessedInvoices(BaseModel):
     ica_document: int = Field(..., description="Inter-company accounting documents")
 
 
-class ProcessedInvoicesUpdate(BaseModel):
-    posted_in_sap: int | None = None
-    parked_in_sap: int | None = None
-    non_invoice: int | None = None
-    duplicate: int | None = None
-    non_compliant: int | None = None
-    non_po_no_pay: int | None = None
-    bad_scan: int | None = None
-    ica_document: int | None = None
-
-
-# ── Dashboard ─────────────────────────────────────────────────────────────────
-
 class InvoiceDashboard(BaseModel):
     pending_invoices: PendingInvoices
     processed_invoices: ProcessedInvoices
-
-
-class InvoiceDashboardUpdate(BaseModel):
-    pending_invoices: PendingInvoicesUpdate | None = None
-    processed_invoices: ProcessedInvoicesUpdate | None = None
