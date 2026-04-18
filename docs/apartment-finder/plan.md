@@ -11,14 +11,14 @@
 | # | Milestone | Status |
 |---|---|---|
 | 1 | Docs & project scaffold | ✅ Done |
-| 2 | Backend scraper (qasa.se) | ⬜ Pending |
-| 3 | Frontend shell + routing | ⬜ Pending |
-| 4 | IndexedDB storage layer | ⬜ Pending |
-| 5 | My List view | ⬜ Pending |
-| 6 | Apartment Detail view | ⬜ Pending |
-| 7 | Investigate mode (URL + search) | ⬜ Pending |
-| 8 | Map view (Leaflet) | ⬜ Pending |
-| 9 | Export / Import JSON | ⬜ Pending |
+| 2 | Backend scraper (qasa.se) | ✅ Done |
+| 3 | Frontend shell + routing | ✅ Done |
+| 4 | IndexedDB storage layer | ✅ Done |
+| 5 | My List view | ✅ Done |
+| 6 | Apartment Detail view | ✅ Done |
+| 7 | Investigate mode (URL + search) | ✅ Done |
+| 8 | Map view (Leaflet) | ✅ Done |
+| 9 | Export / Import JSON | ✅ Done |
 | 10 | Polish & production build | ⬜ Pending |
 
 ---
