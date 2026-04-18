@@ -1,0 +1,45 @@
+name: Apartment Finder — CI
+
+on:
+  push:
+    paths:
+      - "apartment-finder/**"
+  pull_request:
+    paths:
+      - "apartment-finder/**"
+
+defaults:
+  run:
+    working-directory: apartment-finder
+
+jobs:
+  test:
+    name: Run all tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: |
+            apartment-finder/package-lock.json
+            apartment-finder/frontend/package-lock.json
+
+      - name: Install root dependencies
+        run: npm ci
+
+      - name: Install frontend dependencies
+        run: npm ci --prefix frontend
+
+      - name: Type-check functions
+        run: npx tsc --noEmit
+
+      - name: Test functions
+        run: npm run test:functions
+
+      - name: Test frontend
+        run: npm run test:frontend
