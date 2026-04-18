@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "types": ["@types/node", "vitest/globals"],
+    "module": "ES2022",
+    "moduleResolution": "bundler"
+  },
+  "include": ["functions/__tests__/**/*", "functions/_shared/**/*"],
+  "exclude": []
+}
