@@ -9,9 +9,13 @@
     "test": "concurrently --names \"backend,frontend\" --prefix-colors \"cyan,magenta\" \"npm test --prefix backend\" \"npm test --prefix frontend\"",
     "test:backend": "npm test --prefix backend",
     "test:frontend": "npm test --prefix frontend",
+    "test:functions": "vitest run --config vitest.config.ts",
     "install:all": "npm install && npm install --prefix backend && npm install --prefix frontend"
   },
   "devDependencies": {
-    "concurrently": "^8.2.2"
+    "@cloudflare/workers-types": "^4.20250414.0",
+    "concurrently": "^8.2.2",
+    "typescript": "^5.8.3",
+    "vitest": "^3.1.2"
   }
 }
