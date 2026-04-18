@@ -3,6 +3,7 @@ import ListView from './views/ListView';
 import DetailView from './views/DetailView';
 import InvestigateView from './views/InvestigateView';
 import MapView from './views/MapView';
+import ErrorBoundary from './components/ErrorBoundary';
 
 function NavItem({ to, label }) {
   return (
@@ -30,12 +31,14 @@ export default function App() {
         <NavItem to="/map" label="Map" />
       </nav>
       <main>
-        <Routes>
-          <Route path="/" element={<ListView />} />
-          <Route path="/apartment/:id" element={<DetailView />} />
-          <Route path="/investigate" element={<InvestigateView />} />
-          <Route path="/map" element={<MapView />} />
-        </Routes>
+        <ErrorBoundary>
+          <Routes>
+            <Route path="/" element={<ListView />} />
+            <Route path="/apartment/:id" element={<DetailView />} />
+            <Route path="/investigate" element={<InvestigateView />} />
+            <Route path="/map" element={<MapView />} />
+          </Routes>
+        </ErrorBoundary>
       </main>
     </div>
   );

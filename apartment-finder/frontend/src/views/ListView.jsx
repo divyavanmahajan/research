@@ -32,12 +32,15 @@ function sortApartments(apts, sortKey) {
 
 export default function ListView() {
   const [apartments, setApartments] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
   const [sort, setSort] = useState('addedAt_desc');
 
   async function load() {
+    setLoading(true);
     const all = await getAll();
     setApartments(all);
+    setLoading(false);
   }
 
   useEffect(() => { load(); }, []);
@@ -86,7 +89,11 @@ export default function ListView() {
         </div>
       </div>
 
-      {apartments.length === 0 ? (
+      {loading ? (
+        <div className="flex justify-center py-20">
+          <div className="w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
+        </div>
+      ) : apartments.length === 0 ? (
         <div className="text-center py-20 text-gray-400">
           <p className="text-lg">No apartments in your list yet.</p>
           <Link to="/investigate" className="mt-3 inline-block text-blue-600 hover:underline">

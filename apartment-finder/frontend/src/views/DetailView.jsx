@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import PhotoGallery from '../components/PhotoGallery';
@@ -7,11 +7,13 @@ import StatusStepper from '../components/StatusStepper';
 import { get, put, remove } from '../db';
 
 function useDebounce(fn, delay) {
-  const timer = { current: null };
-  return useCallback((...args) => {
+  const timer = useRef(null);
+  const fnRef = useRef(fn);
+  fnRef.current = fn;
+  return (...args) => {
     clearTimeout(timer.current);
-    timer.current = setTimeout(() => fn(...args), delay);
-  }, [fn, delay]);
+    timer.current = setTimeout(() => fnRef.current(...args), delay);
+  };
 }
 
 export default function DetailView() {

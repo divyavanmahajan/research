@@ -19,7 +19,7 @@
 | 7 | Investigate mode (URL + search) | ✅ Done |
 | 8 | Map view (Leaflet) | ✅ Done |
 | 9 | Export / Import JSON | ✅ Done |
-| 10 | Polish & production build | ⬜ Pending |
+| 10 | Polish & production build | ✅ Done |
 
 ---
 

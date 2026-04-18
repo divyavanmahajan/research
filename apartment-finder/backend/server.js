@@ -1,11 +1,18 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const { scrapeUrl, scrapeSearch } = require('./scrapers/qasa');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+const IS_PROD = process.env.NODE_ENV === 'production';
 
-app.use(cors({ origin: 'http://localhost:5173' }));
+if (IS_PROD) {
+  const distPath = path.join(__dirname, '../frontend/dist');
+  app.use(express.static(distPath));
+} else {
+  app.use(cors({ origin: 'http://localhost:5173' }));
+}
 app.use(express.json());
 
 function isQasaUrl(url) {
@@ -43,6 +50,11 @@ app.get('/api/search', async (req, res) => {
     res.status(502).json({ error: err.message });
   }
 });
+
+if (IS_PROD) {
+  const distPath = path.join(__dirname, '../frontend/dist');
+  app.get('*', (_req, res) => res.sendFile(path.join(distPath, 'index.html')));
+}
 
 if (require.main === module) {
   app.listen(PORT, () => console.log(`Backend running on http://localhost:${PORT}`));
