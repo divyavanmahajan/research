@@ -2,8 +2,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi } from 'vitest';
 import StatusStepper from '../components/StatusStepper';
-
-const STATUSES = ['new', 'contacted', 'viewing', 'applied', 'rejected'];
+import type { Status } from '../types';
 
 describe('StatusStepper', () => {
   it('renders all status labels', () => {
@@ -22,14 +21,14 @@ describe('StatusStepper', () => {
   });
 
   it('calls onChange when a different status is clicked', async () => {
-    const onChange = vi.fn();
+    const onChange = vi.fn<[Status], void>();
     render(<StatusStepper value="new" onChange={onChange} />);
     await userEvent.click(screen.getByText(/contacted/i));
     expect(onChange).toHaveBeenCalledWith('contacted');
   });
 
   it('does not call onChange when current status is clicked again', async () => {
-    const onChange = vi.fn();
+    const onChange = vi.fn<[Status], void>();
     render(<StatusStepper value="new" onChange={onChange} />);
     await userEvent.click(screen.getByText(/new/i));
     expect(onChange).not.toHaveBeenCalled();

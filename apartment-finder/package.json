@@ -3,20 +3,23 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "concurrently --names \"backend,frontend\" --prefix-colors \"cyan,magenta\" \"npm run dev --prefix backend\" \"npm run dev --prefix frontend\"",
-    "build": "npm run build --prefix frontend",
-    "start": "NODE_ENV=production node backend/server.js",
-    "test": "concurrently --names \"backend,frontend\" --prefix-colors \"cyan,magenta\" \"npm test --prefix backend\" \"npm test --prefix frontend\"",
-    "test:backend": "npm test --prefix backend",
-    "test:frontend": "npm test --prefix frontend",
+    "dev:vite": "vite --config frontend/vite.config.ts --port 5173",
+    "dev": "concurrently --names \"vite,wrangler\" --prefix-colors \"magenta,cyan\" \"npm run dev:vite\" \"wrangler pages dev --proxy 5173 --port 8788\"",
+    "build": "vite build --config frontend/vite.config.ts",
+    "preview": "wrangler pages dev frontend/dist --port 8788",
+    "deploy": "npm run build && wrangler pages deploy frontend/dist --project-name=apartment-finder",
+    "test": "concurrently --names \"functions,frontend\" --prefix-colors \"cyan,magenta\" \"npm run test:functions\" \"npm run test:frontend\"",
     "test:functions": "vitest run --config vitest.config.ts",
-    "install:all": "npm install && npm install --prefix backend && npm install --prefix frontend"
+    "test:frontend": "npm test --prefix frontend",
+    "typecheck": "tsc --noEmit && tsc --noEmit --project frontend/tsconfig.json",
+    "install:all": "npm install && npm install --prefix frontend"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20250414.0",
     "@types/node": "^25.6.0",
     "concurrently": "^8.2.2",
     "typescript": "^5.8.3",
-    "vitest": "^3.1.2"
+    "vitest": "^3.1.2",
+    "wrangler": "^3.114.0"
   }
 }

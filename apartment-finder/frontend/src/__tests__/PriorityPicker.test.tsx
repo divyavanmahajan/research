@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi } from 'vitest';
 import PriorityPicker from '../components/PriorityPicker';
+import type { Priority } from '../types';
 
 describe('PriorityPicker', () => {
   it('renders all three priority options', () => {
@@ -12,21 +13,21 @@ describe('PriorityPicker', () => {
   });
 
   it('calls onChange with must_see when Must see is clicked', async () => {
-    const onChange = vi.fn();
+    const onChange = vi.fn<[Priority], void>();
     render(<PriorityPicker value="unranked" onChange={onChange} />);
     await userEvent.click(screen.getByText(/must see/i));
     expect(onChange).toHaveBeenCalledWith('must_see');
   });
 
   it('calls onChange with nice when Nice is clicked', async () => {
-    const onChange = vi.fn();
+    const onChange = vi.fn<[Priority], void>();
     render(<PriorityPicker value="unranked" onChange={onChange} />);
     await userEvent.click(screen.getByText(/nice/i));
     expect(onChange).toHaveBeenCalledWith('nice');
   });
 
   it('calls onChange with skip when Skip is clicked', async () => {
-    const onChange = vi.fn();
+    const onChange = vi.fn<[Priority], void>();
     render(<PriorityPicker value="unranked" onChange={onChange} />);
     await userEvent.click(screen.getByText(/skip/i));
     expect(onChange).toHaveBeenCalledWith('skip');
