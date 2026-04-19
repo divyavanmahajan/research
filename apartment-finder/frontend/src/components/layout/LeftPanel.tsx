@@ -11,6 +11,7 @@ export function LeftPanel() {
   const setActiveTab = useAppStore((state) => state.setActiveTab);
   const addApartment = useAppStore((state) => state.addApartment);
   const apartments = useAppStore((state) => state.apartments);
+  const showToast = useAppStore((state) => state.showToast);
   
   const [url, setUrl] = useState('');
   const [loading, setLoading] = useState(false);
@@ -23,14 +24,15 @@ export function LeftPanel() {
     try {
       const data = await parseUrl(url);
       if (apartments.some(a => a.id === data.id)) {
-        alert('Already in your list');
+        showToast('Already in your list', 'info');
       } else {
         addApartment(data, url);
         setUrl('');
         setActiveTab('mylist');
+        showToast('Apartment added to your list', 'success');
       }
     } catch (err: any) {
-      alert(err.message || 'Failed to add apartment');
+      showToast(err.message || 'Failed to add apartment', 'error');
     } finally {
       setLoading(false);
     }

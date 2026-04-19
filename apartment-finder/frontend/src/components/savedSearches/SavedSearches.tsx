@@ -7,6 +7,7 @@ export function SavedSearches() {
   const setSearchResults = useAppStore(state => state.setSearchResults);
   const setSearchLoading = useAppStore(state => state.setSearchLoading);
   const setActiveTab = useAppStore(state => state.setActiveTab);
+  const showToast = useAppStore(state => state.showToast);
 
   const handleRun = async (filters: any) => {
     setActiveTab('search');
@@ -15,7 +16,7 @@ export function SavedSearches() {
       const results = await searchListings(filters);
       setSearchResults(results.results, results.totalCount);
     } catch (err: any) {
-      alert(err.message || 'Search failed');
+      showToast(err.message || 'Search failed', 'error');
       setSearchLoading(false);
     }
   };

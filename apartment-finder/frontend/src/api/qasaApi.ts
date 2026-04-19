@@ -1,4 +1,4 @@
-import { QasaListingData, SearchFilters, SearchResult } from '../types';
+import type { QasaListingData, SearchFilters, SearchResult, TravelDestination, DestinationTravelTime } from '../types';
 
 /**
  * Health check endpoint wrapper.
@@ -34,6 +34,27 @@ export async function searchListings(filters: SearchFilters): Promise<SearchResu
     const error = await response.json();
     throw new Error(error.detail || 'Search failed');
   }
+  return response.json();
+}
+
+/**
+ * Fetches walk and bike travel times from the backend (OSRM) and Google Maps links.
+ */
+export async function fetchTravelTimes(
+  fromLat: number,
+  fromLon: number,
+  destinations: TravelDestination[],
+): Promise<{ results: DestinationTravelTime[] }> {
+  const response = await fetch('/api/travel-times', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      from_lat: fromLat,
+      from_lon: fromLon,
+      destinations: destinations.map(d => ({ label: d.label, lat: d.lat, lon: d.lon })),
+    }),
+  });
+  if (!response.ok) throw new Error('Failed to fetch travel times');
   return response.json();
 }
 

@@ -1,4 +1,4 @@
-import { AppDatabase } from '../types';
+import type { AppDatabase } from '../types';
 
 export const DB_KEY = 'apartment-finder-db';
 export const CURRENT_VERSION = 1;

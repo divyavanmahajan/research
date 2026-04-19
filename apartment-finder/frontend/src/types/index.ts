@@ -127,6 +127,22 @@ export interface AppDatabase {
   savedSearches: SavedSearch[];
 }
 
+export interface TravelDestination {
+  id: string;
+  label: string;
+  lat: number;
+  lon: number;
+}
+
+export interface DestinationTravelTime {
+  label: string;
+  walk_minutes: number | null;
+  bike_minutes: number | null;
+  maps_url_walk: string;
+  maps_url_bike: string;
+  maps_url_transit: string;
+}
+
 export interface SearchResult {
   totalCount: number;
   pagesCount: number;

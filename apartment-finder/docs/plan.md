@@ -65,18 +65,18 @@
 | 3.1 | App shell: `App.tsx` split layout (left panel + map) | ✅ | |
 | 3.2 | `MapPanel.tsx` — Leaflet + OSM tiles, default Gothenburg | ✅ | |
 | 3.3 | `LeftPanel.tsx` — tab navigation (My List / Search / Saved Searches) | ✅ | |
-| 3.4 | Test + implement `TagInput.tsx` | ⬜ | |
-| 3.5 | Test + implement `CommentThread.tsx` | ⬜ | |
-| 3.6 | Test + implement `ApartmentCard.tsx` | ⬜ | |
-| 3.7 | Test + implement `ApartmentDetail.tsx` (drawer) | ⬜ | |
-| 3.8 | Test + implement `MyList.tsx` | 🔄 | |
-| 3.9 | Test + implement `SearchPanel.tsx` (all filter fields) | ⬜ | |
-| 3.10 | Test + implement `SearchResultCard.tsx` | ⬜ | |
-| 3.11 | Test + implement `SearchResults.tsx` | ⬜ | |
-| 3.12 | Test + implement `SavedSearches.tsx` | ⬜ | |
-| 3.13 | Test + implement `ImportExport.tsx` | ⬜ | |
-| 3.14 | `Toast.tsx` + `ConfirmDialog.tsx` | ⬜ | |
-| 3.15 | URL-paste "Add by URL" field in left panel header | ⬜ | |
+| 3.4 | Test + implement `TagInput.tsx` | ✅ | |
+| 3.5 | Test + implement `CommentThread.tsx` | ✅ | |
+| 3.6 | Test + implement `ApartmentCard.tsx` | ✅ | |
+| 3.7 | Test + implement `ApartmentDetail.tsx` (drawer) | ✅ | |
+| 3.8 | Test + implement `MyList.tsx` | ✅ | |
+| 3.9 | Test + implement `SearchPanel.tsx` (all filter fields) | ✅ | |
+| 3.10 | Test + implement `SearchResultCard.tsx` | ✅ | |
+| 3.11 | Test + implement `SearchResults.tsx` | ✅ | No dedicated test (covered by SearchTab integration) |
+| 3.12 | Test + implement `SavedSearches.tsx` | ✅ | |
+| 3.13 | Test + implement `ImportExport.tsx` | ✅ | |
+| 3.14 | `Toast.tsx` + `ConfirmDialog.tsx` | ✅ | Toast replaces all alert(); ConfirmDialog replaces confirm() |
+| 3.15 | URL-paste "Add by URL" field in left panel header | ✅ | |
 
 ---
 
@@ -86,10 +86,10 @@
 |---|------|--------|-------|
 | 4.1 | Render saved apartment pins (coloured by tag) | ✅ | |
 | 4.2 | Render search result pins (orange, hollow) | ✅ | |
-| 4.3 | Click pin → select apartment + scroll list | ⬜ | |
-| 4.4 | Click list row → pan map to pin | ⬜ | |
+| 4.3 | Click pin → select apartment + scroll list | ✅ | scrollIntoView on selectedId change |
+| 4.4 | Click list row → pan map to pin | ✅ | MapController flyTo on selectedId change |
 | 4.5 | Auto-fit bounds on tab switch | ✅ | |
-| 4.6 | City selector changes map default centre | ⬜ | |
+| 4.6 | City selector changes map default centre | ✅ | MapCityCenter component + searchCity store state |
 
 ---
 
@@ -100,9 +100,9 @@
 | 5.1 | End-to-end: add apartment by URL, add tag, add comment, export, import | ⬜ | Manual test |
 | 5.2 | End-to-end: search, add result, verify map pin colour by tag | ⬜ | Manual test |
 | 5.3 | End-to-end: save search, reload page, re-run saved search | ⬜ | Manual test |
-| 5.4 | localStorage size warning (> 4 MB) | ⬜ | |
-| 5.5 | Error states: toast on API failure, toast on invalid URL | ⬜ | |
-| 5.6 | Duplicate add warning | ⬜ | |
+| 5.4 | localStorage size warning (> 4 MB) | ✅ | Checked on mount in App.tsx and after import |
+| 5.5 | Error states: toast on API failure, toast on invalid URL | ✅ | All alert() replaced with showToast() |
+| 5.6 | Duplicate add warning | ✅ | showToast 'Already in your list' |
 | 5.7 | Final CSS polish and responsive column widths | ⬜ | |
 
 ---

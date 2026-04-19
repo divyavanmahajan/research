@@ -1,10 +1,13 @@
-import { SavedApartment } from '../../types';
+import { useState } from 'react';
+import type { SavedApartment } from '../../types';
 import { TagInput } from '../tags/TagInput';
 import { CommentThread } from '../comments/CommentThread';
+import { CommuteSection } from './CommuteSection';
 import { useAppStore } from '../../store/useAppStore';
+import { ConfirmDialog } from '../common/ConfirmDialog';
 
 interface Props {
-  apartment: SavedApartment | null;
+  apartment: SavedApartment;
   onClose: () => void;
 }
 
@@ -14,15 +17,15 @@ export function ApartmentDetail({ apartment, onClose }: Props) {
   const deleteComment = useAppStore(state => state.deleteComment);
   const removeApartment = useAppStore(state => state.removeApartment);
 
-  if (!apartment) return <div className="detail-drawer" />;
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   const { qasaData } = apartment;
 
   return (
-    <div className={`detail-drawer ${apartment ? 'open' : ''}`}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-        <h2 style={{ fontSize: '1.5rem' }}>Details</h2>
-        <button onClick={onClose} className="btn" style={{ fontSize: '1.5rem', background: 'transparent' }}>×</button>
+    <div className="detail-panel">
+      <div className="detail-panel-header">
+        <h2 style={{ fontSize: '1.25rem' }}>Details</h2>
+        <button onClick={onClose} className="btn" style={{ fontSize: '1.25rem', background: 'transparent', lineHeight: 1 }}>×</button>
       </div>
 
       <div className="detail-scroll">
@@ -30,12 +33,12 @@ export function ApartmentDetail({ apartment, onClose }: Props) {
           <h3 style={{ fontSize: '1.25rem', color: 'var(--primary)' }}>
             {new Intl.NumberFormat('en-US').format(qasaData.rent)} {qasaData.currency}
           </h3>
-          <p style={{ color: 'var(--text-muted)' }}>
+          <p style={{ color: 'var(--text-muted)', marginTop: '0.25rem' }}>
             {qasaData.roomCount} rooms · {qasaData.squareMeters} m² · {qasaData.location.route}, {qasaData.location.locality}
           </p>
-          <a 
-            href={apartment.qasaUrl} 
-            target="_blank" 
+          <a
+            href={apartment.qasaUrl}
+            target="_blank"
             rel="noopener noreferrer"
             style={{ color: 'var(--primary)', fontSize: '0.875rem', textDecoration: 'none', display: 'block', marginTop: '0.5rem' }}
           >
@@ -47,30 +50,38 @@ export function ApartmentDetail({ apartment, onClose }: Props) {
           {qasaData.description}
         </div>
 
-        <TagInput 
-          tags={apartment.tags} 
-          onChange={(newTags) => updateTags(apartment.id, newTags)} 
+        <TagInput
+          tags={apartment.tags}
+          onChange={(newTags) => updateTags(apartment.id, newTags)}
         />
 
-        <CommentThread 
-          comments={apartment.comments} 
+        <CommentThread
+          comments={apartment.comments}
           onAdd={(text) => addComment(apartment.id, text)}
           onDelete={(cid) => deleteComment(apartment.id, cid)}
         />
 
+        <CommuteSection
+          lat={qasaData.location.latitude}
+          lon={qasaData.location.longitude}
+        />
+
         <div style={{ marginTop: '3rem', borderTop: '1px solid var(--border-color)', paddingTop: '1.5rem' }}>
-          <button 
-            className="btn" 
+          <button
+            className="btn"
             style={{ color: 'var(--tag-red)', background: 'transparent', borderColor: 'var(--tag-red)', width: '100%' }}
-            onClick={() => {
-              if (confirm('Delete this apartment from your list?')) {
-                removeApartment(apartment.id);
-                onClose();
-              }
-            }}
+            onClick={() => setConfirmDelete(true)}
           >
             Remove from List
           </button>
+          {confirmDelete && (
+            <ConfirmDialog
+              message="Remove this apartment from your list? This cannot be undone."
+              confirmLabel="Remove"
+              onConfirm={() => { removeApartment(apartment.id); onClose(); }}
+              onCancel={() => setConfirmDelete(false)}
+            />
+          )}
         </div>
       </div>
     </div>

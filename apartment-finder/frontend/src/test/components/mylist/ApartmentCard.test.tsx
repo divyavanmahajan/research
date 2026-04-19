@@ -1,7 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { ApartmentCard } from '../../../components/mylist/ApartmentCard';
-import { SavedApartment } from '../../../types';
+import type { SavedApartment } from '../../../types';
 
 const mockApt: SavedApartment = {
   id: '1',

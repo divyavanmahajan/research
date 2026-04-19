@@ -5,7 +5,7 @@ import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from routers import listing, parse_url, search
+from routers import listing, parse_url, search, travel_times
 
 app = FastAPI(
     title="Apartment Finder API",
@@ -30,6 +30,7 @@ app.add_middleware(
 app.include_router(listing.router, prefix="/api")
 app.include_router(search.router, prefix="/api")
 app.include_router(parse_url.router, prefix="/api")
+app.include_router(travel_times.router, prefix="/api")
 
 
 @app.get("/api/health")

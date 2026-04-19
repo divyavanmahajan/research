@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { readDb, writeDb, migrateDb, DB_KEY } from '../../utils/db';
-import { AppDatabase } from '../../types';
+import type { AppDatabase } from '../../types';
 
 describe('db util', () => {
   beforeEach(() => {

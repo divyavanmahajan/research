@@ -1,4 +1,4 @@
-import { QasaListingCard } from '../../types';
+import type { QasaListingCard } from '../../types';
 
 interface Props {
   result: QasaListingCard;

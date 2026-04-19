@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ApartmentComment } from '../../types';
+import type { ApartmentComment } from '../../types';
 
 interface Props {
   comments: ApartmentComment[];

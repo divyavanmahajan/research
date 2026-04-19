@@ -1,6 +1,6 @@
+import { useEffect } from 'react';
 import { useAppStore } from '../../store/useAppStore';
 import { ApartmentCard } from './ApartmentCard';
-import { ApartmentDetail } from './ApartmentDetail';
 import { ImportExport } from '../common/ImportExport';
 
 export function MyList() {
@@ -8,7 +8,11 @@ export function MyList() {
   const selectedId = useAppStore(state => state.selectedApartmentId);
   const setSelectedId = useAppStore(state => state.setSelectedApartment);
 
-  const selectedApt = apartments.find(a => a.id === selectedId) || null;
+  useEffect(() => {
+    if (!selectedId) return;
+    const card = document.querySelector(`[data-apt-id="${selectedId}"]`);
+    card?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }, [selectedId]);
 
   if (apartments.length === 0) {
     return (
@@ -39,11 +43,6 @@ export function MyList() {
       </div>
 
       <ImportExport />
-
-      <ApartmentDetail 
-        apartment={selectedApt} 
-        onClose={() => setSelectedId(null)} 
-      />
     </div>
   );
 }

@@ -1,13 +1,15 @@
 import { useState } from 'react';
 import { useAppStore } from '../../store/useAppStore';
 import { searchListings } from '../../api/qasaApi';
-import { SearchFilters } from '../../types';
+import type { SearchFilters } from '../../types';
 
 export function SearchPanel() {
   const setSearchResults = useAppStore(state => state.setSearchResults);
   const setSearchLoading = useAppStore(state => state.setSearchLoading);
   const loading = useAppStore(state => state.searchLoading);
   const saveSearch = useAppStore(state => state.saveSearch);
+  const showToast = useAppStore(state => state.showToast);
+  const setSearchCity = useAppStore(state => state.setSearchCity);
 
   const [filters, setFilters] = useState<SearchFilters>({
     areaIdentifier: 'stockholm',
@@ -32,7 +34,7 @@ export function SearchPanel() {
       const results = await searchListings(filters);
       setSearchResults(results.results, results.totalCount);
     } catch (err: any) {
-      alert(err.message || 'Search failed');
+      showToast(err.message || 'Search failed', 'error');
       setSearchLoading(false);
     }
   };
@@ -41,7 +43,7 @@ export function SearchPanel() {
     const name = searchName || filters.areaIdentifier;
     saveSearch(name, filters);
     setSearchName('');
-    alert('Search saved!');
+    showToast('Search saved', 'success');
   };
 
   return (
@@ -53,7 +55,10 @@ export function SearchPanel() {
             type="text"
             className="input-field"
             value={filters.areaIdentifier}
-            onChange={e => setFilters({ ...filters, areaIdentifier: e.target.value })}
+            onChange={e => {
+              setFilters({ ...filters, areaIdentifier: e.target.value });
+              setSearchCity(e.target.value);
+            }}
             placeholder="e.g. stockholm, gothenburg"
             required
           />

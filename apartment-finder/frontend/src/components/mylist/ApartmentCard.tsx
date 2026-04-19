@@ -1,4 +1,4 @@
-import { SavedApartment } from '../../types';
+import type { SavedApartment } from '../../types';
 import { getTagColor } from '../../utils/pinColor';
 
 interface Props {
@@ -12,8 +12,9 @@ export function ApartmentCard({ apartment, selected, onClick }: Props) {
   const primaryImage = qasaData.uploads.find(u => u.metadata.primary)?.url || qasaData.uploads[0]?.url;
 
   return (
-    <div 
+    <div
       role="listitem"
+      data-apt-id={apartment.id}
       className={`apartment-card ${selected ? 'selected' : ''}`}
       onClick={onClick}
     >

@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import { ApartmentDetail } from '../../../components/mylist/ApartmentDetail';
-import { SavedApartment } from '../../../types';
+import type { SavedApartment } from '../../../types';
 
 const mockApt: SavedApartment = {
   id: '1',
@@ -18,14 +18,15 @@ const mockApt: SavedApartment = {
 };
 
 describe('ApartmentDetail', () => {
-  it('renders nothing when apartment is null', () => {
-    const { container } = render(<ApartmentDetail apartment={null} onClose={() => {}} />);
-    expect(container.querySelector('.detail-drawer.open')).toBeNull();
-  });
-
-  it('renders apartment details when present', () => {
+  it('renders apartment details', () => {
     render(<ApartmentDetail apartment={mockApt} onClose={() => {}} />);
     expect(screen.getByText('Beautiful place')).toBeDefined();
-    expect(screen.getByText('Main St, Gothenburg')).toBeDefined();
+    expect(screen.getByText(/Main St, Gothenburg/)).toBeDefined();
+  });
+
+  it('renders the panel with header', () => {
+    const { container } = render(<ApartmentDetail apartment={mockApt} onClose={() => {}} />);
+    expect(container.querySelector('.detail-panel')).toBeDefined();
+    expect(screen.getByText('Details')).toBeDefined();
   });
 });

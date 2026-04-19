@@ -1,7 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { CommentThread } from '../../../components/comments/CommentThread';
-import { ApartmentComment } from '../../../types';
+import type { ApartmentComment } from '../../../types';
 
 const mockComments: ApartmentComment[] = [
   { id: 'c1', text: 'Nice place', createdAt: '2026-01-01T10:00:00Z' },

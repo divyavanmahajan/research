@@ -11,6 +11,7 @@ export function SearchResults() {
   const selectedId = useAppStore(state => state.selectedApartmentId);
   const setSelectedId = useAppStore(state => state.setSelectedApartment);
 
+  const showToast = useAppStore(state => state.showToast);
   const [addingId, setAddingId] = useState<string | null>(null);
 
   const handleAdd = async (id: string) => {
@@ -19,8 +20,9 @@ export function SearchResults() {
       const fullData = await fetchListing(id);
       const url = `https://qasa.se/home/${id}`;
       addApartment(fullData, url);
+      showToast('Apartment saved to your list', 'success');
     } catch (err: any) {
-      alert(err.message || 'Failed to fetch full data');
+      showToast(err.message || 'Failed to fetch full data', 'error');
     } finally {
       setAddingId(null);
     }
@@ -47,8 +49,8 @@ export function SearchResults() {
       </div>
       
       {addingId && (
-        <div style={{ position: 'fixed', bottom: '1rem', left: '1rem', background: 'var(--primary)', color: 'white', padding: '0.5rem 1rem', borderRadius: '0.5rem', zIndex: 100 }}>
-          Saving listing...
+        <div style={{ textAlign: 'center', padding: '0.5rem', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+          Fetching listing data…
         </div>
       )}
     </div>
