@@ -12,7 +12,7 @@ export function SearchPanel() {
   const setSearchCity = useAppStore(state => state.setSearchCity);
 
   const [filters, setFilters] = useState<SearchFilters>({
-    areaIdentifier: 'stockholm',
+    areaIdentifier: 'se/gothenburg',
     minRent: undefined,
     maxRent: undefined,
     minRoomCount: undefined,
@@ -59,7 +59,7 @@ export function SearchPanel() {
               setFilters({ ...filters, areaIdentifier: e.target.value });
               setSearchCity(e.target.value);
             }}
-            placeholder="e.g. stockholm, gothenburg"
+            placeholder="e.g. se/gothenburg, se/stockholm"
             required
           />
         </div>

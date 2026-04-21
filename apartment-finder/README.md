@@ -20,7 +20,7 @@ Open the **Search** tab and pick a city. You can filter by:
 
 | Filter | Values |
 |--------|--------|
-| City | Gothenburg, Stockholm, Malmö, Oslo, Helsinki |
+| City | Area identifier in the format `se/gothenburg` — see table below |
 | Rooms | min / max |
 | Rent | min / max (SEK) |
 | Size | min / max (m²) |
@@ -28,6 +28,16 @@ Open the **Search** tab and pick a city. You can filter by:
 | Home type | apartment, house, room |
 | First-hand, student, senior, corporate | toggle |
 | Sort | newest first or by rent |
+
+The area field uses Qasa's internal identifier format — `country-code/city`:
+
+| City | Area identifier |
+|------|----------------|
+| Gothenburg | `se/gothenburg` |
+| Stockholm | `se/stockholm` |
+| Malmö | `se/malmo` |
+| Oslo | `no/oslo` |
+| Helsinki | `fi/helsinki` |
 
 Results appear as a list on the left and as pins on the map simultaneously. For large cities the search is capped at ~531 results to keep response times reasonable.
 
