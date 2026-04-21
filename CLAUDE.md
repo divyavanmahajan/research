@@ -17,7 +17,7 @@ A personal web app for tracking Swedish apartment listings from qasa.se.
 
 - **Branch:** `claude/apartment-finder-app-KBkPR`
 - **App folder:** `apartment-finder/`
-- **Start command:** `npm run dev` from `apartment-finder/` (starts backend on 3001 + frontend on 5173 via concurrently)
+- **Start command:** `npm run dev` from `apartment-finder/` (Vite on :5173 + Wrangler Pages dev on :8788)
 - **Stack:** React + Vite (frontend) · Node/Express (backend scraping proxy) · IndexedDB (storage) · Leaflet/OSM (map)
 - **Scrape target:** qasa.se — reads `__NEXT_DATA__` JSON blob embedded in page HTML
 
@@ -32,7 +32,7 @@ A personal web app for tracking Swedish apartment listings from qasa.se.
 
 - No comments unless the WHY is non-obvious.
 - Tailwind for all styling — no inline styles, no CSS modules.
-- All IndexedDB access goes through `frontend/src/db.js` — never call idb directly from components.
+- All IndexedDB access goes through `frontend/src/db.ts` — never call idb directly from components.
 - Backend never stores data — it scrapes and returns JSON only.
 - Geocoding happens in the backend (not frontend) to avoid Nominatim CORS issues.
 
