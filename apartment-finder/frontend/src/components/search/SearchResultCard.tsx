@@ -9,10 +9,11 @@ interface Props {
 }
 
 export function SearchResultCard({ result, selected, onClick, onAdd, isSaved }: Props) {
-  const primaryImage = result.uploads[0]?.url;
+  const primaryImage = (result.uploads ?? [])[0]?.url;
 
   return (
-    <div 
+    <div
+      data-search-id={result.id}
       className={`apartment-card ${selected ? 'selected' : ''}`}
       onClick={onClick}
       style={{ position: 'relative' }}

@@ -200,7 +200,8 @@ query HomeSearch($order: HomeIndexSearchOrderInput, $offset: Int, $limit: Int, $
 }
 """
 
-PAGE_SIZE = 59  # Qasa's default page size
+PAGE_SIZE = 59   # Qasa's default page size
+MAX_PAGES = 9    # Cap at ~531 results to avoid multi-minute fetches on large cities
 
 
 async def fetch_listing(home_id: str) -> dict | None:
@@ -287,9 +288,10 @@ async def search_listings(
     total_count = 0
     pages_count = 0
     offset = 0
+    page = 0
 
     async with httpx.AsyncClient() as client:
-        while True:
+        while page < MAX_PAGES:
             response = await client.post(
                 QASA_GRAPHQL_URL,
                 headers=HEADERS,
@@ -312,6 +314,7 @@ async def search_listings(
             all_nodes.extend(documents["nodes"])
             total_count = documents["totalCount"]
             pages_count = documents["pagesCount"]
+            page += 1
 
             if not documents["hasNextPage"]:
                 break

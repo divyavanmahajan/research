@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { LeftPanel } from './components/layout/LeftPanel'
 import { MapPanel } from './components/layout/MapPanel'
 import { ApartmentDetail } from './components/mylist/ApartmentDetail'
+import { SearchDetail } from './components/search/SearchDetail'
 import { Toast } from './components/common/Toast'
 import { useAppStore } from './store/useAppStore'
 import { DB_KEY } from './utils/db'
@@ -13,7 +14,16 @@ function App() {
   const selectedId = useAppStore(state => state.selectedApartmentId);
   const setSelectedId = useAppStore(state => state.setSelectedApartment);
   const apartments = useAppStore(state => state.apartments);
-  const selectedApt = apartments.find(a => a.id === selectedId) ?? null;
+  const activeTab = useAppStore(state => state.activeTab);
+  const searchResults = useAppStore(state => state.searchResults);
+
+  const selectedApt = activeTab !== 'search'
+    ? apartments.find(a => a.id === selectedId) ?? null
+    : null;
+
+  const selectedResult = activeTab === 'search'
+    ? searchResults.find(r => r.id === selectedId) ?? null
+    : null;
 
   useEffect(() => {
     const stored = localStorage.getItem(DB_KEY);
@@ -32,6 +42,12 @@ function App() {
       {selectedApt && (
         <ApartmentDetail
           apartment={selectedApt}
+          onClose={() => setSelectedId(null)}
+        />
+      )}
+      {selectedResult && (
+        <SearchDetail
+          result={selectedResult}
           onClose={() => setSelectedId(null)}
         />
       )}

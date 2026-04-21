@@ -16,9 +16,12 @@ export function MyList() {
 
   if (apartments.length === 0) {
     return (
-      <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
-        <p>Your list is empty.</p>
-        <p style={{ fontSize: '0.875rem', marginTop: '0.5rem' }}>Paste a Qasa URL above to save an apartment.</p>
+      <div>
+        <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
+          <p>Your list is empty.</p>
+          <p style={{ fontSize: '0.875rem', marginTop: '0.5rem' }}>Paste a Qasa URL above to save an apartment.</p>
+        </div>
+        <ImportExport />
       </div>
     );
   }

@@ -5,6 +5,8 @@ import { CommentThread } from '../comments/CommentThread';
 import { CommuteSection } from './CommuteSection';
 import { useAppStore } from '../../store/useAppStore';
 import { ConfirmDialog } from '../common/ConfirmDialog';
+import { generateHtmlExport, downloadHtml } from '../../utils/htmlExport';
+import { fetchTravelTimes } from '../../api/qasaApi';
 
 interface Props {
   apartment: SavedApartment;
@@ -18,6 +20,8 @@ export function ApartmentDetail({ apartment, onClose }: Props) {
   const removeApartment = useAppStore(state => state.removeApartment);
 
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [sharingHtml, setSharingHtml] = useState(false);
+  const travelDestinations = useAppStore(state => state.travelDestinations);
 
   const { qasaData } = apartment;
 
@@ -66,7 +70,45 @@ export function ApartmentDetail({ apartment, onClose }: Props) {
           lon={qasaData.location.longitude}
         />
 
-        <div style={{ marginTop: '3rem', borderTop: '1px solid var(--border-color)', paddingTop: '1.5rem' }}>
+        {(qasaData.uploads ?? []).length > 0 && (
+          <div style={{ marginTop: '1.5rem', borderTop: '1px solid var(--border-color)', paddingTop: '1.25rem' }}>
+            <h4 style={{ fontSize: '0.9375rem', fontWeight: 600, marginBottom: '0.75rem' }}>Photos</h4>
+            <div className="photos-grid">
+              {(qasaData.uploads ?? []).filter(u => u.url).map(u => (
+                <a key={u.id} href={u.url} target="_blank" rel="noopener noreferrer">
+                  <img src={u.url} alt="" className="photo-thumb" />
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div style={{ marginTop: '3rem', borderTop: '1px solid var(--border-color)', paddingTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+          <button
+            className="btn"
+            style={{ background: 'var(--bg-app)', border: '1px solid var(--border-color)', width: '100%' }}
+            disabled={sharingHtml}
+            onClick={async () => {
+              setSharingHtml(true);
+              const travelTimesMap = new Map();
+              if (travelDestinations.length > 0) {
+                try {
+                  const result = await fetchTravelTimes(
+                    qasaData.location.latitude,
+                    qasaData.location.longitude,
+                    travelDestinations,
+                  );
+                  travelTimesMap.set(apartment.id, result.results);
+                } catch { /* omit commute if fetch fails */ }
+              }
+              setSharingHtml(false);
+              const html = generateHtmlExport([apartment], travelTimesMap);
+              const id = qasaData.location.locality.toLowerCase().replace(/\s+/g, '-');
+              downloadHtml(html, `apartment-${id}-${apartment.id}.html`);
+            }}
+          >
+            {sharingHtml ? 'Fetching times…' : 'Share as HTML ✉'}
+          </button>
           <button
             className="btn"
             style={{ color: 'var(--tag-red)', background: 'transparent', borderColor: 'var(--tag-red)', width: '100%' }}

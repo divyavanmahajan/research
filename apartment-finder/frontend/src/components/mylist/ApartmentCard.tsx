@@ -9,7 +9,8 @@ interface Props {
 
 export function ApartmentCard({ apartment, selected, onClick }: Props) {
   const { qasaData, tags } = apartment;
-  const primaryImage = qasaData.uploads.find(u => u.metadata.primary)?.url || qasaData.uploads[0]?.url;
+  const uploads = qasaData.uploads ?? [];
+  const primaryImage = uploads.find(u => u.metadata?.primary)?.url || uploads[0]?.url;
 
   return (
     <div

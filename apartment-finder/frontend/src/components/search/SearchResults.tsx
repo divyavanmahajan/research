@@ -1,7 +1,7 @@
 import { useAppStore } from '../../store/useAppStore';
 import { SearchResultCard } from './SearchResultCard';
 import { fetchListing } from '../../api/qasaApi';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export function SearchResults() {
   const results = useAppStore(state => state.searchResults);
@@ -13,6 +13,12 @@ export function SearchResults() {
 
   const showToast = useAppStore(state => state.showToast);
   const [addingId, setAddingId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!selectedId) return;
+    document.querySelector(`[data-search-id="${selectedId}"]`)
+      ?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }, [selectedId]);
 
   const handleAdd = async (id: string) => {
     setAddingId(id);
@@ -32,7 +38,11 @@ export function SearchResults() {
     <div className="search-results" style={{ marginTop: '1.5rem' }}>
       <div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h4 style={{ fontSize: '1rem' }}>Results</h4>
-        <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{totalCount} found</span>
+        <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+          {results.length < totalCount
+            ? `Showing ${results.length} of ${totalCount.toLocaleString()}`
+            : `${totalCount} found`}
+        </span>
       </div>
 
       <div className="results-list">

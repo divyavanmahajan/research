@@ -9,8 +9,8 @@ interface Props {
   lon: number;
 }
 
-function modeIcon(mode: 'walk' | 'bike' | 'transit') {
-  return mode === 'walk' ? '🚶' : mode === 'bike' ? '🚲' : '🚌';
+function modeIcon(mode: 'drive' | 'transit' | 'walk' | 'bike') {
+  return mode === 'drive' ? '🚗' : mode === 'transit' ? '🚌' : mode === 'walk' ? '🚶' : '🚲';
 }
 
 function MinBadge({ minutes, url }: { minutes: number | null; url: string }) {
@@ -33,20 +33,17 @@ function DestinationRow({ result }: { result: DestinationTravelTime }) {
       <span className="commute-label">{result.label}</span>
       <div className="commute-modes">
         <span className="commute-mode-group">
+          {modeIcon('drive')} <MinBadge minutes={result.drive_minutes} url={result.maps_url_drive} />
+        </span>
+        <span className="commute-mode-group">
+          {modeIcon('transit')} <MinBadge minutes={result.transit_minutes} url={result.maps_url_transit} />
+        </span>
+        <span className="commute-mode-group">
           {modeIcon('walk')} <MinBadge minutes={result.walk_minutes} url={result.maps_url_walk} />
         </span>
         <span className="commute-mode-group">
           {modeIcon('bike')} <MinBadge minutes={result.bike_minutes} url={result.maps_url_bike} />
         </span>
-        <a
-          href={result.maps_url_transit}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="commute-badge"
-          title="Open transit directions in Google Maps"
-        >
-          {modeIcon('transit')} transit
-        </a>
       </div>
     </div>
   );
@@ -68,7 +65,7 @@ function DestinationsEditor({ onClose }: { onClose: () => void }) {
   return (
     <div className="commute-editor">
       <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '0.75rem' }}>
-        Edit destinations — walk & bike times from OSRM, transit opens Google Maps.
+        Edit destinations — times via Google Maps (drive, transit, walk, bike).
       </p>
       {local.map(d => (
         <div key={d.id} className="commute-editor-row">

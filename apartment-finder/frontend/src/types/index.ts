@@ -136,11 +136,14 @@ export interface TravelDestination {
 
 export interface DestinationTravelTime {
   label: string;
+  drive_minutes: number | null;
+  transit_minutes: number | null;
   walk_minutes: number | null;
   bike_minutes: number | null;
+  maps_url_drive: string;
+  maps_url_transit: string;
   maps_url_walk: string;
   maps_url_bike: string;
-  maps_url_transit: string;
 }
 
 export interface SearchResult {
