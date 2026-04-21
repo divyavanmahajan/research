@@ -19,6 +19,7 @@ dmv-aptfind = "dmv_aptfind.__main__:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/dmv_aptfind"]
+artifacts = ["src/dmv_aptfind/static/**"]
 
 [tool.hatch.build.hooks.custom]
 path = "hatch_build.py"
