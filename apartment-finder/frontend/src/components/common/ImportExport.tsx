@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useAppStore } from '../../store/useAppStore';
 import type { AppDatabase, DestinationTravelTime } from '../../types';
 import { DB_KEY } from '../../utils/db';
@@ -49,7 +50,7 @@ function ExportReportModal({ onClose }: { onClose: () => void }) {
     onClose();
   };
 
-  return (
+  return createPortal(
     <div
       style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
       onClick={onClose}
@@ -113,7 +114,8 @@ function ExportReportModal({ onClose }: { onClose: () => void }) {
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 
@@ -189,7 +191,7 @@ export function ImportExport() {
 
       {showExportReport && <ExportReportModal onClose={() => setShowExportReport(false)} />}
 
-      {pendingImport && (
+      {pendingImport && createPortal(
         <div
           style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
           onClick={() => setPendingImport(null)}
@@ -208,7 +210,8 @@ export function ImportExport() {
               <button className="btn btn-primary" style={{ flex: 1 }} onClick={() => handleImportMode('replace')}>Replace All</button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
     </>
   );

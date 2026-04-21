@@ -1,3 +1,5 @@
+import { createPortal } from 'react-dom';
+
 interface Props {
   message: string;
   confirmLabel?: string;
@@ -13,7 +15,7 @@ export function ConfirmDialog({
   onConfirm,
   onCancel,
 }: Props) {
-  return (
+  return createPortal(
     <div
       style={{
         position: 'fixed',
@@ -47,6 +49,7 @@ export function ConfirmDialog({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
