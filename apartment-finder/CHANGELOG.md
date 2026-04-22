@@ -1,5 +1,15 @@
 # Changelog
 
+## v1.2.0 — 2026-04-22
+
+### Added
+
+- **KEY Relocation listing support** — Paste a `kr-backoffice-web-production.azurewebsites.net/{GUID}` URL into the "Add by URL" field to import listings from KEY Relocation Center AB. Fields extracted: rent, size, rooms, floor, address, availability dates, Swedish and English descriptions, photos. Address is geocoded via Nominatim to place the listing on the map.
+- Listings without coordinates (geocoding unavailable) are now silently skipped on the map rather than crashing the app.
+- Link text in the detail panel adapts to the source: "Open in Qasa ↗" for Qasa listings, "View listing ↗" for others.
+
+---
+
 ## v0.1.1 — 2026-04-21
 
 ### Fixed

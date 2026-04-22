@@ -53,7 +53,9 @@ function MapBounds() {
   useEffect(() => {
     const pins = activeTab === 'search'
       ? searchResults.map(r => [r.location.point.lat, r.location.point.lon] as [number, number])
-      : apartments.map(a => [a.qasaData.location.latitude, a.qasaData.location.longitude] as [number, number]);
+      : apartments
+          .filter(a => a.qasaData.location.latitude != null && a.qasaData.location.longitude != null)
+          .map(a => [a.qasaData.location.latitude, a.qasaData.location.longitude] as [number, number]);
 
     if (pins.length > 0) {
       const bounds = L.latLngBounds(pins);
@@ -106,7 +108,7 @@ function MapController() {
     const apt = apartments.find(a => a.id === selectedId);
     const result = searchResults.find(r => r.id === selectedId);
 
-    const point = apt
+    const point = apt && apt.qasaData.location.latitude != null && apt.qasaData.location.longitude != null
       ? [apt.qasaData.location.latitude, apt.qasaData.location.longitude] as [number, number]
       : result ? [result.location.point.lat, result.location.point.lon] as [number, number] : null;
 
@@ -154,7 +156,7 @@ export function MapPanel() {
         <MapCityCenter />
 
         {/* Saved Apartments */}
-        {apartments.map((apt) => {
+        {apartments.filter(apt => apt.qasaData.location.latitude != null && apt.qasaData.location.longitude != null).map((apt) => {
           const selected = apt.id === selectedId;
           const color = getTagColor(apt.tags[0] || '');
           return (

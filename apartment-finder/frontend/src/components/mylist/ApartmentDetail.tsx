@@ -46,7 +46,7 @@ export function ApartmentDetail({ apartment, onClose }: Props) {
             rel="noopener noreferrer"
             style={{ color: 'var(--primary)', fontSize: '0.875rem', textDecoration: 'none', display: 'block', marginTop: '0.5rem' }}
           >
-            Open in Qasa ↗
+            {apartment.qasaUrl.includes('qasa') ? 'Open in Qasa ↗' : 'View listing ↗'}
           </a>
         </div>
 
