@@ -40,14 +40,16 @@ export function ApartmentDetail({ apartment, onClose }: Props) {
           <p style={{ color: 'var(--text-muted)', marginTop: '0.25rem' }}>
             {qasaData.roomCount} rooms · {qasaData.squareMeters} m² · {qasaData.location.route}, {qasaData.location.locality}
           </p>
-          <a
-            href={apartment.qasaUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ color: 'var(--primary)', fontSize: '0.875rem', textDecoration: 'none', display: 'block', marginTop: '0.5rem' }}
-          >
-            {apartment.qasaUrl.includes('qasa') ? 'Open in Qasa ↗' : 'View listing ↗'}
-          </a>
+          {apartment.qasaUrl && (
+            <a
+              href={apartment.qasaUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: 'var(--primary)', fontSize: '0.875rem', textDecoration: 'none', display: 'block', marginTop: '0.5rem' }}
+            >
+              {apartment.qasaUrl.includes('qasa') ? 'Open in Qasa ↗' : 'View listing ↗'}
+            </a>
+          )}
         </div>
 
         <div style={{ fontSize: '0.875rem', lineHeight: '1.5', whiteSpace: 'pre-wrap', marginBottom: '1.5rem' }}>

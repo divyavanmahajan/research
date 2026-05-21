@@ -59,6 +59,19 @@ export async function fetchTravelTimes(
 }
 
 /**
+ * Geocodes a free-text address via the backend (Nominatim).
+ */
+export async function geocodeAddress(address: string): Promise<{ latitude: number | null; longitude: number | null }> {
+  const response = await fetch('/api/geocode', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ address }),
+  });
+  if (!response.ok) throw new Error('Geocoding failed');
+  return response.json();
+}
+
+/**
  * Parses a Qasa URL and returns the listing data.
  */
 export async function parseUrl(url: string): Promise<QasaListingData> {

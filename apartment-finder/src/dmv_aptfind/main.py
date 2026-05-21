@@ -7,7 +7,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
-from .routers import listing, parse_url, search, travel_times
+from .routers import geocode, listing, parse_url, search, travel_times
 
 app = FastAPI(
     title="Apartment Finder API",
@@ -30,6 +30,7 @@ if allowed_origins:
     )
 
 # Register API routers
+app.include_router(geocode.router, prefix="/api")
 app.include_router(listing.router, prefix="/api")
 app.include_router(search.router, prefix="/api")
 app.include_router(parse_url.router, prefix="/api")

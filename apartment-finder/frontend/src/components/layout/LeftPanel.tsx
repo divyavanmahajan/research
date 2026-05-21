@@ -5,6 +5,7 @@ import { parseUrl } from '../../api/qasaApi';
 import { MyList } from '../mylist/MyList';
 import { SearchTab } from '../search/SearchTab';
 import { SavedSearches } from '../savedSearches/SavedSearches';
+import { AddManualForm } from '../mylist/AddManualForm';
 
 export function LeftPanel() {
   const activeTab = useAppStore((state) => state.activeTab);
@@ -15,6 +16,7 @@ export function LeftPanel() {
   
   const [url, setUrl] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showManualForm, setShowManualForm] = useState(false);
 
   const handleAddUrl = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,7 +50,7 @@ export function LeftPanel() {
             <input
               type="text"
               className="input-field"
-              placeholder="Paste Qasa URL..."
+              placeholder="Paste listing URL..."
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               disabled={loading}
@@ -57,7 +59,16 @@ export function LeftPanel() {
               {loading ? '...' : 'Add'}
             </button>
           </div>
+          <button
+            type="button"
+            className="btn"
+            style={{ marginTop: '0.4rem', width: '100%', background: 'var(--bg-app)', fontSize: '0.8125rem' }}
+            onClick={() => setShowManualForm(true)}
+          >
+            + Add manually
+          </button>
         </form>
+        {showManualForm && <AddManualForm onClose={() => setShowManualForm(false)} />}
 
         <nav className="left-panel-tabs">
           <button
