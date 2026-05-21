@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import AsyncIterator
 
-from ..state import AgentState
+from state import AgentState
 from .memory import MemoryManager
 from .model_client import model_call
 from .planner import plan as planner_plan
