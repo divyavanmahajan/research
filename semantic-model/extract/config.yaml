@@ -1,0 +1,50 @@
+# Databricks connection and extraction configuration
+databricks:
+  # Set via environment variable DATABRICKS_HOST, or specify here
+  host: ""
+  # Set via environment variable DATABRICKS_TOKEN, or specify here
+  token: ""
+
+# Catalogs and schemas to extract. Use "*" for all schemas in a catalog.
+targets:
+  - catalog: main
+    schemas:
+      - "*"
+  # - catalog: hive_metastore
+  #   schemas:
+  #     - sales
+  #     - finance
+
+# Output directory for the generated semantic model (relative to repo root)
+output_dir: "../model"
+
+# Relationship inference settings
+inference:
+  # Column name patterns that indicate a foreign key (regex, applied to column name)
+  fk_suffixes:
+    - "_id"
+    - "_key"
+    - "_code"
+    - "_fk"
+  # When true, also try stripping common prefixes (dim_, fact_, fct_, stg_) when matching
+  strip_table_prefixes: true
+  # Minimum confidence to include a relationship (inferred_naming | inferred_type | explicit)
+  min_confidence: inferred_naming
+
+# Description enrichment via Claude (optional)
+enrichment:
+  enabled: false
+  # Only enrich columns/tables that have no existing description
+  only_missing: true
+  # Claude model to use for enrichment
+  model: claude-haiku-4-5-20251001
+  # Maximum columns to enrich per run (cost control)
+  max_columns: 500
+
+# Sampling: pull distinct values for low-cardinality string columns
+sampling:
+  enabled: false
+  # Only sample columns with fewer than this many distinct values
+  max_cardinality: 50
+  # Max values to list per column
+  max_values: 20

@@ -1,0 +1,77 @@
+# SEMANTIC MODEL INDEX
+# Always inject this file into LLM context for SQL generation.
+# For column-level detail, load model/tables/{schema}/{table}.md
+
+generated_at: "2025-05-22T10:00:00Z"
+note: >
+  Compact index of all tables and relationships.
+  For column-level detail, load model/tables/{schema}/{table}.md
+
+catalogs:
+  - name: main
+    schemas:
+      - name: sales
+        tables:
+          - name: customers
+            full_name: main.sales.customers
+            type: MANAGED
+            description: "Master record of all customers. One row per customer account."
+            columns: 12
+            detail_file: tables/sales/customers.md
+
+          - name: orders
+            full_name: main.sales.orders
+            type: MANAGED
+            description: "Customer purchase orders. One row per order."
+            columns: 9
+            joins_to:
+              - main.sales.customers
+              - main.sales.order_items
+            detail_file: tables/sales/orders.md
+
+          - name: order_items
+            full_name: main.sales.order_items
+            type: MANAGED
+            description: "Line items within each order. One row per product per order."
+            columns: 7
+            joins_to:
+              - main.sales.orders
+              - main.sales.products
+            detail_file: tables/sales/order_items.md
+
+          - name: products
+            full_name: main.sales.products
+            type: MANAGED
+            description: "Product catalog. One row per SKU."
+            columns: 11
+            joins_to:
+              - main.sales.product_categories
+            detail_file: tables/sales/products.md
+
+          - name: product_categories
+            full_name: main.sales.product_categories
+            type: MANAGED
+            description: "Product category hierarchy."
+            columns: 4
+            detail_file: tables/sales/product_categories.md
+
+      - name: finance
+        tables:
+          - name: invoices
+            full_name: main.finance.invoices
+            type: MANAGED
+            description: "Customer invoices generated from orders."
+            columns: 10
+            joins_to:
+              - main.sales.orders
+              - main.sales.customers
+            detail_file: tables/finance/invoices.md
+
+          - name: payments
+            full_name: main.finance.payments
+            type: MANAGED
+            description: "Payment records against invoices."
+            columns: 8
+            joins_to:
+              - main.finance.invoices
+            detail_file: tables/finance/payments.md
