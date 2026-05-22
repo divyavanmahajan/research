@@ -1,0 +1,21 @@
+# Core agent framework + all provider extras
+agent-framework>=1.5.0
+agent-framework-openai>=1.5.0
+agent-framework-anthropic>=1.5.0
+agent-framework-ollama>=1.5.0
+
+# Azure identity (for Azure OpenAI passwordless auth)
+azure-identity>=1.15.0
+
+# Observability
+arize-phoenix>=8.0.0
+arize-phoenix-otel>=0.9.0
+openinference-instrumentation-openai>=0.4.0
+openinference-instrumentation-anthropic>=0.4.0
+opentelemetry-sdk>=1.24.0
+
+# Utilities
+pyyaml>=6.0
+click>=8.1
+rich>=13.0
+python-dotenv>=1.0

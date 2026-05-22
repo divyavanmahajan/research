@@ -1,0 +1,759 @@
+# SQL Generation Test Definitions
+# Each test has: id, category, difficulty, question (natural language), expected_sql, tables_needed
+# categories: simple_select | joins | aggregations | window_functions | subqueries_cte | cross_schema
+
+tests:
+
+  # ─────────────────────────────────────────────────────────────────
+  # CATEGORY: simple_select
+  # Single-table queries with WHERE, ORDER BY, LIMIT
+  # ─────────────────────────────────────────────────────────────────
+
+  - id: ss_001
+    category: simple_select
+    difficulty: easy
+    question: "Show all active customers in the United States"
+    tables_needed: [main.sales.customers]
+    expected_sql: |
+      SELECT *
+      FROM main.sales.customers
+      WHERE country = 'US'
+        AND is_active = TRUE
+
+  - id: ss_002
+    category: simple_select
+    difficulty: easy
+    question: "List all products with a retail price above $100, sorted by price descending"
+    tables_needed: [main.sales.products]
+    expected_sql: |
+      SELECT *
+      FROM main.sales.products
+      WHERE unit_price > 100
+        AND is_active = TRUE
+      ORDER BY unit_price DESC
+
+  - id: ss_003
+    category: simple_select
+    difficulty: easy
+    question: "Find all orders placed in January 2024"
+    tables_needed: [main.sales.orders]
+    expected_sql: |
+      SELECT *
+      FROM main.sales.orders
+      WHERE order_date BETWEEN '2024-01-01' AND '2024-01-31'
+      ORDER BY order_date
+
+  - id: ss_004
+    category: simple_select
+    difficulty: easy
+    question: "List all pending purchase orders sorted by order date"
+    tables_needed: [main.purchasing.purchase_orders]
+    expected_sql: |
+      SELECT *
+      FROM main.purchasing.purchase_orders
+      WHERE status = 'pending'
+      ORDER BY order_date
+
+  - id: ss_005
+    category: simple_select
+    difficulty: easy
+    question: "Show warehouses with capacity over 50,000 square feet that are active"
+    tables_needed: [main.inventory.warehouses]
+    expected_sql: |
+      SELECT *
+      FROM main.inventory.warehouses
+      WHERE capacity_sqft > 50000
+        AND is_active = TRUE
+
+  - id: ss_006
+    category: simple_select
+    difficulty: easy
+    question: "What distinct payment methods have been used?"
+    tables_needed: [main.finance.payments]
+    expected_sql: |
+      SELECT DISTINCT payment_method
+      FROM main.finance.payments
+      ORDER BY payment_method
+
+  - id: ss_007
+    category: simple_select
+    difficulty: medium
+    question: "Find gold and platinum tier customers who signed up in the last 2 years and have a lifetime value over $5,000"
+    tables_needed: [main.sales.customers]
+    expected_sql: |
+      SELECT *
+      FROM main.sales.customers
+      WHERE tier IN ('gold', 'platinum')
+        AND created_date >= ADD_MONTHS(CURRENT_DATE, -24)
+        AND lifetime_value > 5000
+      ORDER BY lifetime_value DESC
+
+  - id: ss_008
+    category: simple_select
+    difficulty: medium
+    question: "List products below the reorder point in the Seattle warehouse (warehouse_id = 3)"
+    tables_needed: [main.inventory.stock_levels]
+    expected_sql: |
+      SELECT *
+      FROM main.inventory.stock_levels
+      WHERE warehouse_id = 3
+        AND quantity_on_hand < reorder_point
+      ORDER BY quantity_on_hand ASC
+
+  # ─────────────────────────────────────────────────────────────────
+  # CATEGORY: joins
+  # Multi-table joins
+  # ─────────────────────────────────────────────────────────────────
+
+  - id: jn_001
+    category: joins
+    difficulty: easy
+    question: "Show all orders with the customer name and email"
+    tables_needed: [main.sales.orders, main.sales.customers]
+    expected_sql: |
+      SELECT
+        o.order_id,
+        o.order_date,
+        o.status,
+        o.total_amount,
+        c.customer_name,
+        c.email
+      FROM main.sales.orders o
+      JOIN main.sales.customers c ON o.customer_id = c.customer_id
+
+  - id: jn_002
+    category: joins
+    difficulty: easy
+    question: "List order line items with product names, quantities, and line totals"
+    tables_needed: [main.sales.order_items, main.sales.products]
+    expected_sql: |
+      SELECT
+        oi.order_id,
+        oi.item_id,
+        p.product_name,
+        p.sku,
+        oi.quantity,
+        oi.unit_price,
+        oi.line_total
+      FROM main.sales.order_items oi
+      JOIN main.sales.products p ON oi.product_id = p.product_id
+
+  - id: jn_003
+    category: joins
+    difficulty: medium
+    question: "Show products with their category name and supplier name"
+    tables_needed: [main.sales.products, main.sales.product_categories, main.purchasing.suppliers]
+    expected_sql: |
+      SELECT
+        p.product_id,
+        p.product_name,
+        p.sku,
+        p.unit_price,
+        pc.category_name,
+        s.supplier_name
+      FROM main.sales.products p
+      JOIN main.sales.product_categories pc ON p.category_id = pc.category_id
+      LEFT JOIN main.purchasing.suppliers s ON p.supplier_id = s.supplier_id
+
+  - id: jn_004
+    category: joins
+    difficulty: medium
+    question: "Show all purchase orders with the supplier name and destination warehouse name"
+    tables_needed: [main.purchasing.purchase_orders, main.purchasing.suppliers, main.inventory.warehouses]
+    expected_sql: |
+      SELECT
+        po.po_id,
+        po.order_date,
+        po.status,
+        po.total_amount,
+        s.supplier_name,
+        w.warehouse_name,
+        w.city
+      FROM main.purchasing.purchase_orders po
+      JOIN main.purchasing.suppliers s ON po.supplier_id = s.supplier_id
+      JOIN main.inventory.warehouses w ON po.warehouse_id = w.warehouse_id
+
+  - id: jn_005
+    category: joins
+    difficulty: medium
+    question: "Find orders that contain at least one discounted line item, show the order id, customer name, and maximum discount applied"
+    tables_needed: [main.sales.orders, main.sales.order_items, main.sales.customers]
+    expected_sql: |
+      SELECT
+        o.order_id,
+        o.order_date,
+        c.customer_name,
+        MAX(oi.discount_pct) AS max_discount_pct
+      FROM main.sales.orders o
+      JOIN main.sales.order_items oi ON o.order_id = oi.order_id
+      JOIN main.sales.customers c ON o.customer_id = c.customer_id
+      WHERE oi.discount_pct > 0
+      GROUP BY o.order_id, o.order_date, c.customer_name
+
+  - id: jn_006
+    category: joins
+    difficulty: medium
+    question: "Show overdue invoices with the customer name, order date, and total amount due"
+    tables_needed: [main.finance.invoices, main.sales.customers, main.sales.orders]
+    expected_sql: |
+      SELECT
+        i.invoice_id,
+        c.customer_name,
+        c.email,
+        o.order_date,
+        i.invoice_date,
+        i.due_date,
+        i.total_amount
+      FROM main.finance.invoices i
+      JOIN main.sales.customers c ON i.customer_id = c.customer_id
+      JOIN main.sales.orders o ON i.order_id = o.order_id
+      WHERE i.status = 'overdue'
+      ORDER BY i.due_date ASC
+
+  - id: jn_007
+    category: joins
+    difficulty: hard
+    question: "List purchase order items with product name, supplier name, and the warehouse they are destined for"
+    tables_needed: [main.purchasing.purchase_order_items, main.purchasing.purchase_orders, main.purchasing.suppliers, main.sales.products, main.inventory.warehouses]
+    expected_sql: |
+      SELECT
+        poi.item_id,
+        po.po_id,
+        po.order_date,
+        p.product_name,
+        p.sku,
+        poi.quantity_ordered,
+        poi.quantity_received,
+        poi.unit_cost,
+        s.supplier_name,
+        w.warehouse_name
+      FROM main.purchasing.purchase_order_items poi
+      JOIN main.purchasing.purchase_orders po ON poi.po_id = po.po_id
+      JOIN main.sales.products p ON poi.product_id = p.product_id
+      JOIN main.purchasing.suppliers s ON po.supplier_id = s.supplier_id
+      JOIN main.inventory.warehouses w ON po.warehouse_id = w.warehouse_id
+
+  # ─────────────────────────────────────────────────────────────────
+  # CATEGORY: aggregations
+  # GROUP BY with COUNT, SUM, AVG, MAX, MIN
+  # ─────────────────────────────────────────────────────────────────
+
+  - id: ag_001
+    category: aggregations
+    difficulty: easy
+    question: "How many orders has each customer placed? Show customer_id and order count, sorted by most orders first"
+    tables_needed: [main.sales.orders]
+    expected_sql: |
+      SELECT
+        customer_id,
+        COUNT(*) AS order_count
+      FROM main.sales.orders
+      GROUP BY customer_id
+      ORDER BY order_count DESC
+
+  - id: ag_002
+    category: aggregations
+    difficulty: easy
+    question: "What is the total net revenue by month for the year 2023?"
+    tables_needed: [main.sales.orders]
+    expected_sql: |
+      SELECT
+        DATE_TRUNC('month', order_date) AS month,
+        SUM(net_amount) AS total_revenue,
+        COUNT(*) AS order_count
+      FROM main.sales.orders
+      WHERE YEAR(order_date) = 2023
+        AND status = 'delivered'
+      GROUP BY DATE_TRUNC('month', order_date)
+      ORDER BY month
+
+  - id: ag_003
+    category: aggregations
+    difficulty: easy
+    question: "What is the average order value by sales channel?"
+    tables_needed: [main.sales.orders]
+    expected_sql: |
+      SELECT
+        channel,
+        AVG(net_amount) AS avg_order_value,
+        COUNT(*) AS order_count
+      FROM main.sales.orders
+      WHERE status NOT IN ('cancelled', 'refunded')
+      GROUP BY channel
+      ORDER BY avg_order_value DESC
+
+  - id: ag_004
+    category: aggregations
+    difficulty: medium
+    question: "Find the top 10 products by total units sold"
+    tables_needed: [main.sales.order_items, main.sales.products]
+    expected_sql: |
+      SELECT
+        p.product_id,
+        p.product_name,
+        p.sku,
+        SUM(oi.quantity) AS total_units_sold
+      FROM main.sales.order_items oi
+      JOIN main.sales.products p ON oi.product_id = p.product_id
+      GROUP BY p.product_id, p.product_name, p.sku
+      ORDER BY total_units_sold DESC
+      LIMIT 10
+
+  - id: ag_005
+    category: aggregations
+    difficulty: medium
+    question: "What is the total inventory value (quantity × unit price) by warehouse?"
+    tables_needed: [main.inventory.stock_levels, main.sales.products, main.inventory.warehouses]
+    expected_sql: |
+      SELECT
+        w.warehouse_name,
+        w.city,
+        SUM(sl.quantity_on_hand * p.unit_price) AS total_inventory_value
+      FROM main.inventory.stock_levels sl
+      JOIN main.sales.products p ON sl.product_id = p.product_id
+      JOIN main.inventory.warehouses w ON sl.warehouse_id = w.warehouse_id
+      GROUP BY w.warehouse_id, w.warehouse_name, w.city
+      ORDER BY total_inventory_value DESC
+
+  - id: ag_006
+    category: aggregations
+    difficulty: medium
+    question: "Show the count of purchase orders by supplier and status"
+    tables_needed: [main.purchasing.purchase_orders, main.purchasing.suppliers]
+    expected_sql: |
+      SELECT
+        s.supplier_name,
+        po.status,
+        COUNT(*) AS po_count,
+        SUM(po.total_amount) AS total_value
+      FROM main.purchasing.purchase_orders po
+      JOIN main.purchasing.suppliers s ON po.supplier_id = s.supplier_id
+      GROUP BY s.supplier_id, s.supplier_name, po.status
+      ORDER BY s.supplier_name, po.status
+
+  - id: ag_007
+    category: aggregations
+    difficulty: hard
+    question: "Show total revenue by customer segment and tier for the last 12 months"
+    tables_needed: [main.sales.orders, main.sales.customers]
+    expected_sql: |
+      SELECT
+        c.segment,
+        c.tier,
+        COUNT(DISTINCT o.customer_id) AS customer_count,
+        COUNT(o.order_id) AS order_count,
+        SUM(o.net_amount) AS total_revenue,
+        AVG(o.net_amount) AS avg_order_value
+      FROM main.sales.orders o
+      JOIN main.sales.customers c ON o.customer_id = c.customer_id
+      WHERE o.order_date >= ADD_MONTHS(CURRENT_DATE, -12)
+        AND o.status NOT IN ('cancelled', 'refunded')
+      GROUP BY c.segment, c.tier
+      ORDER BY c.segment, c.tier
+
+  # ─────────────────────────────────────────────────────────────────
+  # CATEGORY: window_functions
+  # RANK, ROW_NUMBER, LAG/LEAD, running totals, FIRST_VALUE
+  # ─────────────────────────────────────────────────────────────────
+
+  - id: wf_001
+    category: window_functions
+    difficulty: medium
+    question: "Rank customers by lifetime value from highest to lowest"
+    tables_needed: [main.sales.customers]
+    expected_sql: |
+      SELECT
+        customer_id,
+        customer_name,
+        lifetime_value,
+        RANK() OVER (ORDER BY lifetime_value DESC) AS value_rank
+      FROM main.sales.customers
+      WHERE is_active = TRUE
+        AND lifetime_value IS NOT NULL
+      ORDER BY value_rank
+
+  - id: wf_002
+    category: window_functions
+    difficulty: medium
+    question: "Show month-over-month revenue change using the previous month's revenue as comparison"
+    tables_needed: [main.sales.orders]
+    expected_sql: |
+      WITH monthly AS (
+        SELECT
+          DATE_TRUNC('month', order_date) AS month,
+          SUM(net_amount) AS revenue
+        FROM main.sales.orders
+        WHERE status NOT IN ('cancelled', 'refunded')
+        GROUP BY DATE_TRUNC('month', order_date)
+      )
+      SELECT
+        month,
+        revenue,
+        LAG(revenue) OVER (ORDER BY month) AS prev_month_revenue,
+        revenue - LAG(revenue) OVER (ORDER BY month) AS revenue_change,
+        ROUND(
+          (revenue - LAG(revenue) OVER (ORDER BY month)) /
+          LAG(revenue) OVER (ORDER BY month) * 100, 2
+        ) AS pct_change
+      FROM monthly
+      ORDER BY month
+
+  - id: wf_003
+    category: window_functions
+    difficulty: medium
+    question: "Assign row numbers to orders within each customer, ordered by order date, to find each customer's nth order"
+    tables_needed: [main.sales.orders]
+    expected_sql: |
+      SELECT
+        order_id,
+        customer_id,
+        order_date,
+        total_amount,
+        ROW_NUMBER() OVER (
+          PARTITION BY customer_id
+          ORDER BY order_date
+        ) AS order_sequence
+      FROM main.sales.orders
+      ORDER BY customer_id, order_sequence
+
+  - id: wf_004
+    category: window_functions
+    difficulty: hard
+    question: "Show a running total of payments received per invoice, ordered by payment date"
+    tables_needed: [main.finance.payments, main.finance.invoices]
+    expected_sql: |
+      SELECT
+        p.payment_id,
+        p.invoice_id,
+        i.total_amount AS invoice_total,
+        p.payment_date,
+        p.amount AS payment_amount,
+        SUM(p.amount) OVER (
+          PARTITION BY p.invoice_id
+          ORDER BY p.payment_date, p.payment_id
+          ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+        ) AS running_total_paid,
+        i.total_amount - SUM(p.amount) OVER (
+          PARTITION BY p.invoice_id
+          ORDER BY p.payment_date, p.payment_id
+          ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+        ) AS remaining_balance
+      FROM main.finance.payments p
+      JOIN main.finance.invoices i ON p.invoice_id = i.invoice_id
+      WHERE p.status = 'cleared'
+      ORDER BY p.invoice_id, p.payment_date
+
+  - id: wf_005
+    category: window_functions
+    difficulty: hard
+    question: "Find the top 3 customers by total spend within each customer segment"
+    tables_needed: [main.sales.orders, main.sales.customers]
+    expected_sql: |
+      WITH customer_spend AS (
+        SELECT
+          c.customer_id,
+          c.customer_name,
+          c.segment,
+          SUM(o.net_amount) AS total_spend
+        FROM main.sales.orders o
+        JOIN main.sales.customers c ON o.customer_id = c.customer_id
+        WHERE o.status NOT IN ('cancelled', 'refunded')
+        GROUP BY c.customer_id, c.customer_name, c.segment
+      ),
+      ranked AS (
+        SELECT
+          *,
+          RANK() OVER (PARTITION BY segment ORDER BY total_spend DESC) AS segment_rank
+        FROM customer_spend
+      )
+      SELECT *
+      FROM ranked
+      WHERE segment_rank <= 3
+      ORDER BY segment, segment_rank
+
+  # ─────────────────────────────────────────────────────────────────
+  # CATEGORY: subqueries_cte
+  # WITH clauses, subqueries, NOT EXISTS, correlated subqueries
+  # ─────────────────────────────────────────────────────────────────
+
+  - id: sq_001
+    category: subqueries_cte
+    difficulty: medium
+    question: "Find customers who have placed more than 5 orders"
+    tables_needed: [main.sales.customers, main.sales.orders]
+    expected_sql: |
+      WITH order_counts AS (
+        SELECT
+          customer_id,
+          COUNT(*) AS order_count
+        FROM main.sales.orders
+        GROUP BY customer_id
+        HAVING COUNT(*) > 5
+      )
+      SELECT
+        c.customer_id,
+        c.customer_name,
+        c.email,
+        oc.order_count
+      FROM main.sales.customers c
+      JOIN order_counts oc ON c.customer_id = oc.customer_id
+      ORDER BY oc.order_count DESC
+
+  - id: sq_002
+    category: subqueries_cte
+    difficulty: medium
+    question: "Find products that have never been ordered"
+    tables_needed: [main.sales.products, main.sales.order_items]
+    expected_sql: |
+      SELECT
+        p.product_id,
+        p.product_name,
+        p.sku,
+        p.unit_price
+      FROM main.sales.products p
+      WHERE NOT EXISTS (
+        SELECT 1
+        FROM main.sales.order_items oi
+        WHERE oi.product_id = p.product_id
+      )
+      ORDER BY p.product_name
+
+  - id: sq_003
+    category: subqueries_cte
+    difficulty: medium
+    question: "Find orders where the total amount is above the average order amount for that customer's segment"
+    tables_needed: [main.sales.orders, main.sales.customers]
+    expected_sql: |
+      WITH segment_avg AS (
+        SELECT
+          c.segment,
+          AVG(o.total_amount) AS avg_order_amount
+        FROM main.sales.orders o
+        JOIN main.sales.customers c ON o.customer_id = c.customer_id
+        WHERE o.status NOT IN ('cancelled', 'refunded')
+        GROUP BY c.segment
+      )
+      SELECT
+        o.order_id,
+        o.customer_id,
+        c.customer_name,
+        c.segment,
+        o.total_amount,
+        sa.avg_order_amount
+      FROM main.sales.orders o
+      JOIN main.sales.customers c ON o.customer_id = c.customer_id
+      JOIN segment_avg sa ON c.segment = sa.segment
+      WHERE o.total_amount > sa.avg_order_amount
+        AND o.status NOT IN ('cancelled', 'refunded')
+      ORDER BY o.total_amount DESC
+
+  - id: sq_004
+    category: subqueries_cte
+    difficulty: hard
+    question: "For each supplier, show their total PO value and what percentage of all purchasing spend they represent"
+    tables_needed: [main.purchasing.purchase_orders, main.purchasing.suppliers]
+    expected_sql: |
+      WITH supplier_spend AS (
+        SELECT
+          supplier_id,
+          SUM(total_amount) AS total_po_value,
+          COUNT(*) AS po_count
+        FROM main.purchasing.purchase_orders
+        WHERE status != 'cancelled'
+        GROUP BY supplier_id
+      ),
+      total_spend AS (
+        SELECT SUM(total_po_value) AS grand_total
+        FROM supplier_spend
+      )
+      SELECT
+        s.supplier_name,
+        ss.total_po_value,
+        ss.po_count,
+        ROUND(ss.total_po_value / ts.grand_total * 100, 2) AS spend_pct
+      FROM supplier_spend ss
+      JOIN main.purchasing.suppliers s ON ss.supplier_id = s.supplier_id
+      CROSS JOIN total_spend ts
+      ORDER BY ss.total_po_value DESC
+
+  - id: sq_005
+    category: subqueries_cte
+    difficulty: hard
+    question: "Find products that are below their reorder point in any warehouse AND have no open purchase orders"
+    tables_needed: [main.inventory.stock_levels, main.purchasing.purchase_order_items, main.purchasing.purchase_orders, main.sales.products]
+    expected_sql: |
+      WITH below_reorder AS (
+        SELECT DISTINCT product_id
+        FROM main.inventory.stock_levels
+        WHERE reorder_point IS NOT NULL
+          AND quantity_on_hand < reorder_point
+      ),
+      open_pos AS (
+        SELECT DISTINCT poi.product_id
+        FROM main.purchasing.purchase_order_items poi
+        JOIN main.purchasing.purchase_orders po ON poi.po_id = po.po_id
+        WHERE po.status IN ('draft', 'sent', 'partial')
+      )
+      SELECT
+        p.product_id,
+        p.product_name,
+        p.sku
+      FROM main.sales.products p
+      WHERE p.product_id IN (SELECT product_id FROM below_reorder)
+        AND p.product_id NOT IN (SELECT product_id FROM open_pos)
+      ORDER BY p.product_name
+
+  # ─────────────────────────────────────────────────────────────────
+  # CATEGORY: cross_schema
+  # Joins spanning multiple schemas (sales ↔ finance ↔ inventory ↔ purchasing)
+  # ─────────────────────────────────────────────────────────────────
+
+  - id: cs_001
+    category: cross_schema
+    difficulty: medium
+    question: "Show each invoice with the total amount paid and the remaining outstanding balance"
+    tables_needed: [main.finance.invoices, main.finance.payments]
+    expected_sql: |
+      SELECT
+        i.invoice_id,
+        i.customer_id,
+        i.invoice_date,
+        i.due_date,
+        i.total_amount AS invoice_total,
+        COALESCE(SUM(p.amount), 0) AS total_paid,
+        i.total_amount - COALESCE(SUM(p.amount), 0) AS outstanding_balance,
+        i.status
+      FROM main.finance.invoices i
+      LEFT JOIN main.finance.payments p
+        ON i.invoice_id = p.invoice_id
+        AND p.status = 'cleared'
+      GROUP BY
+        i.invoice_id, i.customer_id, i.invoice_date,
+        i.due_date, i.total_amount, i.status
+      ORDER BY outstanding_balance DESC
+
+  - id: cs_002
+    category: cross_schema
+    difficulty: medium
+    question: "Show customer order history with the corresponding invoice status and total amount paid"
+    tables_needed: [main.sales.customers, main.sales.orders, main.finance.invoices, main.finance.payments]
+    expected_sql: |
+      SELECT
+        c.customer_name,
+        o.order_id,
+        o.order_date,
+        o.total_amount AS order_amount,
+        i.invoice_id,
+        i.status AS invoice_status,
+        COALESCE(SUM(p.amount), 0) AS total_paid
+      FROM main.sales.customers c
+      JOIN main.sales.orders o ON c.customer_id = o.customer_id
+      LEFT JOIN main.finance.invoices i ON o.order_id = i.order_id
+      LEFT JOIN main.finance.payments p
+        ON i.invoice_id = p.invoice_id
+        AND p.status = 'cleared'
+      GROUP BY
+        c.customer_name, o.order_id, o.order_date,
+        o.total_amount, i.invoice_id, i.status
+      ORDER BY c.customer_name, o.order_date DESC
+
+  - id: cs_003
+    category: cross_schema
+    difficulty: hard
+    question: "What is the total outstanding amount (unpaid invoices) by customer segment?"
+    tables_needed: [main.finance.invoices, main.finance.payments, main.sales.customers]
+    expected_sql: |
+      WITH invoice_balances AS (
+        SELECT
+          i.invoice_id,
+          i.customer_id,
+          i.total_amount - COALESCE(SUM(p.amount), 0) AS outstanding
+        FROM main.finance.invoices i
+        LEFT JOIN main.finance.payments p
+          ON i.invoice_id = p.invoice_id
+          AND p.status = 'cleared'
+        WHERE i.status IN ('sent', 'overdue')
+        GROUP BY i.invoice_id, i.customer_id, i.total_amount
+      )
+      SELECT
+        c.segment,
+        COUNT(DISTINCT ib.customer_id) AS customers_with_outstanding,
+        COUNT(ib.invoice_id) AS invoice_count,
+        SUM(ib.outstanding) AS total_outstanding
+      FROM invoice_balances ib
+      JOIN main.sales.customers c ON ib.customer_id = c.customer_id
+      WHERE ib.outstanding > 0
+      GROUP BY c.segment
+      ORDER BY total_outstanding DESC
+
+  - id: cs_004
+    category: cross_schema
+    difficulty: hard
+    question: "Show stock movements caused by sales orders — find all shipment movements and link them back to the originating order and customer"
+    tables_needed: [main.inventory.stock_movements, main.sales.orders, main.sales.customers]
+    expected_sql: |
+      SELECT
+        sm.movement_id,
+        sm.movement_date,
+        sm.product_id,
+        sm.warehouse_id,
+        ABS(sm.quantity) AS units_shipped,
+        o.order_id,
+        o.order_date,
+        c.customer_name,
+        c.segment
+      FROM main.inventory.stock_movements sm
+      JOIN main.sales.orders o
+        ON sm.reference_id = o.order_id
+        AND sm.reference_type = 'order'
+      JOIN main.sales.customers c ON o.customer_id = c.customer_id
+      WHERE sm.movement_type = 'shipment'
+      ORDER BY sm.movement_date DESC
+
+  - id: cs_005
+    category: cross_schema
+    difficulty: hard
+    question: "For each product category, show total sales revenue, total units in stock, and total units on order from suppliers"
+    tables_needed: [main.sales.products, main.sales.product_categories, main.sales.order_items, main.sales.orders, main.inventory.stock_levels, main.purchasing.purchase_order_items, main.purchasing.purchase_orders]
+    expected_sql: |
+      WITH sales_by_category AS (
+        SELECT
+          p.category_id,
+          SUM(oi.line_total) AS total_revenue,
+          SUM(oi.quantity) AS total_units_sold
+        FROM main.sales.order_items oi
+        JOIN main.sales.products p ON oi.product_id = p.product_id
+        JOIN main.sales.orders o ON oi.order_id = o.order_id
+        WHERE o.status NOT IN ('cancelled', 'refunded')
+        GROUP BY p.category_id
+      ),
+      stock_by_category AS (
+        SELECT
+          p.category_id,
+          SUM(sl.quantity_on_hand) AS total_on_hand
+        FROM main.inventory.stock_levels sl
+        JOIN main.sales.products p ON sl.product_id = p.product_id
+        GROUP BY p.category_id
+      ),
+      po_by_category AS (
+        SELECT
+          p.category_id,
+          SUM(poi.quantity_ordered - poi.quantity_received) AS units_on_order
+        FROM main.purchasing.purchase_order_items poi
+        JOIN main.sales.products p ON poi.product_id = p.product_id
+        JOIN main.purchasing.purchase_orders po ON poi.po_id = po.po_id
+        WHERE po.status IN ('sent', 'partial')
+        GROUP BY p.category_id
+      )
+      SELECT
+        pc.category_name,
+        COALESCE(sc.total_revenue, 0) AS total_revenue,
+        COALESCE(sc.total_units_sold, 0) AS total_units_sold,
+        COALESCE(stk.total_on_hand, 0) AS total_stock_on_hand,
+        COALESCE(pob.units_on_order, 0) AS units_on_order_from_suppliers
+      FROM main.sales.product_categories pc
+      LEFT JOIN sales_by_category sc ON pc.category_id = sc.category_id
+      LEFT JOIN stock_by_category stk ON pc.category_id = stk.category_id
+      LEFT JOIN po_by_category pob ON pc.category_id = pob.category_id
+      WHERE pc.parent_category_id IS NULL  -- top-level categories only
+      ORDER BY total_revenue DESC

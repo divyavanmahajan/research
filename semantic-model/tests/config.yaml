@@ -1,0 +1,62 @@
+# Test runner configuration
+# Set provider to one of: openai | azure_openai | anthropic | ollama
+
+# ── Active provider ──────────────────────────────────────────────────────────
+provider: openai
+
+# ── Per-provider settings (fill in one block, leave others as-is) ────────────
+providers:
+  openai:
+    # OPENAI_API_KEY must be set in environment
+    model: gpt-4o-mini   # or gpt-4o, o3-mini, etc.
+
+  azure_openai:
+    # AZURE_OPENAI_ENDPOINT and AZURE_OPENAI_API_VERSION must be set in environment
+    # Auth: set AZURE_OPENAI_API_KEY, or omit to use AzureCliCredential (az login)
+    model: gpt-4o-mini    # deployment name in your Azure resource
+    api_version: "2024-12-01-preview"
+
+  anthropic:
+    # ANTHROPIC_API_KEY must be set in environment
+    model: claude-haiku-4-5-20251001   # or claude-sonnet-4-6, claude-opus-4-7
+
+  ollama:
+    model: llama3.2      # must be pulled: ollama pull llama3.2
+    host: http://localhost:11434
+
+# ── Model used for judging (can be different from the generation model) ───────
+judge:
+  provider: openai
+  model: gpt-4o-mini
+
+# ── Agentic loop settings ─────────────────────────────────────────────────────
+max_attempts: 3       # max retry attempts per test (with judge feedback)
+
+# ── Which test categories to run (comment out to run all) ────────────────────
+categories:
+  - simple_select
+  - joins
+  - aggregations
+  - window_functions
+  - subqueries_cte
+  - cross_schema
+
+# ── Phoenix / OTEL observability ─────────────────────────────────────────────
+phoenix:
+  project_name: sql-semantic-model-test
+  # For local Phoenix: run `python -m phoenix.server.main serve` before testing
+  # Then set endpoint below. Comment out to use Phoenix cloud (needs PHOENIX_API_KEY).
+  endpoint: http://localhost:6006
+
+# ── Paths (relative to this config file) ─────────────────────────────────────
+paths:
+  catalog_index: ../model/catalog_index.yaml
+  tables_dir: ../model/tables
+  test_definitions: ./test_definitions.yaml
+
+# ── Output ────────────────────────────────────────────────────────────────────
+output:
+  # Print each test result as it runs (set false for quieter output)
+  verbose: true
+  # Save detailed results to a JSON file
+  results_file: ./results.json

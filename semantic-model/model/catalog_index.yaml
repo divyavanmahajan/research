@@ -10,7 +10,9 @@ note: >
 catalogs:
   - name: main
     schemas:
+
       - name: sales
+        description: "Customer, product, and order data — the core transactional domain"
         tables:
           - name: customers
             full_name: main.sales.customers
@@ -22,11 +24,12 @@ catalogs:
           - name: orders
             full_name: main.sales.orders
             type: MANAGED
-            description: "Customer purchase orders. One row per order."
+            description: "Customer purchase orders. One row per order. Status lifecycle: pending→processing→shipped→delivered|cancelled|refunded."
             columns: 9
             joins_to:
               - main.sales.customers
               - main.sales.order_items
+              - main.finance.invoices
             detail_file: tables/sales/orders.md
 
           - name: order_items
@@ -42,36 +45,121 @@ catalogs:
           - name: products
             full_name: main.sales.products
             type: MANAGED
-            description: "Product catalog. One row per SKU."
+            description: "Product catalog (SKUs). One row per product."
             columns: 11
             joins_to:
               - main.sales.product_categories
+              - main.purchasing.suppliers
             detail_file: tables/sales/products.md
 
           - name: product_categories
             full_name: main.sales.product_categories
             type: MANAGED
-            description: "Product category hierarchy."
+            description: "Product category hierarchy. Supports parent-child nesting via parent_category_id."
             columns: 4
             detail_file: tables/sales/product_categories.md
 
+          - name: promotions
+            full_name: main.sales.promotions
+            type: MANAGED
+            description: "Discount campaigns. One row per promotion. discount_type: percentage|fixed_amount|free_shipping."
+            columns: 8
+            detail_file: tables/sales/promotions.md
+
       - name: finance
+        description: "Invoicing and payment data"
         tables:
           - name: invoices
             full_name: main.finance.invoices
             type: MANAGED
-            description: "Customer invoices generated from orders."
+            description: "Customer invoices, one per order. Status: draft|sent|paid|overdue|cancelled."
             columns: 10
             joins_to:
               - main.sales.orders
               - main.sales.customers
+              - main.finance.payments
             detail_file: tables/finance/invoices.md
 
           - name: payments
             full_name: main.finance.payments
             type: MANAGED
-            description: "Payment records against invoices."
+            description: "Payment transactions against invoices. Multiple payments per invoice allowed (partial payments)."
             columns: 8
             joins_to:
               - main.finance.invoices
             detail_file: tables/finance/payments.md
+
+      - name: inventory
+        description: "Warehouse locations, current stock levels, and stock movement history"
+        tables:
+          - name: warehouses
+            full_name: main.inventory.warehouses
+            type: MANAGED
+            description: "Physical warehouse facilities. One row per warehouse."
+            columns: 8
+            detail_file: tables/inventory/warehouses.md
+
+          - name: stock_levels
+            full_name: main.inventory.stock_levels
+            type: MANAGED
+            description: "Current stock snapshot per product per warehouse. quantity_on_hand - quantity_reserved = available stock."
+            columns: 7
+            joins_to:
+              - main.sales.products
+              - main.inventory.warehouses
+            detail_file: tables/inventory/stock_levels.md
+
+          - name: stock_movements
+            full_name: main.inventory.stock_movements
+            type: MANAGED
+            description: "Audit log of every stock change. movement_type: receipt|shipment|adjustment|transfer_in|transfer_out|return. reference_type: order|purchase_order|manual_adjustment|transfer."
+            columns: 9
+            joins_to:
+              - main.sales.products
+              - main.inventory.warehouses
+            detail_file: tables/inventory/stock_movements.md
+
+      - name: purchasing
+        description: "Supplier master data and purchase orders for inventory replenishment"
+        tables:
+          - name: suppliers
+            full_name: main.purchasing.suppliers
+            type: MANAGED
+            description: "Supplier (vendor) master. One row per supplier. rating is 1.0–5.0."
+            columns: 10
+            detail_file: tables/purchasing/suppliers.md
+
+          - name: purchase_orders
+            full_name: main.purchasing.purchase_orders
+            type: MANAGED
+            description: "POs sent to suppliers. Status: draft|sent|partial|received|cancelled. Links to destination warehouse."
+            columns: 9
+            joins_to:
+              - main.purchasing.suppliers
+              - main.inventory.warehouses
+              - main.purchasing.purchase_order_items
+            detail_file: tables/purchasing/purchase_orders.md
+
+          - name: purchase_order_items
+            full_name: main.purchasing.purchase_order_items
+            type: MANAGED
+            description: "Line items per purchase order. quantity_ordered - quantity_received = outstanding units."
+            columns: 7
+            joins_to:
+              - main.purchasing.purchase_orders
+              - main.sales.products
+            detail_file: tables/purchasing/purchase_order_items.md
+
+# Key cross-schema relationships
+relationships:
+  sales_to_finance:
+    - "main.sales.orders.order_id → main.finance.invoices.order_id (1:1)"
+    - "main.sales.customers.customer_id → main.finance.invoices.customer_id (1:N)"
+  sales_to_inventory:
+    - "main.sales.products.product_id → main.inventory.stock_levels.product_id (1:N)"
+    - "main.sales.orders.order_id → main.inventory.stock_movements.reference_id (1:N, where reference_type='order')"
+  sales_to_purchasing:
+    - "main.sales.products.product_id → main.purchasing.purchase_order_items.product_id (1:N)"
+    - "main.sales.products.supplier_id → main.purchasing.suppliers.supplier_id (N:1)"
+  inventory_to_purchasing:
+    - "main.inventory.warehouses.warehouse_id → main.purchasing.purchase_orders.warehouse_id (1:N)"
